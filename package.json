@@ -1,6 +1,6 @@
 {
   "name": "loupe",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Local git diff viewer with ADO-style UI, inline comments, and LLM prompt export",
   "module": "src/index.ts",
   "type": "module",
