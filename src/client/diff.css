@@ -1,0 +1,66 @@
+/* loupe — diff table, line rows, hunks, inline comments. */
+
+/* ── file section ── */
+.file-section { border: 1px solid var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+.file-head {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  background: var(--file-head); border-bottom: 1px solid var(--border);
+}
+.file-collapse, .btn-icon { background: none; border: none; cursor: pointer; padding: 0; color: var(--muted); display: flex; }
+.file-path { flex: 1; font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-delta { font-size: 12px; white-space: nowrap; }
+.file-tools { display: flex; align-items: center; gap: 8px; }
+.btn-plain { display: inline-flex; align-items: center; }
+.binary-note { padding: 16px; color: var(--muted); font-style: italic; }
+
+/* ── diff table ── */
+.diff-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; line-height: 1.5; }
+.diff-row td { vertical-align: top; }
+.bubble-gutter { width: 22px; text-align: center; padding: 0; background: #fafafa; position: relative; }
+.bubble-btn { background: var(--ado-blue); color: #fff; border: none; border-radius: 3px; cursor: pointer; padding: 1px 3px; display: inline-flex; }
+.lineno {
+  width: 44px; min-width: 44px; text-align: right; padding: 0 8px; color: var(--muted);
+  user-select: none; background: #fafafa; border-right: 1px solid var(--border);
+}
+.code { width: 100%; padding: 0 8px; white-space: pre-wrap; word-break: break-word; background: var(--ctx-line); }
+.sign { display: inline-block; width: 1ch; color: var(--muted); user-select: none; }
+.code-inner { font-family: var(--mono); }
+
+/* line type backgrounds (line bg on code, gutter bg on lineno) */
+.row-addition .code, .code-addition { background: var(--add-line); }
+.row-addition .lineno, .row-addition .bubble-gutter { background: var(--add-gutter); }
+.row-deletion .code, .code-deletion { background: var(--del-line); }
+.row-deletion .lineno, .row-deletion .bubble-gutter { background: var(--del-gutter); }
+.code-empty, .lineno.empty { background: #f6f6f6; }
+
+/* side-by-side: two lineno+code pairs per row */
+.diff-row.split .lineno { border-right: none; border-left: 1px solid var(--border); }
+.diff-row.split .new-no { border-left: 2px solid var(--border); }
+
+/* ── hunk header pill ── */
+.hunk-header td { padding: 2px 8px; background: #f1f5f9; }
+.hunk-pill {
+  display: inline-block; font-family: var(--mono); font-size: 11px; color: #4a5568;
+  background: #e6edf5; border-radius: 10px; padding: 1px 10px;
+}
+
+/* ── inline comments ── */
+.comment-row .gutter { background: #fafafa; border-right: 1px solid var(--border); }
+.comment-cell { padding: 6px 8px 6px 12px; background: #fcfcfc; }
+.file-comments { padding: 8px 12px; background: #fcfcfc; border-bottom: 1px solid var(--border); }
+.comment-thread { display: flex; flex-direction: column; gap: 6px; }
+.comment-card {
+  border-left: 3px solid var(--comment-border); background: var(--comment-bg);
+  border-radius: 2px; padding: 8px 10px; max-width: 720px; font-family: var(--font); font-size: 13px;
+}
+.comment-card.editing { border-left-color: var(--ado-blue); }
+.comment-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.comment-time { color: var(--muted); font-size: 11px; }
+.comment-tools { display: flex; gap: 4px; }
+.comment-text { white-space: pre-wrap; word-break: break-word; }
+.comment-input {
+  width: 100%; min-height: 54px; resize: none; overflow: hidden; font: inherit; font-family: var(--font);
+  border: 1px solid var(--border); border-radius: 2px; padding: 6px 8px;
+}
+.comment-input:focus { outline: none; border-color: var(--ado-blue); }
+.comment-actions { display: flex; gap: 8px; margin-top: 6px; }
