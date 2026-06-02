@@ -1,0 +1,65 @@
+diff --git a/src/added.ts b/src/added.ts
+new file mode 100644
+index 0000000..e69de29
+--- /dev/null
++++ b/src/added.ts
+@@ -0,0 +1,3 @@
++export const a = 1;
++export const b = 2;
++export const c = 3;
+diff --git a/src/deleted.ts b/src/deleted.ts
+deleted file mode 100644
+index e69de29..0000000
+--- a/src/deleted.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-const gone = true;
+-const alsoGone = false;
+diff --git a/src/modified.ts b/src/modified.ts
+index 1234567..89abcde 100644
+--- a/src/modified.ts
++++ b/src/modified.ts
+@@ -1,4 +1,4 @@
+ line one
+-line two old
++line two new
+ line three
+ line four
+@@ -38,7 +38,9 @@ function tail() {
+ keep a
+ keep b
+-removed mid
++added mid
++added mid two
+ keep c
+ keep d
+ keep e
+diff --git a/src/old-name.ts b/src/new-name.ts
+similarity index 85%
+rename from src/old-name.ts
+rename to src/new-name.ts
+index aaaaaaa..bbbbbbb 100644
+--- a/src/old-name.ts
++++ b/src/new-name.ts
+@@ -1,3 +1,3 @@
+ unchanged
+-old content
++new content
+ trailing
+diff --git a/src/pure-rename.ts b/src/renamed-pure.ts
+similarity index 100%
+rename from src/pure-rename.ts
+rename to src/renamed-pure.ts
+diff --git a/assets/logo.png b/assets/logo.png
+new file mode 100644
+index 0000000..1111111
+Binary files /dev/null and b/assets/logo.png differ
+diff --git a/src/no-newline.ts b/src/no-newline.ts
+index 2222222..3333333 100644
+--- a/src/no-newline.ts
++++ b/src/no-newline.ts
+@@ -1 +1 @@
+-before
+\ No newline at end of file
++after
+\ No newline at end of file
