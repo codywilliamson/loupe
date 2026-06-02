@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "ref": "feature/auth → origin/main",
+    "createdAt": "2026-05-01T09:00:00.000Z",
+    "updatedAt": "2026-05-01T10:30:00.000Z"
+  },
+  "viewed": ["src/auth/login.ts", "src/auth/session.ts"],
+  "comments": [
+    {
+      "id": "c1",
+      "file": "src/auth/login.ts",
+      "line": 42,
+      "lineContent": "+  const token = signJwt(user);",
+      "text": "should we set an expiry on this token?",
+      "createdAt": "2026-05-01T09:15:00.000Z"
+    },
+    {
+      "id": "c2",
+      "file": "src/auth/session.ts",
+      "line": null,
+      "lineContent": null,
+      "text": "this whole file could use a doc comment explaining the session lifecycle",
+      "createdAt": "2026-05-01T09:20:00.000Z"
+    }
+  ]
+}
