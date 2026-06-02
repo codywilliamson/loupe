@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 // loupe cli entry point: resolve the ref arg, run + parse the diff, serve it, open the browser.
 
 import { join } from "node:path";
@@ -38,7 +39,8 @@ function main(): void {
   const url = `http://localhost:${server.port}`;
 
   openBrowser(url);
-  console.log(`loupe running at ${url}`);
+  console.log(`[loupe] reviewing ${diff.ref} — ${diff.files.length} file(s) changed`);
+  console.log(`loupe running at ${url}  (ctrl+c to stop)`);
 }
 
 main();

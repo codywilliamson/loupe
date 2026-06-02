@@ -1,10 +1,13 @@
 {
   "name": "loupe",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local git diff viewer with ADO-style UI, inline comments, and LLM prompt export",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
+  "bin": {
+    "loupe": "src/index.ts"
+  },
   "scripts": {
     "start": "bun src/index.ts",
     "test": "bun test"
