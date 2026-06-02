@@ -2,6 +2,11 @@
 
 All notable changes to loupe are documented here. This project follows [semantic versioning](https://semver.org).
 
+## [0.2.1] — 2026-06-02
+
+### Documentation
+- Document the Windows PowerShell `$PROFILE` install for the global `loupe` command
+
 ## [0.2.0] — 2026-06-02
 
 ### Added

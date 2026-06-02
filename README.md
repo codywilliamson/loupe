@@ -25,9 +25,12 @@ Run loupe from any repo without typing the full path.
     bun install
     bun link          # puts `loupe` on your PATH (~/.bun/bin)
 
-**Windows (PowerShell)** — add a function to your profile (`$PROFILE`):
+**Windows (PowerShell)** — add a function to your profile so it persists across sessions:
 
-    function loupe { bun "C:\path\to\loupe\src\index.ts" @args }
+    'function loupe { bun "C:\path\to\loupe\src\index.ts" @args }' | Add-Content $PROFILE
+    . $PROFILE   # load it into the current session
+
+(swap `C:\path\to\loupe` for wherever you cloned the repo.)
 
 Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
 
