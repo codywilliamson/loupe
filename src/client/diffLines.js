@@ -39,7 +39,9 @@ function LineComments({ line, threads }) {
 function UnifiedRow({ line, path, threads }) {
   const [hover, setHover] = useState(false);
   const commentable = line.newLine != null;
-  return html`<>
+  // two root nodes: htm returns them as an array, preact renders them as siblings
+  // (a fragment shorthand <>…</> isn't registered on this raw htm.bind(h) and breaks).
+  return html`
     <tr
       class="diff-row row-${line.type}"
       onMouseEnter=${() => setHover(true)}
@@ -54,7 +56,7 @@ function UnifiedRow({ line, path, threads }) {
       <${Code} line=${line} path=${path} />
     </tr>
     <${LineComments} line=${line} threads=${threads} />
-  </>`;
+  `;
 }
 
 export function UnifiedHunk({ hunk, path, threads }) {
