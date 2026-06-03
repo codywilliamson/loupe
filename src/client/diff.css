@@ -1,10 +1,12 @@
 /* loupe — diff table, line rows, hunks, inline comments. */
 
 /* ── file section ── */
-.file-section { border: 1px solid var(--border); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+/* no overflow:hidden — it would trap the sticky header inside the section instead of the scroll pane. */
+.file-section { border: 1px solid var(--border); border-radius: 3px; margin-bottom: 16px; }
 .file-head {
+  position: sticky; top: 0; z-index: 4; /* stays visible while scrolling the file body */
   display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-  background: var(--file-head); border-bottom: 1px solid var(--border);
+  background: var(--file-head); border-bottom: 1px solid var(--border); border-radius: 3px 3px 0 0;
 }
 .file-collapse, .btn-icon { background: none; border: none; cursor: pointer; padding: 0; color: var(--muted); display: flex; }
 .file-path { flex: 1; font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

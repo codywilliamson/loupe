@@ -1,5 +1,5 @@
 // right pane: each file as a collapsible section with hunks + a per-file split toggle.
-import { html, useState } from "/preact.js";
+import { html, useState, useEffect } from "/preact.js";
 import { changeBadge, fileAnchorId, isMarkdown } from "/util.js";
 import { ChevronRight, ChevronDown, MessageSquare } from "/icons.js";
 import { UnifiedHunk, SplitHunk } from "/diffLines.js";
@@ -26,10 +26,11 @@ function FileHeader({ file, open, split, md, preview, onToggleOpen, onToggleSpli
   </div>`;
 }
 
-function FileSection({ file, threads }) {
+function FileSection({ file, splitView, threads }) {
   const md = isMarkdown(file.path) && file.changeType !== "deleted";
   const [open, setOpen] = useState(true);
-  const [split, setSplit] = useState(false);
+  const [split, setSplit] = useState(splitView); // seeded from the global toggle, overridable per-file
+  useEffect(() => setSplit(splitView), [splitView]); // a global flip switches every file
   const [preview, setPreview] = useState(md); // markdown renders as a preview by default
   const [ratio, setRatio] = useState(0.5); // side-by-side pane split (left pane's share)
   const fileComments = threads.commentsForFile();
@@ -141,9 +142,13 @@ function rawLine(line) {
   return sign + line.content;
 }
 
-export function DiffView({ files, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete }) {
+export function DiffView({ files, viewMode, activeFile, splitView, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete }) {
   const ctx = { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete };
+  // single-file view shows just the active file (first file as a fallback); all-files shows the stack.
+  const shown = viewMode === "single" ? [files.find((f) => f.path === activeFile) ?? files[0]].filter(Boolean) : files;
   return html`<main class="diff-pane">
-    ${files.map((file) => html`<${FileSection} key=${file.path} file=${file} threads=${makeThreads(file, ctx)} />`)}
+    ${shown.map(
+      (file) => html`<${FileSection} key=${file.path} file=${file} splitView=${splitView} threads=${makeThreads(file, ctx)} />`
+    )}
   </main>`;
 }

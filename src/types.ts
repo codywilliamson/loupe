@@ -70,6 +70,14 @@ export interface ViewedUpdateRequest {
   viewed: string[];
 }
 
+// GET /api/update — loupe's own release status vs its git origin
+export interface UpdateStatus {
+  behind: boolean; // true when a newer release tag exists on origin
+  current: string; // installed version (loupe's package.json)
+  latest: string; // highest available release tag (equals current when up to date)
+  repoPath: string; // loupe's install dir, for the "cd … && git pull" hint
+}
+
 // error envelope returned with any non-2xx status
 export interface ApiError {
   error: string;

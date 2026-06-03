@@ -3,8 +3,8 @@ import { html, useState } from "/preact.js";
 import { changeBadge, buildTree } from "/util.js";
 import { ChevronRight, ChevronDown } from "/icons.js";
 
-function FileRow({ file, viewed, commentCount, onSelect, onToggleViewed }) {
-  return html`<div class="tree-file" onClick=${() => onSelect(file.path)}>
+function FileRow({ file, viewed, commentCount, active, onSelect, onToggleViewed }) {
+  return html`<div class="tree-file ${active ? "active" : ""}" onClick=${() => onSelect(file.path)}>
     <span class="tree-file-name" title=${file.path}>${file.name}</span>
     <span class="badge badge-${file.changeType}">${changeBadge(file.changeType)}</span>
     <span class="tree-delta">
@@ -42,16 +42,16 @@ function Folder({ node, depth, ...rest }) {
       )}
       <div class="tree-files" style=${`padding-left:${(depth + 1) * 12}px`}>
         ${node.files.map(
-          (f) => html`<${FileRow} key=${f.path} file=${f} ...${rest} viewed=${rest.viewedSet.has(f.path)} commentCount=${rest.countFor(f.path)} />`
+          (f) => html`<${FileRow} key=${f.path} file=${f} ...${rest} viewed=${rest.viewedSet.has(f.path)} commentCount=${rest.countFor(f.path)} active=${rest.activeFile === f.path} />`
         )}
       </div>
     </div>`}
   </div>`;
 }
 
-export function FileTree({ files, viewedSet, countFor, onSelect, onToggleViewed, width }) {
+export function FileTree({ files, viewedSet, countFor, activeFile, onSelect, onToggleViewed, width }) {
   const root = buildTree(files);
-  const rest = { viewedSet, countFor, onSelect, onToggleViewed };
+  const rest = { viewedSet, countFor, activeFile, onSelect, onToggleViewed };
   return html`<nav class="file-tree" style=${`width:${width}px`}>
     ${[...root.dirs.values()].map(
       (d) => html`<${Folder} key=${d.path} node=${d} depth=${0} ...${rest} />`
@@ -63,6 +63,7 @@ export function FileTree({ files, viewedSet, countFor, onSelect, onToggleViewed,
           file=${f}
           viewed=${viewedSet.has(f.path)}
           commentCount=${countFor(f.path)}
+          active=${activeFile === f.path}
           onSelect=${onSelect}
           onToggleViewed=${onToggleViewed}
         />`

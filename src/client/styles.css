@@ -76,6 +76,7 @@ body.resizing { cursor: col-resize; user-select: none; }
   display: flex; align-items: center; gap: 6px; padding: 3px 8px 3px 24px; cursor: pointer;
 }
 .tree-file:hover { background: var(--hover); }
+.tree-file.active { background: var(--hover); box-shadow: inset 2px 0 0 var(--ado-blue); }
 .tree-file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tree-delta { font-size: 11px; white-space: nowrap; }
 .comment-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ado-blue); flex: none; }
@@ -109,10 +110,34 @@ body.resizing { cursor: col-resize; user-select: none; }
   background: none; border: none; color: var(--ado-blue); cursor: pointer; font: inherit; padding: 2px 4px;
 }
 .btn-link:hover { text-decoration: underline; }
-.icon-btn { color: var(--muted); display: flex; align-items: center; border-radius: 4px; }
+.icon-btn { color: var(--muted); display: flex; align-items: center; border-radius: 4px; padding: 4px; }
 .icon-btn:hover { background: var(--hover); color: var(--text); }
+.icon-btn.on { color: var(--ado-blue); background: var(--hover); }
 @keyframes loupe-spin { to { transform: rotate(360deg); } }
 .icon-btn.spinning .icon { animation: loupe-spin .6s linear infinite; }
+
+/* ── update-available badge + popover ── */
+.update-wrap { position: relative; display: inline-flex; align-self: center; }
+.update-dot {
+  width: 9px; height: 9px; padding: 0; border: none; border-radius: 50%;
+  background: #f7a800; cursor: pointer; animation: loupe-pulse 1.8s ease-in-out infinite;
+}
+@keyframes loupe-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(247,168,0,.55); }
+  50% { box-shadow: 0 0 0 5px rgba(247,168,0,0); }
+}
+.update-pop {
+  position: absolute; top: 18px; left: -6px; z-index: 60; width: 290px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25); padding: 12px 14px; font-size: 12px; color: var(--text);
+}
+.update-pop-head { font-weight: 600; margin-bottom: 6px; }
+.update-cur { font-weight: 400; color: var(--muted); }
+.update-pop p { margin: 0 0 6px; color: var(--muted); }
+.update-cmd {
+  display: block; font-family: var(--mono); font-size: 11px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 3px; padding: 6px 8px; word-break: break-all;
+}
 
 /* ── compile modal ── */
 .modal-backdrop {

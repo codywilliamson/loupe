@@ -1,8 +1,10 @@
-// root component: owns diff + comments + viewed state, coordinates saves, renders the layout.
+// root component: owns diff + comments + viewed + view prefs, coordinates saves, renders the layout.
 import { html, render, useState, useEffect, useMemo, useCallback } from "/preact.js";
 import { getDiff, getComments, saveComments, saveViewed } from "/api.js";
 import { fileAnchorId, clamp } from "/util.js";
 import { initTheme, nextTheme } from "/theme.js";
+import { usePersistedState } from "/prefs.js";
+import { useUpdateCheck } from "/update.js";
 import { TopBar } from "/topBar.js";
 import { FileTree } from "/fileTree.js";
 import { Resizer } from "/resizer.js";
@@ -18,8 +20,12 @@ function App() {
   const [showCompile, setShowCompile] = useState(false);
   const [error, setError] = useState(null);
   const [theme, setTheme] = useState(() => initTheme());
-  const [sidebarWidth, setSidebarWidth] = useState(() => Number(localStorage.getItem("loupe-sidebar")) || 280);
+  const [sidebarWidth, setSidebarWidth] = usePersistedState("loupe-sidebar", 280, Number);
+  const [splitView, setSplitView] = usePersistedState("loupe-split", false, (v) => v === "true");
+  const [viewMode, setViewMode] = usePersistedState("loupe-view", "all"); // "all" | "single"
+  const [activeFile, setActiveFile] = useState(null); // path shown in single-file view
   const [refreshing, setRefreshing] = useState(false);
+  const update = useUpdateCheck();
 
   useEffect(() => {
     Promise.all([getDiff(), getComments()])
@@ -39,11 +45,7 @@ function App() {
 
   const onAdd = useCallback(
     (partial) => {
-      const comment = {
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        ...partial,
-      };
+      const comment = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), ...partial };
       persistComments([...comments, comment]);
     },
     [comments, persistComments]
@@ -61,20 +63,25 @@ function App() {
 
   const onToggleViewed = useCallback(
     (path) => {
-      const next = viewed.includes(path)
-        ? viewed.filter((p) => p !== path)
-        : [...viewed, path];
+      const next = viewed.includes(path) ? viewed.filter((p) => p !== path) : [...viewed, path];
       setViewed(next);
       saveViewed(next).catch((e) => setError(String(e)));
     },
     [viewed]
   );
 
-  const onSelectFile = useCallback((path) => {
-    document.getElementById(fileAnchorId(path))?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+  // single-file view swaps the shown file; all-files view scrolls to it.
+  const onSelectFile = useCallback(
+    (path) => {
+      if (viewMode === "single") return setActiveFile(path);
+      document.getElementById(fileAnchorId(path))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+    [viewMode]
+  );
 
   const onToggleTheme = useCallback(() => setTheme((t) => nextTheme(t)), []);
+  const onToggleSplit = useCallback(() => setSplitView((v) => !v), [setSplitView]);
+  const onToggleView = useCallback(() => setViewMode((m) => (m === "single" ? "all" : "single")), [setViewMode]);
 
   // re-fetch the (server-recomputed) diff in place, preserving comments + open files.
   const onRefresh = useCallback(async () => {
@@ -88,17 +95,10 @@ function App() {
     }
   }, []);
 
-  const onResize = useCallback((x) => {
-    const w = clamp(x, 180, 640);
-    setSidebarWidth(w);
-    localStorage.setItem("loupe-sidebar", String(w));
-  }, []);
+  const onResize = useCallback((x) => setSidebarWidth(clamp(x, 180, 640)), [setSidebarWidth]);
 
   const viewedSet = useMemo(() => new Set(viewed), [viewed]);
-  const countFor = useCallback(
-    (path) => comments.filter((c) => c.file === path).length,
-    [comments]
-  );
+  const countFor = useCallback((path) => comments.filter((c) => c.file === path).length, [comments]);
 
   if (error) return html`<div class="fatal">${error}</div>`;
   if (!diff) return html`<div class="loading">Loading diff…</div>`;
@@ -109,8 +109,13 @@ function App() {
       files=${diff.files}
       theme=${theme}
       refreshing=${refreshing}
+      viewMode=${viewMode}
+      splitView=${splitView}
+      update=${update}
       onRefresh=${onRefresh}
       onToggleTheme=${onToggleTheme}
+      onToggleView=${onToggleView}
+      onToggleSplit=${onToggleSplit}
       onCompile=${() => setShowCompile(true)}
     />
     <div class="body">
@@ -118,6 +123,7 @@ function App() {
         files=${diff.files}
         viewedSet=${viewedSet}
         countFor=${countFor}
+        activeFile=${viewMode === "single" ? activeFile : null}
         onSelect=${onSelectFile}
         onToggleViewed=${onToggleViewed}
         width=${sidebarWidth}
@@ -125,6 +131,9 @@ function App() {
       <${Resizer} onResize=${onResize} />
       <${DiffView}
         files=${diff.files}
+        viewMode=${viewMode}
+        activeFile=${activeFile}
+        splitView=${splitView}
         comments=${comments}
         adding=${adding}
         setAdding=${setAdding}

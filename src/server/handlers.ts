@@ -6,12 +6,14 @@ import type { DiffResult, ReviewFile, Comment } from "../types";
 import { readReview, writeReview } from "../core/reviewStore";
 import { compileReviewPrompt } from "../core/promptCompiler";
 import { parseDiff } from "../core/diffParser";
+import { checkForUpdate } from "../core/updateCheck";
 import { runGit } from "../utils/git";
 
 export interface ServerContext {
   diff: DiffResult; // seeded at launch, re-run on each GET /api/diff for live review
   cwd: string; // directory where the .review file lives
   clientDir: string; // directory containing index.html + client assets
+  loupeRoot: string; // loupe's own repo root, for the release-update check
   newRef: string | null; // ref for new-side file content; null = read working tree from disk
   diffArgs: string[]; // git args to re-run the diff on demand (refresh)
 }
@@ -94,6 +96,11 @@ export async function handlePostViewed(ctx: ServerContext, req: Request): Promis
 export function handleGetCompile(ctx: ServerContext): Response {
   const review = loadOrInit(ctx);
   return json({ prompt: compileReviewPrompt(ctx.diff, review) });
+}
+
+// reports whether a newer loupe release exists on origin (best-effort, never throws).
+export function handleGetUpdate(ctx: ServerContext): Response {
+  return json(checkForUpdate(ctx.loupeRoot));
 }
 
 // returns the new-side full content of a file (for markdown preview). working tree

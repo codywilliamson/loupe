@@ -43,6 +43,11 @@ export function compile() {
   return getJson("/api/compile");
 }
 
+// UpdateStatus — loupe's release status vs origin
+export function getUpdate() {
+  return getJson("/api/update");
+}
+
 // { path, content } — new-side full content of a file, for markdown preview.
 export function getFile(path) {
   return getJson(`/api/file?path=${encodeURIComponent(path)}`);

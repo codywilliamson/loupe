@@ -39,7 +39,8 @@ function main(): void {
   }
 
   const clientDir = join(import.meta.dir, "client");
-  const server = createServer({ diff, cwd, clientDir, newRef, diffArgs });
+  const loupeRoot = join(import.meta.dir, ".."); // src/ → repo root
+  const server = createServer({ diff, cwd, clientDir, loupeRoot, newRef, diffArgs });
   const url = `http://localhost:${server.port}`;
 
   openBrowser(url);
