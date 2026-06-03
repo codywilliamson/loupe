@@ -26,21 +26,19 @@ URL and opens it in your browser — the diff renders there, not in the terminal
 
 ## Install as a `loupe` command
 
-Run loupe from any repo without typing the full path.
-
-**macOS / Linux** — register it globally with bun:
+Run loupe from any repo without typing the full path. Register it globally with bun — works on macOS, Linux, and Windows:
 
     bun install
-    bun link          # puts `loupe` on your PATH (~/.bun/bin)
+    bun link          # puts `loupe` on your PATH
 
-**Windows (PowerShell)** — add a function to your profile so it persists across sessions:
+Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
+
+**Windows fallback** — if `loupe` isn't found after `bun link` (depends how Bun was installed), add a function to your PowerShell profile instead:
 
     'function loupe { bun "C:\path\to\loupe\src\index.ts" @args }' | Add-Content $PROFILE
     . $PROFILE   # load it into the current session
 
 (swap `C:\path\to\loupe` for wherever you cloned the repo.)
-
-Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
 
 ## Comments
 
