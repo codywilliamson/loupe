@@ -4,8 +4,11 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Added
+- Diff refresh: a top-bar button re-runs `git diff` in place (and a browser reload now picks up repo changes too), so you can review continuously while an agent edits
+
 ### Changed
-- Multi-line comments: click-and-drag across lines to highlight a range, then comment (replaces the less-discoverable shift-click)
+- Multi-line comments: click-and-drag across lines to highlight a range, then comment — shift-click a second line still extends a range too
 
 ## [0.3.0] — 2026-06-02
 

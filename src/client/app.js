@@ -19,6 +19,7 @@ function App() {
   const [error, setError] = useState(null);
   const [theme, setTheme] = useState(() => initTheme());
   const [sidebarWidth, setSidebarWidth] = useState(() => Number(localStorage.getItem("loupe-sidebar")) || 280);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     Promise.all([getDiff(), getComments()])
@@ -75,6 +76,18 @@ function App() {
 
   const onToggleTheme = useCallback(() => setTheme((t) => nextTheme(t)), []);
 
+  // re-fetch the (server-recomputed) diff in place, preserving comments + open files.
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      setDiff(await getDiff());
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   const onResize = useCallback((x) => {
     const w = clamp(x, 180, 640);
     setSidebarWidth(w);
@@ -95,6 +108,8 @@ function App() {
       refLabel=${diff.ref}
       files=${diff.files}
       theme=${theme}
+      refreshing=${refreshing}
+      onRefresh=${onRefresh}
       onToggleTheme=${onToggleTheme}
       onCompile=${() => setShowCompile(true)}
     />

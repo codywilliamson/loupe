@@ -27,9 +27,11 @@ function main(): void {
 
   let diff;
   let newRef: string | null = null;
+  let diffArgs: string[] = [];
   try {
     const plan = resolveRef(spec, cwd);
     newRef = plan.newRef;
+    diffArgs = plan.diffArgs;
     diff = parseDiff(runGit(plan.diffArgs, cwd), plan.refLabel);
   } catch (err) {
     console.error(`[loupe] ${err instanceof Error ? err.message : String(err)}`);
@@ -37,7 +39,7 @@ function main(): void {
   }
 
   const clientDir = join(import.meta.dir, "client");
-  const server = createServer({ diff, cwd, clientDir, newRef });
+  const server = createServer({ diff, cwd, clientDir, newRef, diffArgs });
   const url = `http://localhost:${server.port}`;
 
   openBrowser(url);

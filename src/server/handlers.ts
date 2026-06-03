@@ -5,13 +5,15 @@ import { join, extname, resolve } from "node:path";
 import type { DiffResult, ReviewFile, Comment } from "../types";
 import { readReview, writeReview } from "../core/reviewStore";
 import { compileReviewPrompt } from "../core/promptCompiler";
+import { parseDiff } from "../core/diffParser";
 import { runGit } from "../utils/git";
 
 export interface ServerContext {
-  diff: DiffResult; // parsed once at launch, served from memory
+  diff: DiffResult; // seeded at launch, re-run on each GET /api/diff for live review
   cwd: string; // directory where the .review file lives
   clientDir: string; // directory containing index.html + client assets
   newRef: string | null; // ref for new-side file content; null = read working tree from disk
+  diffArgs: string[]; // git args to re-run the diff on demand (refresh)
 }
 
 // small json response helper.
@@ -38,7 +40,14 @@ function loadOrInit(ctx: ServerContext): ReviewFile {
   };
 }
 
+// re-runs git diff so the view reflects the repo's current state (refresh / live review),
+// keeping the last good diff if git errors transiently.
 export function handleGetDiff(ctx: ServerContext): Response {
+  try {
+    ctx.diff = parseDiff(runGit(ctx.diffArgs, ctx.cwd), ctx.diff.ref);
+  } catch {
+    // keep the previous diff
+  }
   return json(ctx.diff);
 }
 

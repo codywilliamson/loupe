@@ -109,8 +109,10 @@ body.resizing { cursor: col-resize; user-select: none; }
   background: none; border: none; color: var(--ado-blue); cursor: pointer; font: inherit; padding: 2px 4px;
 }
 .btn-link:hover { text-decoration: underline; }
-.theme-toggle { color: var(--muted); display: flex; align-items: center; border-radius: 4px; }
-.theme-toggle:hover { background: var(--hover); color: var(--text); }
+.icon-btn { color: var(--muted); display: flex; align-items: center; border-radius: 4px; }
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+@keyframes loupe-spin { to { transform: rotate(360deg); } }
+.icon-btn.spinning .icon { animation: loupe-spin .6s linear infinite; }
 
 /* ── compile modal ── */
 .modal-backdrop {

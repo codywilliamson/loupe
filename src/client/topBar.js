@@ -1,9 +1,9 @@
 // top bar: wordmark + ref on the left; file count, aggregate delta, theme + compile on the right.
 import { html } from "/preact.js";
 import { totalDelta } from "/util.js";
-import { Sun, Moon } from "/icons.js";
+import { Sun, Moon, Refresh } from "/icons.js";
 
-export function TopBar({ refLabel, files, theme, onToggleTheme, onCompile }) {
+export function TopBar({ refLabel, files, theme, refreshing, onRefresh, onToggleTheme, onCompile }) {
   const { add, del } = totalDelta(files);
   return html`<header class="top-bar">
     <div class="top-left">
@@ -16,7 +16,10 @@ export function TopBar({ refLabel, files, theme, onToggleTheme, onCompile }) {
         <span class="add">+${add}</span>
         <span class="del">-${del}</span>
       </span>
-      <button class="btn-icon theme-toggle" title="Toggle dark mode" onClick=${onToggleTheme}>
+      <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" title="Re-run the diff" onClick=${onRefresh}>
+        <${Refresh} />
+      </button>
+      <button class="btn-icon icon-btn" title="Toggle dark mode" onClick=${onToggleTheme}>
         ${theme === "dark" ? html`<${Sun} />` : html`<${Moon} />`}
       </button>
       <button class="btn-compile" onClick=${onCompile}>Compile Review Prompt</button>
