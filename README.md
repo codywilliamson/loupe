@@ -2,6 +2,14 @@
 
 Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on any line, then export them all as a structured review prompt for any LLM.
 
+## Screenshots
+
+![loupe — unified diff with markdown preview, a file tree, and inline comments](docs/screenshots/01-overview.png)
+
+| Dark mode | Inline multi-line comment | Side-by-side |
+| --- | --- | --- |
+| ![dark mode](docs/screenshots/02-dark.png) | ![multi-line comment](docs/screenshots/03-comments.png) | ![side-by-side diff](docs/screenshots/04-side-by-side.png) |
+
 ## Install
 
     bun install
@@ -40,4 +48,4 @@ Saved to `.review` in the directory you run the command from (auto-added to `.gi
 
 ## Releases
 
-See [CHANGELOG.md](CHANGELOG.md). Current: **v0.2.0**.
+See [CHANGELOG.md](CHANGELOG.md). Current: **v0.2.1**.
