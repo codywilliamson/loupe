@@ -59,6 +59,8 @@
 /* pending selection while composing a range — faint blue tint + accent */
 .diff-row.range-selected .bubble-gutter { box-shadow: inset 3px 0 0 var(--ado-blue); }
 .diff-row.range-selected .code { background: color-mix(in srgb, var(--ado-blue) 10%, transparent); }
+/* while dragging a selection: kill text selection and signal vertical drag */
+body.selecting { user-select: none; cursor: ns-resize; }
 
 /* ── hunk header pill ── */
 .hunk-header td { padding: 2px 8px; background: var(--hunk-bg); }

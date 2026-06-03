@@ -2,6 +2,11 @@
 
 All notable changes to loupe are documented here. This project follows [semantic versioning](https://semver.org).
 
+## [Unreleased]
+
+### Changed
+- Multi-line comments: click-and-drag across lines to highlight a range, then comment (replaces the less-discoverable shift-click)
+
 ## [0.3.0] — 2026-06-02
 
 ### Added

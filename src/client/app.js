@@ -14,6 +14,7 @@ function App() {
   const [comments, setComments] = useState([]);
   const [viewed, setViewed] = useState([]);
   const [adding, setAdding] = useState(null); // {file, line|null, endLine?} while composing
+  const [selecting, setSelecting] = useState(null); // {file, from, to} during a drag-select
   const [showCompile, setShowCompile] = useState(false);
   const [error, setError] = useState(null);
   const [theme, setTheme] = useState(() => initTheme());
@@ -112,6 +113,8 @@ function App() {
         comments=${comments}
         adding=${adding}
         setAdding=${setAdding}
+        selecting=${selecting}
+        setSelecting=${setSelecting}
         onAdd=${onAdd}
         onEdit=${onEdit}
         onDelete=${onDelete}

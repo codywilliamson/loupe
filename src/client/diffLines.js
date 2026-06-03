@@ -35,10 +35,30 @@ function LineComments({ line, threads }) {
   </tr>`;
 }
 
-// click a bubble to start a single-line add; shift-click another to extend the range.
-function bubbleClick(e, line, threads) {
-  if (e.shiftKey) threads.onExtendAdd(line.newLine);
-  else threads.onStartAdd(line.newLine);
+// press a bubble to comment one line; drag up/down to select a range, then release to comment.
+function startSelect(e, line, threads) {
+  e.preventDefault();
+  const anchor = line.newLine;
+  let head = anchor;
+  const section = e.currentTarget.closest(".file-section");
+  threads.onSelectMove(anchor, anchor);
+  const move = (ev) => {
+    const row = document.elementFromPoint(ev.clientX, ev.clientY)?.closest("tr.diff-row");
+    const n = row && section.contains(row) ? row.dataset.newline : "";
+    if (n) {
+      head = Number(n);
+      threads.onSelectMove(anchor, head);
+    }
+  };
+  const stop = () => {
+    document.removeEventListener("mousemove", move);
+    document.removeEventListener("mouseup", stop);
+    document.body.classList.remove("selecting");
+    threads.onSelectCommit(Math.min(anchor, head), Math.max(anchor, head));
+  };
+  document.addEventListener("mousemove", move);
+  document.addEventListener("mouseup", stop);
+  document.body.classList.add("selecting");
 }
 
 // one unified row plus its comment region. the bubble is ALWAYS rendered (hidden via
@@ -51,10 +71,10 @@ function UnifiedRow({ line, path, threads }) {
   const inRange = commentable && threads.rangeAt(line.newLine);
   const cls = `diff-row row-${line.type}${selected ? " range-selected" : ""}${inRange ? " in-range" : ""}`;
   return html`
-    <tr class="${cls}">
+    <tr class="${cls}" data-newline=${line.newLine ?? ""}>
       <td class="bubble-gutter">
         ${commentable &&
-        html`<button class="bubble-btn" title="Comment (shift-click to extend a range)" onClick=${(e) => bubbleClick(e, line, threads)}><${Bubble} /></button>`}
+        html`<button class="bubble-btn" title="Comment — drag to select a range" onMouseDown=${(e) => startSelect(e, line, threads)}><${Bubble} /></button>`}
       </td>
       <td class="lineno old-no">${line.oldLine ?? ""}</td>
       <td class="lineno new-no">${line.newLine ?? ""}</td>

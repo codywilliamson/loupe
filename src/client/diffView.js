@@ -84,28 +84,34 @@ function endOf(c) {
 
 // builds the per-file `threads` controller bridging comment state to the views.
 function makeThreads(file, ctx) {
-  const { comments, adding, setAdding, onAdd, onEdit, onDelete } = ctx;
+  const { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete } = ctx;
   const isThisFile = adding && adding.file === file.path;
   const fileComments = comments.filter((c) => c.file === file.path && c.line != null);
-  // pending selection range for this file, normalized to [start, end].
+  // pending range for this file (the open editor's target), normalized to [start, end].
   const pendStart = isThisFile && adding.line != null ? adding.line : null;
   const pendEnd = pendStart != null ? (adding.endLine != null ? adding.endLine : adding.line) : null;
+  // live drag-select range for this file, normalized to [lo, hi].
+  const sel = selecting && selecting.file === file.path ? selecting : null;
+  const selLo = sel ? Math.min(sel.from, sel.to) : null;
+  const selHi = sel ? Math.max(sel.from, sel.to) : null;
   return {
     commentsForFile: () => comments.filter((c) => c.file === file.path && c.line == null),
     // a thread renders once, anchored below its END line.
     commentsForLine: (line) => fileComments.filter((c) => endOf(c) === line),
     // true if `newLine` falls inside any saved comment's range (for highlighting).
     rangeAt: (newLine) => fileComments.some((c) => newLine >= c.line && newLine <= endOf(c)),
-    // true if `newLine` falls inside the pending selection (for highlighting).
-    pendingAt: (newLine) => pendStart != null && newLine >= pendStart && newLine <= pendEnd,
-    // the END line of the pending selection, where the editor renders.
+    // true if `newLine` is inside the live drag-select or the open editor's range.
+    pendingAt: (newLine) =>
+      (sel != null && newLine >= selLo && newLine <= selHi) ||
+      (pendStart != null && newLine >= pendStart && newLine <= pendEnd),
+    // the END line of the pending range, where the editor renders.
     addingLine: pendStart != null ? pendEnd : null,
     addingFile: isThisFile && adding.line == null,
-    onStartAdd: (line) => setAdding({ file: file.path, line, endLine: line }),
-    // shift-click extends the open selection to span the anchor and the new line.
-    onExtendAdd: (line) => {
-      if (pendStart == null) return setAdding({ file: file.path, line, endLine: line });
-      setAdding({ file: file.path, line: Math.min(pendStart, line), endLine: Math.max(pendEnd, line) });
+    // drag-select: highlight the range as the pointer moves, then open the editor on release.
+    onSelectMove: (from, to) => setSelecting({ file: file.path, from, to }),
+    onSelectCommit: (lo, hi) => {
+      setAdding({ file: file.path, line: lo, endLine: hi });
+      setSelecting(null);
     },
     onStartFileAdd: () => setAdding({ file: file.path, line: null }),
     onCancelAdd: () => setAdding(null),
@@ -130,8 +136,8 @@ function rawLine(line) {
   return sign + line.content;
 }
 
-export function DiffView({ files, comments, adding, setAdding, onAdd, onEdit, onDelete }) {
-  const ctx = { comments, adding, setAdding, onAdd, onEdit, onDelete };
+export function DiffView({ files, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete }) {
+  const ctx = { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete };
   return html`<main class="diff-pane">
     ${files.map((file) => html`<${FileSection} key=${file.path} file=${file} threads=${makeThreads(file, ctx)} />`)}
   </main>`;
