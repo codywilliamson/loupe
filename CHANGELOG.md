@@ -4,7 +4,12 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-06-03
+
 ### Added
+- Global view toggles in the top bar: switch **all** files between unified and side-by-side at once, and a **single-file view** that shows one file at a time (click a file in the tree to swap). Both choices persist across reloads, like dark mode
+- Sticky file headers: the file name stays pinned at the top while you scroll through its diff
+- Update-available badge: a pulsing dot appears next to the wordmark when a newer loupe release exists on origin; click it for the `git pull` command to update
 - Diff refresh: a top-bar button re-runs `git diff` in place (and a browser reload now picks up repo changes too), so you can review continuously while an agent edits
 
 ### Changed
