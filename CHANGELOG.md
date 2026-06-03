@@ -2,7 +2,7 @@
 
 All notable changes to loupe are documented here. This project follows [semantic versioning](https://semver.org).
 
-## [Unreleased]
+## [0.3.0] — 2026-06-02
 
 ### Added
 - Dark mode with a top-bar toggle (persisted; follows the OS preference by default)

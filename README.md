@@ -48,4 +48,4 @@ Saved to `.review` in the directory you run the command from (auto-added to `.gi
 
 ## Releases
 
-See [CHANGELOG.md](CHANGELOG.md). Current: **v0.2.1**.
+See [CHANGELOG.md](CHANGELOG.md). Current: **v0.3.0**.
