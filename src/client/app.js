@@ -13,7 +13,7 @@ function App() {
   const [diff, setDiff] = useState(null);
   const [comments, setComments] = useState([]);
   const [viewed, setViewed] = useState([]);
-  const [adding, setAdding] = useState(null); // {file, line|null} while composing
+  const [adding, setAdding] = useState(null); // {file, line|null, endLine?} while composing
   const [showCompile, setShowCompile] = useState(false);
   const [error, setError] = useState(null);
   const [theme, setTheme] = useState(() => initTheme());

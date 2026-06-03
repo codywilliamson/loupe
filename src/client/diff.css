@@ -45,6 +45,20 @@
 .diff-table.split .code { width: auto; }
 .diff-row.split .lineno { border-right: none; border-left: 1px solid var(--border); }
 .diff-row.split .new-no { border-left: 2px solid var(--border); }
+/* draggable divider between the two side-by-side panes */
+.split-wrap { position: relative; }
+.split-resizer {
+  position: absolute; top: 0; bottom: 0; width: 7px; margin-left: -3px;
+  cursor: col-resize; z-index: 3;
+}
+.split-resizer:hover { background: var(--ado-blue); opacity: .35; }
+
+/* ── range highlight (left accent on the bubble gutter) ── */
+/* saved multi-line comment range */
+.diff-row.in-range .bubble-gutter { box-shadow: inset 3px 0 0 var(--comment-border); }
+/* pending selection while composing a range — faint blue tint + accent */
+.diff-row.range-selected .bubble-gutter { box-shadow: inset 3px 0 0 var(--ado-blue); }
+.diff-row.range-selected .code { background: color-mix(in srgb, var(--ado-blue) 10%, transparent); }
 
 /* ── hunk header pill ── */
 .hunk-header td { padding: 2px 8px; background: var(--hunk-bg); }

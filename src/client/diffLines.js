@@ -35,17 +35,26 @@ function LineComments({ line, threads }) {
   </tr>`;
 }
 
+// click a bubble to start a single-line add; shift-click another to extend the range.
+function bubbleClick(e, line, threads) {
+  if (e.shiftKey) threads.onExtendAdd(line.newLine);
+  else threads.onStartAdd(line.newLine);
+}
+
 // one unified row plus its comment region. the bubble is ALWAYS rendered (hidden via
 // css until row hover) so the gutter column never resizes — no layout jump on hover.
 // two root nodes: htm returns them as an array, preact renders them as siblings
 // (a fragment shorthand <>…</> isn't registered on this raw htm.bind(h) and breaks).
 function UnifiedRow({ line, path, threads }) {
   const commentable = line.newLine != null;
+  const selected = commentable && threads.pendingAt(line.newLine);
+  const inRange = commentable && threads.rangeAt(line.newLine);
+  const cls = `diff-row row-${line.type}${selected ? " range-selected" : ""}${inRange ? " in-range" : ""}`;
   return html`
-    <tr class="diff-row row-${line.type}">
+    <tr class="${cls}">
       <td class="bubble-gutter">
         ${commentable &&
-        html`<button class="bubble-btn" title="Comment" onClick=${() => threads.onStartAdd(line.newLine)}><${Bubble} /></button>`}
+        html`<button class="bubble-btn" title="Comment (shift-click to extend a range)" onClick=${(e) => bubbleClick(e, line, threads)}><${Bubble} /></button>`}
       </td>
       <td class="lineno old-no">${line.oldLine ?? ""}</td>
       <td class="lineno new-no">${line.newLine ?? ""}</td>

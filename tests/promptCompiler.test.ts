@@ -112,6 +112,37 @@ describe("compileReviewPrompt", () => {
     expect(out).toContain("### a.ts — Line 6");
   });
 
+  it("renders a range with an en-dash header, ±2 context, and marks every line in [start, end]", () => {
+    const out = run([comment({ line: 4, endLine: 6, text: "range note" })]);
+    expect(out).toContain("### a.ts — Lines 4–6"); // en dash U+2013
+    expect(out).toContain("    3 | line three"); // 2 above start (line 2 then 3)
+    expect(out).toContain("  > 4 |  line four"); // range lines marked > (space marker for context)
+    expect(out).toContain("  > 5 |  line five");
+    expect(out).toContain("  > 6 |  line six");
+    expect(out).toContain("    8 | line eight"); // 2 below end (line 7 then 8)
+    expect(out).not.toContain("line one"); // 3 above start clamped out
+    expect(out).not.toContain("line nine"); // 3 below end clamped out
+    expect(out).toContain("range note");
+  });
+
+  it("treats endLine equal to line as a single line", () => {
+    const out = run([comment({ line: 5, endLine: 5 })]);
+    expect(out).toContain("### a.ts — Line 5");
+    expect(out).not.toContain("Lines");
+  });
+
+  it("merges two comments on the same range into one section", () => {
+    const out = run([comment({ id: "c1", line: 4, endLine: 6, text: "first" }), comment({ id: "c2", line: 4, endLine: 6, text: "second" })]);
+    expect(out.match(/### a\.ts — Lines 4–6/g)?.length).toBe(1);
+    expect(out.match(/  > 5 \|/g)?.length).toBe(1); // block rendered once
+    expect(out).toContain("first\n\nsecond");
+  });
+
+  it("sorts a range and a single-line comment in the same file by start then end", () => {
+    const out = run([comment({ id: "c1", line: 6 }), comment({ id: "c2", line: 4, endLine: 5 })]);
+    expect(out.indexOf("### a.ts — Lines 4–5")).toBeLessThan(out.indexOf("### a.ts — Line 6"));
+  });
+
   it("sorts files alphabetically in the output", () => {
     const diff: DiffResult = { ref: FX, files: [file("zebra.ts", nineLines), file("alpha.ts", nineLines)] };
     const out = run([comment({ id: "c1", file: "zebra.ts", line: 5 }), comment({ id: "c2", file: "alpha.ts", line: 5 })], diff);
@@ -125,10 +156,7 @@ describe("compileReviewPrompt", () => {
 
   it("counts N comments across M distinct commented files in the summary", () => {
     const diff: DiffResult = { ref: FX, files: [file("a.ts", nineLines), file("b.ts", nineLines)] };
-    const out = run(
-      [comment({ id: "c1", file: "a.ts", line: 4 }), comment({ id: "c2", file: "a.ts", line: 5 }), comment({ id: "c3", file: "b.ts", line: null })],
-      diff,
-    );
+    const out = run([comment({ id: "c1", file: "a.ts", line: 4 }), comment({ id: "c2", file: "a.ts", line: 5 }), comment({ id: "c3", file: "b.ts", line: null })], diff);
     expect(out).toContain("## Summary: 3 comment(s) across 2 file(s)");
   });
 
@@ -158,8 +186,7 @@ describe("compileReviewPrompt", () => {
         comment({ id: "c2", file: "a.ts", line: null, text: "a file note" }),
         comment({ id: "c3", file: "a.ts", line: 5, text: "a line five" }),
         comment({ id: "c4", file: "a.ts", line: 5, text: "a line five again" }),
-      ],
-      diff,
+      ], diff,
     );
     expect(out.indexOf("### a.ts — File-level")).toBeLessThan(out.indexOf("### a.ts — Line 5"));
     expect(out.indexOf("### a.ts — Line 5")).toBeLessThan(out.indexOf("### b.ts — Line 3"));

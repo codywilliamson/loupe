@@ -7,7 +7,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 ### Added
 - Dark mode with a top-bar toggle (persisted; follows the OS preference by default)
 - Markdown files render as a preview by default, with a toggle to the raw diff
-- Resizable sidebar (draggable splitter, width persisted)
+- Multiline (range) comments — shift-click a second line to extend the selection; the compiled prompt renders `Lines A–B`
+- Resizable sidebar and resizable side-by-side panes (draggable dividers)
 - PowerShell syntax highlighting (`.ps1` / `.psm1` / `.psd1`)
 
 ### Fixed

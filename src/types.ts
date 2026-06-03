@@ -39,7 +39,8 @@ export interface DiffResult {
 export interface Comment {
   id: string;
   file: string;
-  line: number | null; // new-file line number, or null for a file-level comment
+  line: number | null; // new-file line number (range START), or null for a file-level comment
+  endLine?: number | null; // inclusive end of a multi-line range; absent/null/equal-to-line ⇒ single line
   lineContent: string | null; // raw diff line (with marker) the comment targets, null when file-level
   text: string;
   createdAt: string; // ISO 8601
