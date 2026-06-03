@@ -113,6 +113,11 @@ function makeThreads(file, ctx) {
       setAdding({ file: file.path, line: lo, endLine: hi });
       setSelecting(null);
     },
+    // shift-click extends the open comment's range to span its anchor and the new line.
+    onExtendAdd: (line) => {
+      if (pendStart == null) return setAdding({ file: file.path, line, endLine: line });
+      setAdding({ file: file.path, line: Math.min(pendStart, line), endLine: Math.max(pendEnd, line) });
+    },
     onStartFileAdd: () => setAdding({ file: file.path, line: null }),
     onCancelAdd: () => setAdding(null),
     onAdd: (diffLine, text) => {

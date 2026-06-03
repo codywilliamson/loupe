@@ -35,9 +35,10 @@ function LineComments({ line, threads }) {
   </tr>`;
 }
 
-// press a bubble to comment one line; drag up/down to select a range, then release to comment.
+// press a bubble to comment one line; drag to select a range; shift-click to extend an open one.
 function startSelect(e, line, threads) {
   e.preventDefault();
+  if (e.shiftKey) return threads.onExtendAdd(line.newLine);
   const anchor = line.newLine;
   let head = anchor;
   const section = e.currentTarget.closest(".file-section");
@@ -74,7 +75,7 @@ function UnifiedRow({ line, path, threads }) {
     <tr class="${cls}" data-newline=${line.newLine ?? ""}>
       <td class="bubble-gutter">
         ${commentable &&
-        html`<button class="bubble-btn" title="Comment — drag to select a range" onMouseDown=${(e) => startSelect(e, line, threads)}><${Bubble} /></button>`}
+        html`<button class="bubble-btn" title="Comment — drag or shift-click to select a range" onMouseDown=${(e) => startSelect(e, line, threads)}><${Bubble} /></button>`}
       </td>
       <td class="lineno old-no">${line.oldLine ?? ""}</td>
       <td class="lineno new-no">${line.newLine ?? ""}</td>
