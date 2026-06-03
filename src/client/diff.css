@@ -16,11 +16,16 @@
 /* ── diff table ── */
 .diff-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; line-height: 1.5; }
 .diff-row td { vertical-align: top; }
-.bubble-gutter { width: 22px; text-align: center; padding: 0; background: #fafafa; position: relative; }
-.bubble-btn { background: var(--ado-blue); color: #fff; border: none; border-radius: 3px; cursor: pointer; padding: 1px 3px; display: inline-flex; }
+.bubble-gutter { width: 22px; text-align: center; padding: 0; background: var(--surface-2); position: relative; }
+/* button is ALWAYS in the dom (hidden via opacity) so hovering never resizes the column. */
+.bubble-btn {
+  background: var(--ado-blue); color: #fff; border: none; border-radius: 3px; cursor: pointer;
+  padding: 1px 3px; display: inline-flex; opacity: 0; transition: opacity .08s;
+}
+.diff-row:hover .bubble-btn, .bubble-btn:focus-visible { opacity: 1; }
 .lineno {
   width: 44px; min-width: 44px; text-align: right; padding: 0 8px; color: var(--muted);
-  user-select: none; background: #fafafa; border-right: 1px solid var(--border);
+  user-select: none; background: var(--surface-2); border-right: 1px solid var(--border);
 }
 .code { width: 100%; padding: 0 8px; white-space: pre-wrap; word-break: break-word; background: var(--ctx-line); }
 .sign { display: inline-block; width: 1ch; color: var(--muted); user-select: none; }
@@ -31,23 +36,27 @@
 .row-addition .lineno, .row-addition .bubble-gutter { background: var(--add-gutter); }
 .row-deletion .code, .code-deletion { background: var(--del-line); }
 .row-deletion .lineno, .row-deletion .bubble-gutter { background: var(--del-gutter); }
-.code-empty, .lineno.empty { background: #f6f6f6; }
+.code-empty, .lineno.empty { background: var(--surface-2); }
 
-/* side-by-side: two lineno+code pairs per row */
+/* side-by-side: fixed layout + colgroup keep the two code columns an even 50/50
+   (the bug before: both .code cells claimed width:100%, collapsing the right pane). */
+.diff-table.split { table-layout: fixed; }
+.diff-table.split col.cg-no { width: 46px; }
+.diff-table.split .code { width: auto; }
 .diff-row.split .lineno { border-right: none; border-left: 1px solid var(--border); }
 .diff-row.split .new-no { border-left: 2px solid var(--border); }
 
 /* ── hunk header pill ── */
-.hunk-header td { padding: 2px 8px; background: #f1f5f9; }
+.hunk-header td { padding: 2px 8px; background: var(--hunk-bg); }
 .hunk-pill {
-  display: inline-block; font-family: var(--mono); font-size: 11px; color: #4a5568;
-  background: #e6edf5; border-radius: 10px; padding: 1px 10px;
+  display: inline-block; font-family: var(--mono); font-size: 11px; color: var(--pill-text);
+  background: var(--pill-bg); border-radius: 10px; padding: 1px 10px;
 }
 
 /* ── inline comments ── */
-.comment-row .gutter { background: #fafafa; border-right: 1px solid var(--border); }
-.comment-cell { padding: 6px 8px 6px 12px; background: #fcfcfc; }
-.file-comments { padding: 8px 12px; background: #fcfcfc; border-bottom: 1px solid var(--border); }
+.comment-row .gutter { background: var(--surface-2); border-right: 1px solid var(--border); }
+.comment-cell { padding: 6px 8px 6px 12px; background: var(--surface-3); }
+.file-comments { padding: 8px 12px; background: var(--surface-3); border-bottom: 1px solid var(--border); }
 .comment-thread { display: flex; flex-direction: column; gap: 6px; }
 .comment-card {
   border-left: 3px solid var(--comment-border); background: var(--comment-bg);

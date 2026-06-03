@@ -1,11 +1,12 @@
 // right pane: each file as a collapsible section with hunks + a per-file split toggle.
 import { html, useState } from "/preact.js";
-import { changeBadge, fileAnchorId } from "/util.js";
+import { changeBadge, fileAnchorId, isMarkdown } from "/util.js";
 import { ChevronRight, ChevronDown, MessageSquare } from "/icons.js";
 import { UnifiedHunk, SplitHunk } from "/diffLines.js";
 import { CommentThread, CommentEditor } from "/comments.js";
+import { MarkdownView } from "/markdownView.js";
 
-function FileHeader({ file, open, split, onToggleOpen, onToggleSplit, onAddFileComment }) {
+function FileHeader({ file, open, split, md, preview, onToggleOpen, onToggleSplit, onTogglePreview, onAddFileComment }) {
   const title = file.oldPath ? `${file.oldPath} → ${file.path}` : file.path;
   return html`<div class="file-head">
     <button class="file-collapse" onClick=${onToggleOpen}>
@@ -16,24 +17,30 @@ function FileHeader({ file, open, split, onToggleOpen, onToggleSplit, onAddFileC
     <span class="file-delta"><span class="add">+${file.additions}</span> <span class="del">-${file.deletions}</span></span>
     <span class="file-tools">
       <button class="btn-plain" title="Add file comment" onClick=${onAddFileComment}><${MessageSquare} /></button>
-      <button class="btn-toggle ${split ? "on" : ""}" onClick=${onToggleSplit}>
-        ${split ? "Side-by-side" : "Unified"}
-      </button>
+      ${md &&
+      html`<button class="btn-toggle ${preview ? "on" : ""}" onClick=${onTogglePreview}>${preview ? "Preview" : "Diff"}</button>`}
+      ${(!md || !preview) &&
+      html`<button class="btn-toggle ${split ? "on" : ""}" onClick=${onToggleSplit}>${split ? "Side-by-side" : "Unified"}</button>`}
     </span>
   </div>`;
 }
 
 function FileSection({ file, threads }) {
+  const md = isMarkdown(file.path) && file.changeType !== "deleted";
   const [open, setOpen] = useState(true);
   const [split, setSplit] = useState(false);
+  const [preview, setPreview] = useState(md); // markdown renders as a preview by default
   const fileComments = threads.commentsForFile();
   return html`<section class="file-section" id=${fileAnchorId(file.path)}>
     <${FileHeader}
       file=${file}
       open=${open}
       split=${split}
+      md=${md}
+      preview=${preview}
       onToggleOpen=${() => setOpen(!open)}
       onToggleSplit=${() => setSplit(!split)}
+      onTogglePreview=${() => setPreview(!preview)}
       onAddFileComment=${threads.onStartFileAdd}
     />
     ${open &&
@@ -44,15 +51,18 @@ function FileSection({ file, threads }) {
         ${threads.addingFile &&
         html`<${CommentEditor} onSave=${(t) => threads.onAddFile(t)} onCancel=${threads.onCancelAdd} />`}
       </div>`}
-      ${file.binary
-        ? html`<div class="binary-note">Binary file — no preview</div>`
-        : html`<table class="diff-table">
-            ${file.hunks.map((hunk, i) =>
-              split
-                ? html`<${SplitHunk} key=${i} hunk=${hunk} path=${file.path} />`
-                : html`<${UnifiedHunk} key=${i} hunk=${hunk} path=${file.path} threads=${threads} />`
-            )}
-          </table>`}
+      ${md && preview
+        ? html`<${MarkdownView} path=${file.path} />`
+        : file.binary
+          ? html`<div class="binary-note">Binary file — no preview</div>`
+          : html`<table class="diff-table ${split ? "split" : ""}">
+              ${split ? html`<colgroup><col class="cg-no" /><col /><col class="cg-no" /><col /></colgroup>` : ""}
+              ${file.hunks.map((hunk, i) =>
+                split
+                  ? html`<${SplitHunk} key=${i} hunk=${hunk} path=${file.path} />`
+                  : html`<${UnifiedHunk} key=${i} hunk=${hunk} path=${file.path} threads=${threads} />`
+              )}
+            </table>`}
     </div>`}
   </section>`;
 }

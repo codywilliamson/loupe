@@ -43,10 +43,21 @@ const LANGS = {
   java: "java", c: "c", h: "c", cpp: "cpp", hpp: "cpp", cs: "csharp",
   php: "php", sh: "bash", bash: "bash", zsh: "bash", yml: "yaml",
   yaml: "yaml", sql: "sql", swift: "swift", kt: "kotlin", toml: "ini",
+  ps1: "powershell", psm1: "powershell", psd1: "powershell", markdown: "markdown",
 };
 export function langFor(path) {
   const ext = path.split(".").pop()?.toLowerCase() ?? "";
   return LANGS[ext] ?? null;
+}
+
+// true for files we render as markdown by default.
+export function isMarkdown(path) {
+  return /\.(md|markdown)$/i.test(path);
+}
+
+// clamps n into [lo, hi].
+export function clamp(n, lo, hi) {
+  return Math.max(lo, Math.min(hi, n));
 }
 
 // group files into a nested tree by directory segments.

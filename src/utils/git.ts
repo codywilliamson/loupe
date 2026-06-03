@@ -4,6 +4,7 @@
 export interface DiffPlan {
   diffArgs: string[]; // args passed to `git`, e.g. ["diff", "HEAD"]
   refLabel: string; // shown in the top bar, e.g. "working tree" or "feature/x → origin/main"
+  newRef: string | null; // ref for the "new" side content; null = working tree (read from disk)
 }
 
 // runs `git <args>` in cwd and returns raw stdout. throws with stderr on failure.
@@ -33,8 +34,8 @@ function currentBranch(cwd: string): string {
 export function resolveRef(spec: string | undefined, cwd: string): DiffPlan {
   if (!isGitRepo(cwd)) throw new Error("not a git repository (run loupe inside one)");
 
-  if (!spec) return { diffArgs: ["diff", "HEAD"], refLabel: "working tree" };
-  if (spec === "staged") return { diffArgs: ["diff", "--staged"], refLabel: "staged" };
+  if (!spec) return { diffArgs: ["diff", "HEAD"], refLabel: "working tree", newRef: null };
+  if (spec === "staged") return { diffArgs: ["diff", "--staged"], refLabel: "staged", newRef: "" };
 
   const parts = spec.split("..");
   if (parts.length === 2) {
@@ -42,10 +43,10 @@ export function resolveRef(spec: string | undefined, cwd: string): DiffPlan {
     for (const ref of [from, to]) {
       if (ref && !refExists(ref, cwd)) throw new Error(`unknown ref: ${ref}`);
     }
-    return { diffArgs: ["diff", spec], refLabel: `${from} → ${to}` };
+    return { diffArgs: ["diff", spec], refLabel: `${from} → ${to}`, newRef: to || "HEAD" };
   }
 
   // a single named branch: show what the current branch added relative to it (pr-style three-dot)
   if (!refExists(spec, cwd)) throw new Error(`unknown ref: ${spec}`);
-  return { diffArgs: ["diff", `${spec}...HEAD`], refLabel: `${currentBranch(cwd)} → ${spec}` };
+  return { diffArgs: ["diff", `${spec}...HEAD`], refLabel: `${currentBranch(cwd)} → ${spec}`, newRef: "HEAD" };
 }

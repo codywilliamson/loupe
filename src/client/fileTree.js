@@ -49,10 +49,10 @@ function Folder({ node, depth, ...rest }) {
   </div>`;
 }
 
-export function FileTree({ files, viewedSet, countFor, onSelect, onToggleViewed }) {
+export function FileTree({ files, viewedSet, countFor, onSelect, onToggleViewed, width }) {
   const root = buildTree(files);
   const rest = { viewedSet, countFor, onSelect, onToggleViewed };
-  return html`<nav class="file-tree">
+  return html`<nav class="file-tree" style=${`width:${width}px`}>
     ${[...root.dirs.values()].map(
       (d) => html`<${Folder} key=${d.path} node=${d} depth=${0} ...${rest} />`
     )}

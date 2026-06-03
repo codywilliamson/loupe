@@ -2,6 +2,18 @@
 
 All notable changes to loupe are documented here. This project follows [semantic versioning](https://semver.org).
 
+## [Unreleased]
+
+### Added
+- Dark mode with a top-bar toggle (persisted; follows the OS preference by default)
+- Markdown files render as a preview by default, with a toggle to the raw diff
+- Resizable sidebar (draggable splitter, width persisted)
+- PowerShell syntax highlighting (`.ps1` / `.psm1` / `.psd1`)
+
+### Fixed
+- Side-by-side view no longer collapses the right-hand pane
+- The inline-comment bubble no longer shifts the line on hover
+
 ## [0.2.1] — 2026-06-02
 
 ### Documentation

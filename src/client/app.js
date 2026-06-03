@@ -1,9 +1,11 @@
 // root component: owns diff + comments + viewed state, coordinates saves, renders the layout.
 import { html, render, useState, useEffect, useMemo, useCallback } from "/preact.js";
 import { getDiff, getComments, saveComments, saveViewed } from "/api.js";
-import { fileAnchorId } from "/util.js";
+import { fileAnchorId, clamp } from "/util.js";
+import { initTheme, nextTheme } from "/theme.js";
 import { TopBar } from "/topBar.js";
 import { FileTree } from "/fileTree.js";
+import { Resizer } from "/resizer.js";
 import { DiffView } from "/diffView.js";
 import { CompileModal } from "/compileModal.js";
 
@@ -14,6 +16,8 @@ function App() {
   const [adding, setAdding] = useState(null); // {file, line|null} while composing
   const [showCompile, setShowCompile] = useState(false);
   const [error, setError] = useState(null);
+  const [theme, setTheme] = useState(() => initTheme());
+  const [sidebarWidth, setSidebarWidth] = useState(() => Number(localStorage.getItem("loupe-sidebar")) || 280);
 
   useEffect(() => {
     Promise.all([getDiff(), getComments()])
@@ -68,6 +72,14 @@ function App() {
     document.getElementById(fileAnchorId(path))?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
+  const onToggleTheme = useCallback(() => setTheme((t) => nextTheme(t)), []);
+
+  const onResize = useCallback((x) => {
+    const w = clamp(x, 180, 640);
+    setSidebarWidth(w);
+    localStorage.setItem("loupe-sidebar", String(w));
+  }, []);
+
   const viewedSet = useMemo(() => new Set(viewed), [viewed]);
   const countFor = useCallback(
     (path) => comments.filter((c) => c.file === path).length,
@@ -78,7 +90,13 @@ function App() {
   if (!diff) return html`<div class="loading">Loading diff…</div>`;
 
   return html`<div class="app">
-    <${TopBar} refLabel=${diff.ref} files=${diff.files} onCompile=${() => setShowCompile(true)} />
+    <${TopBar}
+      refLabel=${diff.ref}
+      files=${diff.files}
+      theme=${theme}
+      onToggleTheme=${onToggleTheme}
+      onCompile=${() => setShowCompile(true)}
+    />
     <div class="body">
       <${FileTree}
         files=${diff.files}
@@ -86,7 +104,9 @@ function App() {
         countFor=${countFor}
         onSelect=${onSelectFile}
         onToggleViewed=${onToggleViewed}
+        width=${sidebarWidth}
       />
+      <${Resizer} onResize=${onResize} />
       <${DiffView}
         files=${diff.files}
         comments=${comments}

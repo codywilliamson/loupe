@@ -29,3 +29,11 @@ export const X = () =>
 
 export const MessageSquare = () =>
   svg(html`<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />`, 14);
+
+export const Sun = () =>
+  svg(html`<circle cx="12" cy="12" r="4" /><path
+    d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+  />`);
+
+export const Moon = () =>
+  svg(html`<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />`);

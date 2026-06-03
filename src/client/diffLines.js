@@ -1,5 +1,5 @@
 // renders diff rows (unified + side-by-side) with hover bubble gutter and inline comment slots.
-import { html, useState } from "/preact.js";
+import { html } from "/preact.js";
 import { highlightLine } from "/highlight.js";
 import { Bubble } from "/icons.js";
 import { CommentThread, CommentEditor } from "/comments.js";
@@ -35,20 +35,16 @@ function LineComments({ line, threads }) {
   </tr>`;
 }
 
-// one unified row plus its comment region.
+// one unified row plus its comment region. the bubble is ALWAYS rendered (hidden via
+// css until row hover) so the gutter column never resizes — no layout jump on hover.
+// two root nodes: htm returns them as an array, preact renders them as siblings
+// (a fragment shorthand <>…</> isn't registered on this raw htm.bind(h) and breaks).
 function UnifiedRow({ line, path, threads }) {
-  const [hover, setHover] = useState(false);
   const commentable = line.newLine != null;
-  // two root nodes: htm returns them as an array, preact renders them as siblings
-  // (a fragment shorthand <>…</> isn't registered on this raw htm.bind(h) and breaks).
   return html`
-    <tr
-      class="diff-row row-${line.type}"
-      onMouseEnter=${() => setHover(true)}
-      onMouseLeave=${() => setHover(false)}
-    >
+    <tr class="diff-row row-${line.type}">
       <td class="bubble-gutter">
-        ${hover && commentable &&
+        ${commentable &&
         html`<button class="bubble-btn" title="Comment" onClick=${() => threads.onStartAdd(line.newLine)}><${Bubble} /></button>`}
       </td>
       <td class="lineno old-no">${line.oldLine ?? ""}</td>

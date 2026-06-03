@@ -5,11 +5,13 @@ import { join, extname, resolve } from "node:path";
 import type { DiffResult, ReviewFile, Comment } from "../types";
 import { readReview, writeReview } from "../core/reviewStore";
 import { compileReviewPrompt } from "../core/promptCompiler";
+import { runGit } from "../utils/git";
 
 export interface ServerContext {
   diff: DiffResult; // parsed once at launch, served from memory
   cwd: string; // directory where the .review file lives
   clientDir: string; // directory containing index.html + client assets
+  newRef: string | null; // ref for new-side file content; null = read working tree from disk
 }
 
 // small json response helper.
@@ -83,6 +85,22 @@ export async function handlePostViewed(ctx: ServerContext, req: Request): Promis
 export function handleGetCompile(ctx: ServerContext): Response {
   const review = loadOrInit(ctx);
   return json({ prompt: compileReviewPrompt(ctx.diff, review) });
+}
+
+// returns the new-side full content of a file (for markdown preview). working tree
+// reads from disk; other modes use `git show <newRef>:<path>`.
+export function handleGetFile(ctx: ServerContext, url: URL): Response {
+  const path = url.searchParams.get("path");
+  if (!path || path.includes("..")) return apiError("invalid path", 400);
+  try {
+    const content =
+      ctx.newRef === null
+        ? readFileSync(join(ctx.cwd, path), "utf8")
+        : runGit(["show", `${ctx.newRef}:${path}`], ctx.cwd);
+    return json({ path, content });
+  } catch {
+    return apiError("file not found", 404);
+  }
 }
 
 const CONTENT_TYPES: Record<string, string> = {

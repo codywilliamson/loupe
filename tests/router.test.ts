@@ -47,7 +47,8 @@ beforeAll(() => {
   clientDir = mkdtempSync(join(tmpdir(), "loupe-client-"));
   writeFileSync(join(clientDir, "index.html"), "<!doctype html><title>loupe</title>");
   writeFileSync(join(clientDir, "app.js"), "console.log('loupe');");
-  server = createServer({ diff, cwd, clientDir });
+  writeFileSync(join(cwd, "readme.md"), "# Hello\n");
+  server = createServer({ diff, cwd, clientDir, newRef: null });
   base = `http://localhost:${server.port}`;
 });
 
@@ -117,6 +118,17 @@ describe("router", () => {
     const body = (await res.json()) as { prompt: string };
     expect(body.prompt).toBeString();
     expect(body.prompt).toContain("## Code Review");
+  });
+
+  it("GET /api/file returns new-side content (working tree reads disk)", async () => {
+    const res = await fetch(`${base}/api/file?path=readme.md`);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { content: string }).content).toContain("# Hello");
+  });
+
+  it("GET /api/file rejects a traversal path", async () => {
+    const res = await fetch(`${base}/api/file?path=../escape`);
+    expect(res.status).toBe(400);
   });
 
   it("GET / serves index.html as text/html", async () => {

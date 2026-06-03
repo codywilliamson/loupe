@@ -42,3 +42,8 @@ export function saveViewed(viewed) {
 export function compile() {
   return getJson("/api/compile");
 }
+
+// { path, content } — new-side full content of a file, for markdown preview.
+export function getFile(path) {
+  return getJson(`/api/file?path=${encodeURIComponent(path)}`);
+}
