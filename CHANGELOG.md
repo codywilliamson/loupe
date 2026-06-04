@@ -4,6 +4,21 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-06-04
+
+### Added
+- Untracked files now appear in the working-tree view, rendered as additions you can comment on — previously `git diff` hid new, un-added files
+- Diff-context header in the top bar: the repo, the diff mode (working tree / staged / branch / range), and the source → target refs, so you always know what you're reviewing
+- Comment on **both sides** in side-by-side view, and on removed (old) lines in unified view too — comments remember their side and the exported prompt labels them `Old line N`
+- Styled, state-aware hover tooltips on the top-bar icon buttons
+
+### Fixed
+- Multi-line comment selection (drag or shift-click) works again when a file has scrolled under the sticky header
+- The global side-by-side toggle no longer gets stuck — switching all files is reliable in both directions
+- The inline comment box now opens under the side you clicked instead of always the left
+- loupe no longer lists its own `.review` file as a changed file
+- Side-by-side comments no longer store a broken line reference
+
 ## [0.4.0] — 2026-06-03
 
 ### Added
