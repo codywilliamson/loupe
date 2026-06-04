@@ -41,9 +41,17 @@ body.resizing { cursor: col-resize; user-select: none; }
   height: 48px; padding: 0 16px; border-bottom: 1px solid var(--border);
   background: var(--surface); flex: none;
 }
-.top-left { display: flex; align-items: baseline; gap: 12px; }
-.wordmark { font-size: 18px; font-weight: 600; color: var(--ado-blue); letter-spacing: .2px; }
+.top-left { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.wordmark { font-size: 18px; font-weight: 600; color: var(--ado-blue); letter-spacing: .2px; flex: none; }
 .ref-label { color: var(--muted); font-size: 12px; }
+.diff-info { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.repo-name { color: var(--text); font-weight: 600; font-size: 12px; white-space: nowrap; flex: none; }
+.mode-pill {
+  flex: none; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--pill-text);
+  background: var(--pill-bg); border-radius: 10px; padding: 1px 8px;
+}
+.ref-pair { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ref-pair .arrow { opacity: .6; margin: 0 1px; }
 .top-right { display: flex; align-items: center; gap: 16px; }
 .file-count { color: var(--muted); }
 .top-delta .add, .file-delta .add, .tree-delta .add { color: #107c10; }
@@ -113,6 +121,19 @@ body.resizing { cursor: col-resize; user-select: none; }
 .icon-btn { color: var(--muted); display: flex; align-items: center; border-radius: 4px; padding: 4px; }
 .icon-btn:hover { background: var(--hover); color: var(--text); }
 .icon-btn.on { color: var(--ado-blue); background: var(--hover); }
+
+/* ── hover tooltips for icon-only nav buttons (inverted surface, theme-aware) ── */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute; top: calc(100% + 7px); left: 50%; transform: translateX(-50%) translateY(-3px);
+  background: var(--text); color: var(--surface);
+  font-size: 11px; font-weight: 500; line-height: 1; white-space: nowrap;
+  padding: 5px 8px; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.28);
+  opacity: 0; pointer-events: none; z-index: 70;
+  transition: opacity .12s ease .2s, transform .12s ease .2s;
+}
+[data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 @keyframes loupe-spin { to { transform: rotate(360deg); } }
 .icon-btn.spinning .icon { animation: loupe-spin .6s linear infinite; }
 

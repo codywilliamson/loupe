@@ -29,8 +29,17 @@ export interface DiffFile {
   hunks: DiffHunk[];
 }
 
+// structured review context for the top bar (repo + what's being compared)
+export interface DiffMeta {
+  repo: string; // "owner/repo" from the git remote, else the folder name
+  mode: string; // "working tree" | "staged" | "branch" | "range"
+  source: string; // the "new" side label, e.g. "working tree" or "feature/x"
+  target: string; // the "base" side label, e.g. "main"
+}
+
 export interface DiffResult {
   ref: string; // human-readable ref label, e.g. "working tree" or "feature/x → origin/main"
+  meta?: DiffMeta; // present from the server; absent in hand-built fixtures
   files: DiffFile[];
 }
 
@@ -39,7 +48,8 @@ export interface DiffResult {
 export interface Comment {
   id: string;
   file: string;
-  line: number | null; // new-file line number (range START), or null for a file-level comment
+  side?: "old" | "new"; // which side `line` counts on; defaults to "new" (old = removed lines)
+  line: number | null; // line number on `side` (range START), or null for a file-level comment
   endLine?: number | null; // inclusive end of a multi-line range; absent/null/equal-to-line ⇒ single line
   lineContent: string | null; // raw diff line (with marker) the comment targets, null when file-level
   text: string;

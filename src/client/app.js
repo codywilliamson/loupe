@@ -106,6 +106,7 @@ function App() {
   return html`<div class="app">
     <${TopBar}
       refLabel=${diff.ref}
+      meta=${diff.meta}
       files=${diff.files}
       theme=${theme}
       refreshing=${refreshing}

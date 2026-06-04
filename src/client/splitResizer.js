@@ -1,9 +1,12 @@
 // a draggable divider between the two side-by-side code panes. reports a new ratio
-// (0..1) = the old/left pane's share of the code area (the two 46px line-number
-// columns are excluded from the split).
+// (0..1) = the old/left pane's share of the code area (the bubble gutter + the two
+// 46px line-number columns are excluded from the split).
 import { html } from "/preact.js";
 
+const BUBBLE = 22; // each side's bubble-gutter column
 const NO_COLS = 92; // two 46px line-number columns
+const FIXED = BUBBLE * 2 + NO_COLS; // non-code width (old + new bubble gutters + both number cols)
+const LEAD = BUBBLE + 46; // old bubble + old line-number column, left of the left code pane
 
 export function SplitResizer({ ratio, onRatio }) {
   const onMouseDown = (e) => {
@@ -11,7 +14,7 @@ export function SplitResizer({ ratio, onRatio }) {
     const wrap = e.currentTarget.parentElement; // .split-wrap (position: relative)
     const move = (ev) => {
       const rect = wrap.getBoundingClientRect();
-      const r = (ev.clientX - rect.left - NO_COLS / 2) / (rect.width - NO_COLS);
+      const r = (ev.clientX - rect.left - LEAD) / (rect.width - FIXED);
       onRatio(Math.max(0.15, Math.min(0.85, r)));
     };
     const stop = () => {
@@ -25,7 +28,7 @@ export function SplitResizer({ ratio, onRatio }) {
   };
   return html`<div
     class="split-resizer"
-    style=${`left: calc(46px + (100% - ${NO_COLS}px) * ${ratio})`}
+    style=${`left: calc(${LEAD}px + (100% - ${FIXED}px) * ${ratio})`}
     title="Drag to resize the panes"
     onMouseDown=${onMouseDown}
   ></div>`;

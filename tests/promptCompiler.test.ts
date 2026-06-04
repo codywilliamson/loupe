@@ -195,4 +195,28 @@ describe("compileReviewPrompt", () => {
     expect(out).toContain("## Summary: 4 comment(s) across 2 file(s)");
     expect(out).toContain("\n\n---\n\n"); // sections divided by the --- separator
   });
+
+  it("renders an old-side comment with an 'Old line' header and removed-line context", () => {
+    const lines: DiffLine[] = [
+      { type: "context", oldLine: 1, newLine: 1, content: "keep one" },
+      { type: "context", oldLine: 2, newLine: 2, content: "keep two" },
+      { type: "deletion", oldLine: 3, newLine: null, content: "removed three" },
+      { type: "context", oldLine: 4, newLine: 3, content: "keep four" },
+    ];
+    const diff: DiffResult = {
+      ref: FX,
+      files: [{ path: "a.ts", oldPath: null, changeType: "modified", additions: 0, deletions: 1, hunks: [{ header: "@@ -1,4 +1,3 @@", lines }] }],
+    };
+    const out = run([comment({ side: "old", line: 3, text: "why removed?" })], diff);
+    expect(out).toContain("### a.ts — Old line 3");
+    expect(out).toContain("  > 3 | -removed three"); // deletion marked with -
+    expect(out).toContain("why removed?");
+  });
+
+  it("keeps old-side and new-side comments on the same number as separate sections (new first)", () => {
+    const out = run([comment({ id: "c1", side: "new", line: 5, text: "new note" }), comment({ id: "c2", side: "old", line: 5, text: "old note" })]);
+    expect(out).toContain("### a.ts — Line 5");
+    expect(out).toContain("### a.ts — Old line 5");
+    expect(out.indexOf("### a.ts — Line 5")).toBeLessThan(out.indexOf("### a.ts — Old line 5"));
+  });
 });

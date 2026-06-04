@@ -5,9 +5,18 @@ import type { DiffResult, ReviewFile, Comment, DiffFile, DiffLine } from "../typ
 
 const DIVIDER = "\n\n---\n\n";
 
-// only context + additions carry a new-file line number; deletions are dropped.
-function newLineSlice(file: DiffFile): DiffLine[] {
-  return file.hunks.flatMap((h) => h.lines).filter((l) => l.newLine !== null);
+type Side = "old" | "new";
+
+const sideOf = (c: Comment): Side => c.side ?? "new";
+
+// the line's number on the given side (deletions lack a new number, additions an old one).
+function numOn(line: DiffLine, side: Side): number | null {
+  return side === "old" ? line.oldLine : line.newLine;
+}
+
+// lines that carry a number on `side`: new = additions + context, old = deletions + context.
+function lineSlice(file: DiffFile, side: Side): DiffLine[] {
+  return file.hunks.flatMap((h) => h.lines).filter((l) => numOn(l, side) !== null);
 }
 
 function markerFor(line: DiffLine): string {
@@ -16,24 +25,25 @@ function markerFor(line: DiffLine): string {
   return " ";
 }
 
-// builds the 4-space-indented context block around the commented range.
+// builds the 4-space-indented context block around the commented range on `side`.
 // window is 2 lines above `start` and 2 below `end`, clamped at file boundaries.
-// every line whose newLine is in [start, end] is marked with `> `; others are context.
-function buildContextBlock(file: DiffFile, start: number, end: number): string {
-  const slice = newLineSlice(file);
-  const startIdx = slice.findIndex((l) => l.newLine === start);
-  const endIdx = slice.findIndex((l) => l.newLine === end);
+// every line whose number is in [start, end] is marked with `> `; others are context.
+function buildContextBlock(file: DiffFile, side: Side, start: number, end: number): string {
+  const slice = lineSlice(file, side);
+  const startIdx = slice.findIndex((l) => numOn(l, side) === start);
+  const endIdx = slice.findIndex((l) => numOn(l, side) === end);
   if (startIdx === -1 || endIdx === -1) return "";
 
   const from = Math.max(0, startIdx - 2);
   const to = Math.min(slice.length - 1, endIdx + 2);
   const window = slice.slice(from, to + 1);
 
-  const width = Math.max(...window.map((l) => String(l.newLine).length));
+  const width = Math.max(...window.map((l) => String(numOn(l, side)).length));
   return window
     .map((l) => {
-      const num = String(l.newLine).padStart(width, " ");
-      const inRange = l.newLine !== null && l.newLine >= start && l.newLine <= end;
+      const n = numOn(l, side) as number;
+      const num = String(n).padStart(width, " ");
+      const inRange = n >= start && n <= end;
       if (inRange) return `  > ${num} | ${markerFor(l)}${l.content}`;
       return `    ${num} | ${l.content}`;
     })
@@ -55,36 +65,42 @@ function rangeEnd(c: Comment): number {
   return c.endLine != null ? Math.max(c.line as number, c.endLine) : (c.line as number);
 }
 
-function lineSection(file: string, diffFile: DiffFile | undefined, start: number, end: number, comments: Comment[]): string {
-  // single line uses "Line n"; a range uses "Lines start–end" with an en dash.
-  const header = start === end ? `### ${file} — Line ${start}` : `### ${file} — Lines ${start}–${end}`;
-  const block = diffFile ? buildContextBlock(diffFile, start, end) : "";
-  // comments sharing the exact range share one block; different ranges are separate sections.
+function lineSection(file: string, diffFile: DiffFile | undefined, side: Side, start: number, end: number, comments: Comment[]): string {
+  // new side uses "Line n" / "Lines a–b"; old side prefixes with "Old" for removed lines.
+  const one = side === "old" ? "Old line" : "Line";
+  const many = side === "old" ? "Old lines" : "Lines";
+  const header = start === end ? `### ${file} — ${one} ${start}` : `### ${file} — ${many} ${start}–${end}`;
+  const block = diffFile ? buildContextBlock(diffFile, side, start, end) : "";
+  // comments sharing the exact side+range share one block; different ranges are separate sections.
   return `${header}\n\n${block}\n\n${joinTexts(comments)}`;
 }
 
 // groups a file's comments into ordered sections: file-level first, then by range
-// (start asc, then end asc). comments with the same start+end merge into one section.
+// (start asc, end asc, new side before old). same side+start+end merge into one section.
 function sectionsForFile(file: string, diffFile: DiffFile | undefined, comments: Comment[]): string[] {
   const out: string[] = [];
 
   const fileLevel = comments.filter((c) => c.line === null);
   if (fileLevel.length > 0) out.push(fileLevelSection(file, fileLevel));
 
-  const byRange = new Map<string, { start: number; end: number; comments: Comment[] }>();
+  const byRange = new Map<string, { side: Side; start: number; end: number; comments: Comment[] }>();
   for (const c of comments) {
     if (c.line === null) continue;
+    const side = sideOf(c);
     const start = c.line;
     const end = rangeEnd(c);
-    const key = `${start}:${end}`;
-    const bucket = byRange.get(key) ?? { start, end, comments: [] };
+    const key = `${side}:${start}:${end}`;
+    const bucket = byRange.get(key) ?? { side, start, end, comments: [] };
     bucket.comments.push(c);
     byRange.set(key, bucket);
   }
 
-  const ranges = [...byRange.values()].sort((a, b) => a.start - b.start || a.end - b.end);
+  const sideRank = (s: Side) => (s === "new" ? 0 : 1);
+  const ranges = [...byRange.values()].sort(
+    (a, b) => a.start - b.start || a.end - b.end || sideRank(a.side) - sideRank(b.side)
+  );
   for (const r of ranges) {
-    out.push(lineSection(file, diffFile, r.start, r.end, r.comments));
+    out.push(lineSection(file, diffFile, r.side, r.start, r.end, r.comments));
   }
   return out;
 }

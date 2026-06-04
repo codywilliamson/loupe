@@ -1,11 +1,24 @@
-// top bar: wordmark + update badge + ref on the left; counts, view toggles, theme + compile on the right.
+// top bar: wordmark + update badge + diff context on the left; counts, view toggles, theme + compile on the right.
 import { html } from "/preact.js";
 import { totalDelta } from "/util.js";
 import { Sun, Moon, Refresh, Columns, File } from "/icons.js";
 import { UpdateBadge } from "/update.js";
 
+// repo + mode + "source → target" so you know exactly what you're reviewing.
+function DiffInfo({ meta, refLabel }) {
+  if (!meta) return html`<span class="ref-label" title=${refLabel}>${refLabel}</span>`;
+  return html`<span class="diff-info">
+    <span class="repo-name" title=${meta.repo}>${meta.repo}</span>
+    <span class="mode-pill">${meta.mode}</span>
+    <span class="ref-pair" title=${`${meta.source} → ${meta.target}`}>
+      ${meta.source} <span class="arrow">→</span> ${meta.target}
+    </span>
+  </span>`;
+}
+
 export function TopBar({
   refLabel,
+  meta,
   files,
   theme,
   refreshing,
@@ -19,11 +32,14 @@ export function TopBar({
   onCompile,
 }) {
   const { add, del } = totalDelta(files);
+  const viewTip = viewMode === "single" ? "All-files view" : "Single-file view";
+  const splitTip = splitView ? "Unified (all files)" : "Side-by-side (all files)";
+  const themeTip = theme === "dark" ? "Light mode" : "Dark mode";
   return html`<header class="top-bar">
     <div class="top-left">
       <span class="wordmark">loupe</span>
       <${UpdateBadge} status=${update} />
-      <span class="ref-label" title=${refLabel}>${refLabel}</span>
+      <${DiffInfo} meta=${meta} refLabel=${refLabel} />
     </div>
     <div class="top-right">
       <span class="file-count">${files.length} file${files.length === 1 ? "" : "s"}</span>
@@ -31,16 +47,16 @@ export function TopBar({
         <span class="add">+${add}</span>
         <span class="del">-${del}</span>
       </span>
-      <button class="btn-icon icon-btn ${viewMode === "single" ? "on" : ""}" title="Single-file view" onClick=${onToggleView}>
+      <button class="btn-icon icon-btn ${viewMode === "single" ? "on" : ""}" data-tip=${viewTip} aria-label=${viewTip} onClick=${onToggleView}>
         <${File} />
       </button>
-      <button class="btn-icon icon-btn ${splitView ? "on" : ""}" title="Side-by-side (all files)" onClick=${onToggleSplit}>
+      <button class="btn-icon icon-btn ${splitView ? "on" : ""}" data-tip=${splitTip} aria-label=${splitTip} onClick=${onToggleSplit}>
         <${Columns} />
       </button>
-      <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" title="Re-run the diff" onClick=${onRefresh}>
+      <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" data-tip="Re-run the diff" aria-label="Re-run the diff" onClick=${onRefresh}>
         <${Refresh} />
       </button>
-      <button class="btn-icon icon-btn" title="Toggle dark mode" onClick=${onToggleTheme}>
+      <button class="btn-icon icon-btn" data-tip=${themeTip} aria-label=${themeTip} onClick=${onToggleTheme}>
         ${theme === "dark" ? html`<${Sun} />` : html`<${Moon} />`}
       </button>
       <button class="btn-compile" onClick=${onCompile}>Compile Review Prompt</button>

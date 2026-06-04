@@ -43,6 +43,7 @@
 /* side-by-side: fixed layout + colgroup keep the two code columns an even 50/50
    (the bug before: both .code cells claimed width:100%, collapsing the right pane). */
 .diff-table.split { table-layout: fixed; }
+.diff-table.split col.cg-bubble { width: 22px; }
 .diff-table.split col.cg-no { width: 46px; }
 .diff-table.split .code { width: auto; }
 .diff-row.split .lineno { border-right: none; border-left: 1px solid var(--border); }
@@ -63,6 +64,9 @@
 .diff-row.range-selected .code { background: color-mix(in srgb, var(--ado-blue) 10%, transparent); }
 /* while dragging a selection: kill text selection and signal vertical drag */
 body.selecting { user-select: none; cursor: ns-resize; }
+/* the sticky file header (z-index) otherwise intercepts elementFromPoint during a drag,
+   so rows scrolled under it can't be selected — let pointer hit-testing pass through. */
+body.selecting .file-head { pointer-events: none; }
 
 /* ── hunk header pill ── */
 .hunk-header td { padding: 2px 8px; background: var(--hunk-bg); }

@@ -2,12 +2,12 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join, extname, resolve } from "node:path";
-import type { DiffResult, ReviewFile, Comment } from "../types";
+import type { DiffResult, DiffMeta, ReviewFile, Comment } from "../types";
 import { readReview, writeReview } from "../core/reviewStore";
 import { compileReviewPrompt } from "../core/promptCompiler";
 import { parseDiff } from "../core/diffParser";
 import { checkForUpdate } from "../core/updateCheck";
-import { runGit } from "../utils/git";
+import { collectDiff, runGit } from "../utils/git";
 
 export interface ServerContext {
   diff: DiffResult; // seeded at launch, re-run on each GET /api/diff for live review
@@ -16,6 +16,8 @@ export interface ServerContext {
   loupeRoot: string; // loupe's own repo root, for the release-update check
   newRef: string | null; // ref for new-side file content; null = read working tree from disk
   diffArgs: string[]; // git args to re-run the diff on demand (refresh)
+  includeUntracked: boolean; // working-tree mode also surfaces untracked files
+  meta?: DiffMeta; // stable review context (repo + refs); reused across refreshes
 }
 
 // small json response helper.
@@ -46,7 +48,8 @@ function loadOrInit(ctx: ServerContext): ReviewFile {
 // keeping the last good diff if git errors transiently.
 export function handleGetDiff(ctx: ServerContext): Response {
   try {
-    ctx.diff = parseDiff(runGit(ctx.diffArgs, ctx.cwd), ctx.diff.ref);
+    const raw = collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked);
+    ctx.diff = { ...parseDiff(raw, ctx.diff.ref), meta: ctx.meta };
   } catch {
     // keep the previous diff
   }

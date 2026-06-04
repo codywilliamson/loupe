@@ -2,9 +2,10 @@
 // loupe cli entry point: resolve the ref arg, run + parse the diff, serve it, open the browser.
 
 import { join } from "node:path";
-import { resolveRef, runGit } from "./utils/git";
+import { resolveRef, collectDiff, repoName } from "./utils/git";
 import { parseDiff } from "./core/diffParser";
 import { createServer } from "./server/router";
+import type { DiffMeta } from "./types";
 
 // opens the default browser at url, best-effort per platform.
 function openBrowser(url: string): void {
@@ -28,11 +29,15 @@ function main(): void {
   let diff;
   let newRef: string | null = null;
   let diffArgs: string[] = [];
+  let includeUntracked = false;
+  let meta: DiffMeta | undefined;
   try {
     const plan = resolveRef(spec, cwd);
     newRef = plan.newRef;
     diffArgs = plan.diffArgs;
-    diff = parseDiff(runGit(plan.diffArgs, cwd), plan.refLabel);
+    includeUntracked = plan.includeUntracked;
+    meta = { repo: repoName(cwd), mode: plan.mode, source: plan.source, target: plan.target };
+    diff = { ...parseDiff(collectDiff(plan.diffArgs, cwd, includeUntracked), plan.refLabel), meta };
   } catch (err) {
     console.error(`[loupe] ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
@@ -40,7 +45,7 @@ function main(): void {
 
   const clientDir = join(import.meta.dir, "client");
   const loupeRoot = join(import.meta.dir, ".."); // src/ → repo root
-  const server = createServer({ diff, cwd, clientDir, loupeRoot, newRef, diffArgs });
+  const server = createServer({ diff, cwd, clientDir, loupeRoot, newRef, diffArgs, includeUntracked, meta });
   const url = `http://localhost:${server.port}`;
 
   openBrowser(url);
