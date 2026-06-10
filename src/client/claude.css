@@ -1,0 +1,59 @@
+/* claude themes — anthropic-inspired warm palettes: ivory paper light, charcoal dark,
+   terracotta accent. token overrides only, same contract as theme.css. */
+
+[data-theme="claude"] {
+  --add-line: #e7efda;
+  --add-gutter: #cde2b4;
+  --del-line: #f9e3da;
+  --del-gutter: #f1ccbc;
+  --inline-add: #b9d89a;
+  --inline-del: #ecc3ae;
+  --ctx-line: #faf9f5;
+  --file-head: #f0eee6;
+  --comment-border: #c96442;
+  --comment-bg: #f5f1e8;
+  --ado-blue: #c96442;
+  --ado-blue-dark: #a84b2f;
+  --border: #e3e0d5;
+  --text: #3d3929;
+  --muted: #87867f;
+  --surface: #faf9f5;
+  --surface-2: #f0eee6;
+  --surface-3: #f5f4ed;
+  --hover: #efe9dd;
+  --hunk-bg: #f0ebdf;
+  --pill-bg: #eadfd1;
+  --pill-text: #7a6a55;
+}
+
+[data-theme="claude-dark"] {
+  --add-line: #283222;
+  --add-gutter: #3a4a30;
+  --del-line: #3b2520;
+  --del-gutter: #4e2e25;
+  --inline-add: #4a6336;
+  --inline-del: #6e4032;
+  --ctx-line: #262624;
+  --file-head: #30302e;
+  --comment-border: #d97757;
+  --comment-bg: #2e2c28;
+  --ado-blue: #d97757;
+  --ado-blue-dark: #e08a6d;
+  --border: #3f3d38;
+  --text: #eceae2;
+  --muted: #a6a39a;
+  --surface: #262624;
+  --surface-2: #1f1e1b;
+  --surface-3: #2b2a27;
+  --hover: #393937;
+  --hunk-bg: #2e2c26;
+  --pill-bg: #3a372f;
+  --pill-text: #c9c4b4;
+}
+
+/* warm wordmark + serif nod to the claude app in both variants */
+[data-theme^="claude"] .wordmark { font-family: Georgia, "Times New Roman", serif; font-style: italic; }
+[data-theme="claude"] .add, [data-theme="claude"] .top-delta .add { color: #5a7d3c; }
+[data-theme="claude"] .del, [data-theme="claude"] .top-delta .del { color: #ab3a2c; }
+[data-theme="claude-dark"] .add, [data-theme="claude-dark"] .top-delta .add { color: #9dc07c; }
+[data-theme="claude-dark"] .del, [data-theme="claude-dark"] .top-delta .del { color: #e58e76; }

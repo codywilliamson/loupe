@@ -1,8 +1,12 @@
 // top bar: wordmark + update badge + diff context on the left; counts, view toggles, theme + compile on the right.
 import { html } from "/preact.js";
 import { totalDelta } from "/util.js";
-import { Sun, Moon, Refresh, Columns, File } from "/icons.js";
+import { Sun, Moon, Spark, Refresh, Columns, File } from "/icons.js";
+import { THEMES, THEME_LABELS } from "/theme.js";
 import { UpdateBadge } from "/update.js";
+
+// the icon shown for the current theme; claude variants share the starburst.
+const THEME_ICONS = { light: Sun, dark: Moon, claude: Spark, "claude-dark": Spark };
 
 // repo + mode + "source → target" so you know exactly what you're reviewing.
 function DiffInfo({ meta, refLabel }) {
@@ -34,7 +38,9 @@ export function TopBar({
   const { add, del } = totalDelta(files);
   const viewTip = viewMode === "single" ? "All-files view" : "Single-file view";
   const splitTip = splitView ? "Unified (all files)" : "Side-by-side (all files)";
-  const themeTip = theme === "dark" ? "Light mode" : "Dark mode";
+  const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  const themeTip = `Theme: ${THEME_LABELS[theme]} — next: ${THEME_LABELS[next]}`;
+  const ThemeIcon = THEME_ICONS[theme] ?? Sun;
   return html`<header class="top-bar">
     <div class="top-left">
       <span class="wordmark">loupe</span>
@@ -57,7 +63,7 @@ export function TopBar({
         <${Refresh} />
       </button>
       <button class="btn-icon icon-btn" data-tip=${themeTip} aria-label=${themeTip} onClick=${onToggleTheme}>
-        ${theme === "dark" ? html`<${Sun} />` : html`<${Moon} />`}
+        <${ThemeIcon} />
       </button>
       <button class="btn-compile" onClick=${onCompile}>Compile Review Prompt</button>
     </div>
