@@ -1,14 +1,17 @@
 // renders diff rows (unified + side-by-side) with hover bubble gutter and inline comment slots.
-import { html } from "/preact.js";
+import { html, useMemo } from "/preact.js";
 import { highlightLine } from "/highlight.js";
 import { Bubble } from "/icons.js";
 import { CommentThread, CommentEditor } from "/comments.js";
+import { pairLines, hunkMarks, markRange } from "/wordDiff.js";
 
 const SIGN = { addition: "+", deletion: "-", context: " " };
 
-// code cell with syntax highlighting injected as html.
-function Code({ line, path }) {
-  const inner = highlightLine(line.content, path);
+// code cell with syntax highlighting injected as html; `mark` wraps the intra-line
+// changed range of a modified pair in a tinted <mark>.
+function Code({ line, path, mark }) {
+  let inner = highlightLine(line.content, path);
+  if (mark) inner = markRange(inner, mark.start, mark.end, `wd wd-${line.type}`);
   return html`<td class="code code-${line.type}">
     <span class="sign">${SIGN[line.type]}</span><span
       class="code-inner"
@@ -80,7 +83,7 @@ function startSelect(e, side, anchor, threads) {
 // css until row hover) so the gutter column never resizes — no layout jump on hover.
 // two root nodes: htm returns them as an array, preact renders them as siblings
 // (a fragment shorthand <>…</> isn't registered on this raw htm.bind(h) and breaks).
-function UnifiedRow({ line, path, threads }) {
+function UnifiedRow({ line, path, threads, mark }) {
   // additions + context anchor on the new side; deletions anchor on the old side.
   const newLine = line.newLine;
   const oldLine = line.type === "deletion" ? line.oldLine : null;
@@ -98,53 +101,33 @@ function UnifiedRow({ line, path, threads }) {
       </td>
       <td class="lineno old-no">${line.oldLine ?? ""}</td>
       <td class="lineno new-no">${line.newLine ?? ""}</td>
-      <${Code} line=${line} path=${path} />
+      <${Code} line=${line} path=${path} mark=${mark} />
     </tr>
     <${LineComments} anchors=${commentable ? [{ side, line: anchor, lineObj: line }] : []} threads=${threads} />
   `;
 }
 
 export function UnifiedHunk({ hunk, path, threads }) {
+  const marks = useMemo(() => hunkMarks(hunk.lines), [hunk]);
   return html`<tbody>
     <tr class="hunk-header">
       <td colspan="4"><span class="hunk-pill">${hunk.header}</span></td>
     </tr>
     ${hunk.lines.map(
-      (l, i) => html`<${UnifiedRow} key=${i} line=${l} path=${path} threads=${threads} />`
+      (l, i) => html`<${UnifiedRow} key=${i} line=${l} path=${path} threads=${threads} mark=${marks.get(l)} />`
     )}
   </tbody>`;
 }
 
-// pair deletions with additions for side-by-side; context spans both columns.
-function pairLines(lines) {
-  const rows = [];
-  let i = 0;
-  while (i < lines.length) {
-    const l = lines[i];
-    if (l.type === "context") {
-      rows.push({ left: l, right: l });
-      i++;
-    } else {
-      const dels = [];
-      const adds = [];
-      while (i < lines.length && lines[i].type === "deletion") dels.push(lines[i++]);
-      while (i < lines.length && lines[i].type === "addition") adds.push(lines[i++]);
-      const n = Math.max(dels.length, adds.length);
-      for (let k = 0; k < n; k++) rows.push({ left: dels[k] ?? null, right: adds[k] ?? null });
-    }
-  }
-  return rows;
-}
-
-function Side({ line, path, side }) {
+function Side({ line, path, side, mark }) {
   if (!line) return html`<td class="lineno ${side}-no empty"></td><td class="code code-empty"></td>`;
   const no = side === "old" ? line.oldLine : line.newLine;
-  return html`<td class="lineno ${side}-no">${no ?? ""}</td><${Code} line=${line} path=${path} />`;
+  return html`<td class="lineno ${side}-no">${no ?? ""}</td><${Code} line=${line} path=${path} mark=${mark} />`;
 }
 
 // one side-by-side row: an old-side bubble (removed lines) + the old cells, then a new-side
 // bubble (added/context) + the new cells, then the comment region for either anchor.
-function SplitRow({ left, right, path, threads }) {
+function SplitRow({ left, right, path, threads, marks }) {
   const newLine = right && right.newLine != null ? right.newLine : null;
   const oldLine = left && left.type === "deletion" ? left.oldLine : null;
   const oldSel = oldLine != null && (threads.pendingAt("old", oldLine) || threads.rangeAt("old", oldLine));
@@ -159,25 +142,26 @@ function SplitRow({ left, right, path, threads }) {
         ${oldLine != null &&
         html`<button class="bubble-btn" title="Comment on the removed line — drag or shift-click for a range" onMouseDown=${(e) => startSelect(e, "old", oldLine, threads)}><${Bubble} /></button>`}
       </td>
-      <${Side} line=${left} path=${path} side="old" />
+      <${Side} line=${left} path=${path} side="old" mark=${left && marks.get(left)} />
       <td class="bubble-gutter">
         ${newLine != null &&
         html`<button class="bubble-btn" title="Comment on the new line — drag or shift-click for a range" onMouseDown=${(e) => startSelect(e, "new", newLine, threads)}><${Bubble} /></button>`}
       </td>
-      <${Side} line=${right} path=${path} side="new" />
+      <${Side} line=${right} path=${path} side="new" mark=${right && marks.get(right)} />
     </tr>
     <${LineComments} anchors=${anchors} threads=${threads} variant="split" />
   `;
 }
 
 export function SplitHunk({ hunk, path, threads }) {
-  const rows = pairLines(hunk.lines);
+  const rows = useMemo(() => pairLines(hunk.lines), [hunk]);
+  const marks = useMemo(() => hunkMarks(hunk.lines), [hunk]);
   return html`<tbody>
     <tr class="hunk-header">
       <td colspan="6"><span class="hunk-pill">${hunk.header}</span></td>
     </tr>
     ${rows.map(
-      (r, i) => html`<${SplitRow} key=${i} left=${r.left} right=${r.right} path=${path} threads=${threads} />`
+      (r, i) => html`<${SplitRow} key=${i} left=${r.left} right=${r.right} path=${path} threads=${threads} marks=${marks} />`
     )}
   </tbody>`;
 }

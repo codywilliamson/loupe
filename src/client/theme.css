@@ -4,6 +4,8 @@
   --add-gutter: #1b3a28;
   --del-line: #2d1416;
   --del-gutter: #3d1d20;
+  --inline-add: #2f6f44;
+  --inline-del: #7a3a3f;
   --file-head: #2b2b2b;
   --comment-border: #4ca3ff;
   --comment-bg: #20262c;

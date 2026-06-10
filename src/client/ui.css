@@ -1,0 +1,7 @@
+/* loupe — styles for ui features layered on the core diff: word-diff marks,
+   tree filter + progress, keyboard help overlay, comment tags. */
+
+/* ── intra-line word diff ── */
+mark.wd { color: inherit; border-radius: 2px; padding: 0; }
+mark.wd-addition { background: var(--inline-add); }
+mark.wd-deletion { background: var(--inline-del); }
