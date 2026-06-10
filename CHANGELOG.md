@@ -4,6 +4,9 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Changed
+- Site redesigned as a self-demonstrating review session — the landing page is a diff under review (hunk pills, struck-through deletions, comment-card copy), with a proper mobile-first layout
+
 ## [0.6.0] — 2026-06-09
 
 ### Added

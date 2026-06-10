@@ -5,81 +5,83 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>docs — loupe</title>
   <meta name="description" content="Install and use loupe: CLI flags, review workflow, keyboard shortcuts, themes, and the compiled review prompt format." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext x='2' y='19' font-size='19' fill='%23c96442'%3E✻%3C/text%3E%3C/svg%3E" />
+  <meta name="theme-color" content="#1f1e1b" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%231f1e1b'/%3E%3Ctext x='3' y='19' font-size='17' fill='%23d97757'%3E✻%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="wrap">
-    <nav class="nav">
+  <header class="bar">
+    <div class="wrap bar-in">
       <a class="brand" href="./"><span class="spark">✻</span>loupe</a>
-      <div class="links">
+      <span class="mode-pill">docs</span>
+      <span class="refpair"><b>install</b> → <b>review</b> → <b>compile</b></span>
+      <nav class="links">
         <a href="./">overview</a>
         <a class="here" href="docs.html">docs</a>
-        <a href="https://github.com/codywilliamson/loupe/blob/main/CHANGELOG.md">changelog</a>
         <a href="https://github.com/codywilliamson/loupe">github</a>
-      </div>
-    </nav>
+      </nav>
+    </div>
   </header>
 
   <main class="wrap docs">
     <nav class="toc">
-      <div class="toc-title">on this page</div>
-      <a href="#install">Install</a>
-      <a href="#usage">Usage</a>
-      <a href="#options">CLI options</a>
-      <a href="#reviewing">Reviewing</a>
-      <a href="#shortcuts">Keyboard shortcuts</a>
-      <a href="#themes">Themes</a>
-      <a href="#export">Prompt export</a>
-      <a href="#review-file">The .review file</a>
-      <a href="#updates">Staying updated</a>
+      <div class="toc-title">files in this review</div>
+      <a href="#install"><span class="badge a">A</span>install.md</a>
+      <a href="#usage"><span class="badge m">M</span>usage.md</a>
+      <a href="#options"><span class="badge m">M</span>cli-options.md</a>
+      <a href="#reviewing"><span class="badge m">M</span>reviewing.md</a>
+      <a href="#shortcuts"><span class="badge a">A</span>shortcuts.md</a>
+      <a href="#themes"><span class="badge a">A</span>themes.md</a>
+      <a href="#export"><span class="badge m">M</span>prompt-export.md</a>
+      <a href="#review-file"><span class="badge a">A</span>dot-review.md</a>
+      <a href="#updates"><span class="badge m">M</span>updates.md</a>
     </nav>
 
     <article class="prose">
       <h1>Documentation</h1>
       <p>
-        loupe is a local git diff viewer for one job: <strong>reading a change carefully,
-        annotating it, and handing the result to a coding agent</strong>. It runs entirely on
-        your machine — no accounts, no uploads, no runtime dependencies.
+        loupe does one job: <strong>read a change carefully, annotate it, and hand the result
+        to a coding agent</strong>. It runs entirely on your machine — no accounts, no uploads,
+        no runtime dependencies.
       </p>
 
-      <h2 id="install"><span class="spark">✻</span>Install</h2>
+      <h2 id="install"><span class="hunk">@@ install @@</span></h2>
       <p>loupe runs on <a href="https://bun.sh">Bun</a> (1.0+) and needs <code>git</code> on your PATH.</p>
-      <div class="term"><span class="ps1">$</span> git clone https://github.com/codywilliamson/loupe
-<span class="ps1">$</span> cd loupe
-<span class="ps1">$</span> bun install
-<span class="ps1">$</span> bun link   <span class="dim"># puts `loupe` on your PATH — macOS, Linux, Windows</span></div>
+      <div class="term"><span class="ps1">$</span> <span class="cmd">git clone https://github.com/codywilliamson/loupe</span>
+<span class="ps1">$</span> <span class="cmd">cd loupe</span>
+<span class="ps1">$</span> <span class="cmd">bun install</span>
+<span class="ps1">$</span> <span class="cmd">bun link</span>   <span class="dim"># puts `loupe` on your PATH — macOS, Linux, Windows</span></div>
       <p>Then run <code>loupe</code> from any git repository.</p>
       <div class="note">
         <strong>Windows fallback</strong> — if <code>loupe</code> isn't found after
         <code>bun link</code> (it depends on how Bun was installed), add a function to your
-        PowerShell profile instead:<br /><br />
-        <code>'function loupe { bun "C:\path\to\loupe\src\index.ts" @args }' | Add-Content $PROFILE</code>
+        PowerShell profile instead:
+        <div class="term" style="margin-top:10px"><span class="cmd">'function loupe { bun "C:\path\to\loupe\src\index.ts" @args }' | Add-Content $PROFILE</span></div>
       </div>
 
-      <h2 id="usage"><span class="spark">✻</span>Usage</h2>
-      <p>Run loupe inside the repo you want to review. It prints a localhost URL and opens your browser; the diff renders there, not in the terminal.</p>
-      <table>
+      <h2 id="usage"><span class="hunk">@@ usage @@</span></h2>
+      <p>Run loupe inside the repo you want to review. It prints a localhost URL and opens your browser — the diff renders there, not in the terminal.</p>
+      <div class="tscroll"><table>
         <tr><th>command</th><th>reviews</th></tr>
         <tr><td><code>loupe</code></td><td>working tree vs <code>HEAD</code> — untracked files included as additions</td></tr>
         <tr><td><code>loupe staged</code></td><td>staged changes only</td></tr>
         <tr><td><code>loupe origin/main</code></td><td>what the current branch adds vs a base (PR-style three-dot diff)</td></tr>
         <tr><td><code>loupe v1.0..v1.1</code></td><td>any commit range</td></tr>
-      </table>
+      </table></div>
 
-      <h2 id="options"><span class="spark">✻</span>CLI options</h2>
-      <table>
+      <h2 id="options"><span class="hunk">@@ cli options @@</span></h2>
+      <div class="tscroll"><table>
         <tr><th>flag</th><th>effect</th></tr>
         <tr><td><code>-p, --port &lt;n&gt;</code></td><td>serve on a fixed port (default: any free port)</td></tr>
         <tr><td><code>--no-open</code></td><td>don't open the browser automatically</td></tr>
         <tr><td><code>-v, --version</code></td><td>print the installed version</td></tr>
         <tr><td><code>-h, --help</code></td><td>usage summary</td></tr>
-      </table>
+      </table></div>
 
-      <h2 id="reviewing"><span class="spark">✻</span>Reviewing</h2>
+      <h2 id="reviewing"><span class="hunk">@@ reviewing @@</span></h2>
       <h3>Line comments</h3>
       <p>
         Hover any line and press the bubble to comment. <strong>Drag</strong> across lines to
@@ -96,17 +98,17 @@
       <h3>File-level comments &amp; viewed tracking</h3>
       <p>
         The speech-bubble button in a file header attaches a comment to the whole file. The
-        checkbox in the sidebar marks a file viewed; a progress bar above the tree tracks
-        how much of the diff you've read. The filter box narrows the tree to matching paths.
+        checkbox in the sidebar marks a file viewed; a progress bar above the tree tracks how
+        much of the diff you've read. The filter box narrows the tree to matching paths.
       </p>
       <h3>Live refresh</h3>
       <p>
-        The refresh button (or reloading the tab) re-runs the diff in place while keeping
-        your comments — useful while an agent keeps editing under you.
+        The refresh button (or reloading the tab) re-runs the diff in place while keeping your
+        comments — useful while an agent keeps editing under you.
       </p>
 
-      <h2 id="shortcuts"><span class="spark">✻</span>Keyboard shortcuts</h2>
-      <table>
+      <h2 id="shortcuts"><span class="hunk">@@ keyboard shortcuts @@</span></h2>
+      <div class="tscroll"><table>
         <tr><th>key</th><th>action</th></tr>
         <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>next / previous file</td></tr>
         <tr><td><kbd>v</kbd></td><td>toggle viewed on the current file</td></tr>
@@ -117,22 +119,23 @@
         <tr><td><kbd>c</kbd></td><td>compile review prompt</td></tr>
         <tr><td><kbd>?</kbd></td><td>show the shortcut overlay</td></tr>
         <tr><td><kbd>Esc</kbd></td><td>close dialogs</td></tr>
-      </table>
+      </table></div>
 
-      <h2 id="themes"><span class="spark">✻</span>Themes</h2>
+      <h2 id="themes"><span class="hunk">@@ themes @@</span></h2>
       <p>
         The theme button cycles <strong>light → dark → claude → claude dark</strong>. The two
         Claude variants are warm Anthropic-inspired palettes — ivory paper and soft charcoal
-        with terracotta accents. Your choice persists; the first run follows your OS preference.
+        with terracotta accents (this site wears the dark one). Your choice persists; the first
+        run follows your OS preference.
       </p>
 
-      <h2 id="export"><span class="spark">✻</span>Prompt export</h2>
+      <h2 id="export"><span class="hunk">@@ prompt export @@</span></h2>
       <p>
         <em>Compile Review Prompt</em> assembles every comment into ordered markdown: file-level
         notes first, then line comments sorted by position, each wrapped in ±2 lines of diff
         context with the commented range marked by <code>&gt;</code>.
       </p>
-      <div class="term">## Code Review — feature/x — 2026-06-09
+      <div class="term">## Code Review — feature/x — 2026-06-10
 
 ### src/utils/cli.ts — Lines 38–40
 
@@ -142,18 +145,18 @@
   <span class="ps1">&gt;</span> 39 | +    else if (arg === "-v") opts.version = true;
       41 |     else if (arg.startsWith("-")) {
 
-**[nit]** alphabetize the flag checks
+<span class="ok">**[nit]** alphabetize the flag checks</span>
 
 ---
 
 ### src/utils/cli.ts — File-level
 
-**[praise]** clean separation from the entry point
+<span class="ok">**[praise]** clean separation from the entry point</span>
 
 ## Summary: 2 comment(s) across 1 file(s)</div>
       <p>Copy it straight into Claude Code, a PR description, or any agent that takes instructions.</p>
 
-      <h2 id="review-file"><span class="spark">✻</span>The .review file</h2>
+      <h2 id="review-file"><span class="hunk">@@ the .review file @@</span></h2>
       <p>
         Comments and viewed-state persist to a <code>.review</code> JSON file in the directory
         you ran loupe from. It's appended to <code>.gitignore</code> automatically, never
@@ -161,7 +164,7 @@
         still there.
       </p>
 
-      <h2 id="updates"><span class="spark">✻</span>Staying updated</h2>
+      <h2 id="updates"><span class="hunk">@@ staying updated @@</span></h2>
       <p>
         loupe checks its own repo for newer release tags (throttled, fully offline-safe). When
         one exists, a pulsing dot appears next to the wordmark — click it for the exact
@@ -172,11 +175,14 @@
 
   <footer>
     <div class="wrap foot">
-      <span class="made"><span class="spark">✻</span> built with Bun + Preact, no build step, no runtime deps.</span>
-      <div class="links">
-        <a href="./">overview</a>
-        <a href="https://github.com/codywilliamson/loupe">github</a>
-        <a href="https://github.com/codywilliamson/loupe/releases">releases</a>
+      <p class="no-newline"><b>\</b> No newline at end of file</p>
+      <div class="foot-row">
+        <span><span class="spark">✻</span> built with bun + preact · no build step · no runtime deps</span>
+        <span class="links">
+          <a href="./">overview</a>
+          <a href="https://github.com/codywilliamson/loupe/blob/main/CHANGELOG.md">changelog</a>
+          <a href="https://github.com/codywilliamson/loupe/releases">releases</a>
+        </span>
       </div>
     </div>
   </footer>
