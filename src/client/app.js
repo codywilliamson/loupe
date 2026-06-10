@@ -5,11 +5,13 @@ import { fileAnchorId, clamp } from "/util.js";
 import { initTheme, nextTheme } from "/theme.js";
 import { usePersistedState } from "/prefs.js";
 import { useUpdateCheck } from "/update.js";
+import { useShortcuts } from "/shortcuts.js";
 import { TopBar } from "/topBar.js";
 import { FileTree } from "/fileTree.js";
 import { Resizer } from "/resizer.js";
 import { DiffView } from "/diffView.js";
 import { CompileModal } from "/compileModal.js";
+import { HelpOverlay } from "/helpOverlay.js";
 
 function App() {
   const [diff, setDiff] = useState(null);
@@ -18,6 +20,7 @@ function App() {
   const [adding, setAdding] = useState(null); // {file, line|null, endLine?} while composing
   const [selecting, setSelecting] = useState(null); // {file, from, to} during a drag-select
   const [showCompile, setShowCompile] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [error, setError] = useState(null);
   const [theme, setTheme] = useState(() => initTheme());
   const [sidebarWidth, setSidebarWidth] = usePersistedState("loupe-sidebar", 280, Number);
@@ -52,7 +55,7 @@ function App() {
   );
 
   const onEdit = useCallback(
-    (id, text) => persistComments(comments.map((c) => (c.id === id ? { ...c, text } : c))),
+    (id, text, tag) => persistComments(comments.map((c) => (c.id === id ? { ...c, text, tag } : c))),
     [comments, persistComments]
   );
 
@@ -70,11 +73,12 @@ function App() {
     [viewed]
   );
 
-  // single-file view swaps the shown file; all-files view scrolls to it.
+  // selecting tracks the current file in both modes; all-files view also scrolls to it.
   const onSelectFile = useCallback(
     (path) => {
-      if (viewMode === "single") return setActiveFile(path);
-      document.getElementById(fileAnchorId(path))?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveFile(path);
+      if (viewMode !== "single")
+        document.getElementById(fileAnchorId(path))?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
     [viewMode]
   );
@@ -100,6 +104,24 @@ function App() {
   const viewedSet = useMemo(() => new Set(viewed), [viewed]);
   const countFor = useCallback((path) => comments.filter((c) => c.file === path).length, [comments]);
 
+  useShortcuts({
+    files: diff?.files ?? [],
+    activeFile,
+    selectFile: onSelectFile,
+    toggleViewed: onToggleViewed,
+    toggleSplit: onToggleSplit,
+    toggleView: onToggleView,
+    cycleTheme: onToggleTheme,
+    refresh: onRefresh,
+    compile: () => setShowCompile(true),
+    toggleHelp: () => setShowHelp((v) => !v),
+    closeOverlays: () => {
+      setShowHelp(false);
+      setShowCompile(false);
+      setAdding(null);
+    },
+  });
+
   if (error) return html`<div class="fatal">${error}</div>`;
   if (!diff) return html`<div class="loading">Loading diff…</div>`;
 
@@ -118,13 +140,14 @@ function App() {
       onToggleView=${onToggleView}
       onToggleSplit=${onToggleSplit}
       onCompile=${() => setShowCompile(true)}
+      onHelp=${() => setShowHelp(true)}
     />
     <div class="body">
       <${FileTree}
         files=${diff.files}
         viewedSet=${viewedSet}
         countFor=${countFor}
-        activeFile=${viewMode === "single" ? activeFile : null}
+        activeFile=${activeFile}
         onSelect=${onSelectFile}
         onToggleViewed=${onToggleViewed}
         width=${sidebarWidth}
@@ -146,6 +169,7 @@ function App() {
       />
     </div>
     ${showCompile && html`<${CompileModal} onClose=${() => setShowCompile(false)} />`}
+    ${showHelp && html`<${HelpOverlay} onClose=${() => setShowHelp(false)} />`}
   </div>`;
 }
 

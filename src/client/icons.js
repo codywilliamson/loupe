@@ -49,6 +49,9 @@ export const Refresh = () =>
     d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
   /><path d="M3 21v-5h5" />`);
 
+export const HelpCircle = () =>
+  svg(html`<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" />`);
+
 // side-by-side (two columns) — global split toggle
 export const Columns = () =>
   svg(html`<rect width="18" height="18" x="3" y="3" rx="2" /><path d="M12 3v18" />`);

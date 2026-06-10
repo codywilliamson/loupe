@@ -1,0 +1,54 @@
+// global keyboard shortcuts. one keydown listener reading the latest app state via a ref.
+import { useEffect, useRef } from "/preact.js";
+
+// [key, what it does] — also rendered by the help overlay.
+export const SHORTCUTS = [
+  ["j", "Next file"],
+  ["k", "Previous file"],
+  ["v", "Toggle viewed on the current file"],
+  ["s", "Unified ↔ side-by-side"],
+  ["o", "Single-file ↔ all-files view"],
+  ["t", "Cycle theme"],
+  ["r", "Re-run the diff"],
+  ["c", "Compile review prompt"],
+  ["?", "Show this help"],
+  ["Esc", "Close dialogs"],
+];
+
+const isTyping = (el) => el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+
+// ctx: { files, activeFile, selectFile, toggleViewed, toggleSplit, toggleView,
+//        cycleTheme, refresh, compile, toggleHelp, closeOverlays }
+export function useShortcuts(ctx) {
+  const ref = useRef(ctx);
+  ref.current = ctx;
+
+  useEffect(() => {
+    const onKey = (e) => {
+      const c = ref.current;
+      if (e.key === "Escape") return c.closeOverlays();
+      if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+
+      const current = c.activeFile ?? c.files[0]?.path;
+      const idx = c.files.findIndex((f) => f.path === current);
+      const step = (delta) => {
+        const next = c.files[Math.min(c.files.length - 1, Math.max(0, idx + delta))];
+        if (next) c.selectFile(next.path);
+      };
+
+      if (e.key === "j") step(1);
+      else if (e.key === "k") step(-1);
+      else if (e.key === "v" && current) c.toggleViewed(current);
+      else if (e.key === "s") c.toggleSplit();
+      else if (e.key === "o") c.toggleView();
+      else if (e.key === "t") c.cycleTheme();
+      else if (e.key === "r") c.refresh();
+      else if (e.key === "c") c.compile();
+      else if (e.key === "?") c.toggleHelp();
+      else return;
+      e.preventDefault();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+}

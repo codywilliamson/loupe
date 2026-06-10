@@ -1,7 +1,18 @@
 /* loupe — styles for ui features layered on the core diff: word-diff marks,
-   tree filter + progress, keyboard help overlay, comment tags. */
+   keyboard help overlay, tree filter + progress, comment tags. */
 
 /* ── intra-line word diff ── */
 mark.wd { color: inherit; border-radius: 2px; padding: 0; }
 mark.wd-addition { background: var(--inline-add); }
 mark.wd-deletion { background: var(--inline-del); }
+
+/* ── keyboard help overlay ── */
+.help-modal { width: min(420px, 92vw); }
+.help-grid { padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 7px; }
+.help-row { display: flex; align-items: center; gap: 14px; }
+.help-row kbd {
+  min-width: 34px; text-align: center; font-family: var(--mono); font-size: 11px;
+  background: var(--surface-2); border: 1px solid var(--border); border-bottom-width: 2px;
+  border-radius: 4px; padding: 3px 6px; color: var(--text);
+}
+.help-row span { color: var(--muted); }

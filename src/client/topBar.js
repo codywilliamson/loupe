@@ -1,7 +1,7 @@
 // top bar: wordmark + update badge + diff context on the left; counts, view toggles, theme + compile on the right.
 import { html } from "/preact.js";
 import { totalDelta } from "/util.js";
-import { Sun, Moon, Spark, Refresh, Columns, File } from "/icons.js";
+import { Sun, Moon, Spark, Refresh, Columns, File, HelpCircle } from "/icons.js";
 import { THEMES, THEME_LABELS } from "/theme.js";
 import { UpdateBadge } from "/update.js";
 
@@ -34,6 +34,7 @@ export function TopBar({
   onToggleView,
   onToggleSplit,
   onCompile,
+  onHelp,
 }) {
   const { add, del } = totalDelta(files);
   const viewTip = viewMode === "single" ? "All-files view" : "Single-file view";
@@ -64,6 +65,9 @@ export function TopBar({
       </button>
       <button class="btn-icon icon-btn" data-tip=${themeTip} aria-label=${themeTip} onClick=${onToggleTheme}>
         <${ThemeIcon} />
+      </button>
+      <button class="btn-icon icon-btn" data-tip="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" onClick=${onHelp}>
+        <${HelpCircle} />
       </button>
       <button class="btn-compile" onClick=${onCompile}>Compile Review Prompt</button>
     </div>
