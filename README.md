@@ -2,6 +2,8 @@
 
 Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on any line, then export them all as a structured review prompt for any LLM.
 
+**Site & docs: [codywilliamson.github.io/loupe](https://codywilliamson.github.io/loupe/)**
+
 ## Screenshots
 
 ![loupe — unified diff with markdown preview, a file tree, and inline comments](docs/screenshots/01-overview.png)
@@ -16,13 +18,16 @@ Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on an
 
 ## Usage
 
-    bun src/index.ts                  # working tree vs HEAD
+    bun src/index.ts                  # working tree vs HEAD (untracked included)
     bun src/index.ts staged           # staged changes only
     bun src/index.ts <branch>         # current branch vs named branch
     bun src/index.ts <ref1>..<ref2>   # commit range
 
+Flags: `--port <n>` fixed port, `--no-open` don't launch the browser, `--version`, `--help`.
+
 loupe reviews whichever git repo you run it from, then prints a `http://localhost:<port>`
-URL and opens it in your browser — the diff renders there, not in the terminal.
+URL and opens it in your browser — the diff renders there, not in the terminal. Press `?`
+in the UI for keyboard shortcuts.
 
 ## Install as a `loupe` command
 
