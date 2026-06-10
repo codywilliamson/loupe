@@ -4,6 +4,20 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-06-09
+
+### Added
+- **Claude themes** — the theme button now cycles light → dark → claude → claude dark; the new pair are warm Anthropic-inspired palettes (ivory paper / soft charcoal, terracotta accents)
+- **Word-level diff highlights** — the changed segment inside a modified line pair is tinted in both unified and side-by-side views
+- **Keyboard shortcuts** — `j`/`k` walk files, `v` toggles viewed, `s` split, `o` single-file view, `t` theme, `r` refresh, `c` compile, `?` opens a shortcut overlay, `Esc` closes dialogs
+- **Comment tags** — label a comment `nit`, `issue`, `question`, or `praise`; pills in the UI, `**[tag]**` prefixes in the compiled prompt
+- File-tree **filter box** and a **viewed-progress bar** in the sidebar
+- CLI flags: `--port <n>`, `--no-open`, `--version`, `--help` — plus a styled launch banner
+- **Landing + docs site** on GitHub Pages ([codywilliamson.github.io/loupe](https://codywilliamson.github.io/loupe/)), deployed by a workflow
+
+### Changed
+- Selecting a file in the tree now tracks the current file in all-files view too (powers `j`/`k`/`v`)
+
 ## [0.5.0] — 2026-06-04
 
 ### Added
