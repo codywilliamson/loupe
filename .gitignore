@@ -38,3 +38,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # local agent/editor config
 .claude/
+
+# local site preview assets (pages workflow copies from docs/screenshots)
+site/shots/

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>docs — loupe</title>
+  <meta name="description" content="Install and use loupe: CLI flags, review workflow, keyboard shortcuts, themes, and the compiled review prompt format." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext x='2' y='19' font-size='19' fill='%23c96442'%3E✻%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="wrap">
+    <nav class="nav">
+      <a class="brand" href="./"><span class="spark">✻</span>loupe</a>
+      <div class="links">
+        <a href="./">overview</a>
+        <a class="here" href="docs.html">docs</a>
+        <a href="https://github.com/codywilliamson/loupe/blob/main/CHANGELOG.md">changelog</a>
+        <a href="https://github.com/codywilliamson/loupe">github</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap docs">
+    <nav class="toc">
+      <div class="toc-title">on this page</div>
+      <a href="#install">Install</a>
+      <a href="#usage">Usage</a>
+      <a href="#options">CLI options</a>
+      <a href="#reviewing">Reviewing</a>
+      <a href="#shortcuts">Keyboard shortcuts</a>
+      <a href="#themes">Themes</a>
+      <a href="#export">Prompt export</a>
+      <a href="#review-file">The .review file</a>
+      <a href="#updates">Staying updated</a>
+    </nav>
+
+    <article class="prose">
+      <h1>Documentation</h1>
+      <p>
+        loupe is a local git diff viewer for one job: <strong>reading a change carefully,
+        annotating it, and handing the result to a coding agent</strong>. It runs entirely on
+        your machine — no accounts, no uploads, no runtime dependencies.
+      </p>
+
+      <h2 id="install"><span class="spark">✻</span>Install</h2>
+      <p>loupe runs on <a href="https://bun.sh">Bun</a> (1.0+) and needs <code>git</code> on your PATH.</p>
+      <div class="term"><span class="ps1">$</span> git clone https://github.com/codywilliamson/loupe
+<span class="ps1">$</span> cd loupe
+<span class="ps1">$</span> bun install
+<span class="ps1">$</span> bun link   <span class="dim"># puts `loupe` on your PATH — macOS, Linux, Windows</span></div>
+      <p>Then run <code>loupe</code> from any git repository.</p>
+      <div class="note">
+        <strong>Windows fallback</strong> — if <code>loupe</code> isn't found after
+        <code>bun link</code> (it depends on how Bun was installed), add a function to your
+        PowerShell profile instead:<br /><br />
+        <code>'function loupe { bun "C:\path\to\loupe\src\index.ts" @args }' | Add-Content $PROFILE</code>
+      </div>
+
+      <h2 id="usage"><span class="spark">✻</span>Usage</h2>
+      <p>Run loupe inside the repo you want to review. It prints a localhost URL and opens your browser; the diff renders there, not in the terminal.</p>
+      <table>
+        <tr><th>command</th><th>reviews</th></tr>
+        <tr><td><code>loupe</code></td><td>working tree vs <code>HEAD</code> — untracked files included as additions</td></tr>
+        <tr><td><code>loupe staged</code></td><td>staged changes only</td></tr>
+        <tr><td><code>loupe origin/main</code></td><td>what the current branch adds vs a base (PR-style three-dot diff)</td></tr>
+        <tr><td><code>loupe v1.0..v1.1</code></td><td>any commit range</td></tr>
+      </table>
+
+      <h2 id="options"><span class="spark">✻</span>CLI options</h2>
+      <table>
+        <tr><th>flag</th><th>effect</th></tr>
+        <tr><td><code>-p, --port &lt;n&gt;</code></td><td>serve on a fixed port (default: any free port)</td></tr>
+        <tr><td><code>--no-open</code></td><td>don't open the browser automatically</td></tr>
+        <tr><td><code>-v, --version</code></td><td>print the installed version</td></tr>
+        <tr><td><code>-h, --help</code></td><td>usage summary</td></tr>
+      </table>
+
+      <h2 id="reviewing"><span class="spark">✻</span>Reviewing</h2>
+      <h3>Line comments</h3>
+      <p>
+        Hover any line and press the bubble to comment. <strong>Drag</strong> across lines to
+        select a range, or <strong>shift-click</strong> a second line to extend one. In
+        side-by-side view you can comment on either pane — removed lines included — and the
+        export labels them <code>Old line N</code>.
+      </p>
+      <h3>Tags</h3>
+      <p>
+        Each comment can carry an intent tag — <code>nit</code>, <code>issue</code>,
+        <code>question</code>, or <code>praise</code>. Tags show as pills in the UI and become
+        <code>**[tag]**</code> prefixes in the compiled prompt, so the model knows severity.
+      </p>
+      <h3>File-level comments &amp; viewed tracking</h3>
+      <p>
+        The speech-bubble button in a file header attaches a comment to the whole file. The
+        checkbox in the sidebar marks a file viewed; a progress bar above the tree tracks
+        how much of the diff you've read. The filter box narrows the tree to matching paths.
+      </p>
+      <h3>Live refresh</h3>
+      <p>
+        The refresh button (or reloading the tab) re-runs the diff in place while keeping
+        your comments — useful while an agent keeps editing under you.
+      </p>
+
+      <h2 id="shortcuts"><span class="spark">✻</span>Keyboard shortcuts</h2>
+      <table>
+        <tr><th>key</th><th>action</th></tr>
+        <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>next / previous file</td></tr>
+        <tr><td><kbd>v</kbd></td><td>toggle viewed on the current file</td></tr>
+        <tr><td><kbd>s</kbd></td><td>unified ↔ side-by-side</td></tr>
+        <tr><td><kbd>o</kbd></td><td>single-file ↔ all-files view</td></tr>
+        <tr><td><kbd>t</kbd></td><td>cycle theme</td></tr>
+        <tr><td><kbd>r</kbd></td><td>re-run the diff</td></tr>
+        <tr><td><kbd>c</kbd></td><td>compile review prompt</td></tr>
+        <tr><td><kbd>?</kbd></td><td>show the shortcut overlay</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>close dialogs</td></tr>
+      </table>
+
+      <h2 id="themes"><span class="spark">✻</span>Themes</h2>
+      <p>
+        The theme button cycles <strong>light → dark → claude → claude dark</strong>. The two
+        Claude variants are warm Anthropic-inspired palettes — ivory paper and soft charcoal
+        with terracotta accents. Your choice persists; the first run follows your OS preference.
+      </p>
+
+      <h2 id="export"><span class="spark">✻</span>Prompt export</h2>
+      <p>
+        <em>Compile Review Prompt</em> assembles every comment into ordered markdown: file-level
+        notes first, then line comments sorted by position, each wrapped in ±2 lines of diff
+        context with the commented range marked by <code>&gt;</code>.
+      </p>
+      <div class="term">## Code Review — feature/x — 2026-06-09
+
+### src/utils/cli.ts — Lines 38–40
+
+      36 |   for (let i = 0; i &lt; argv.length; i++) {
+      37 |     const arg = argv[i];
+  <span class="ps1">&gt;</span> 38 | +    if (arg === "-h") opts.help = true;
+  <span class="ps1">&gt;</span> 39 | +    else if (arg === "-v") opts.version = true;
+      41 |     else if (arg.startsWith("-")) {
+
+**[nit]** alphabetize the flag checks
+
+---
+
+### src/utils/cli.ts — File-level
+
+**[praise]** clean separation from the entry point
+
+## Summary: 2 comment(s) across 1 file(s)</div>
+      <p>Copy it straight into Claude Code, a PR description, or any agent that takes instructions.</p>
+
+      <h2 id="review-file"><span class="spark">✻</span>The .review file</h2>
+      <p>
+        Comments and viewed-state persist to a <code>.review</code> JSON file in the directory
+        you ran loupe from. It's appended to <code>.gitignore</code> automatically, never
+        committed, and survives restarts — close the tab, come back tomorrow, your review is
+        still there.
+      </p>
+
+      <h2 id="updates"><span class="spark">✻</span>Staying updated</h2>
+      <p>
+        loupe checks its own repo for newer release tags (throttled, fully offline-safe). When
+        one exists, a pulsing dot appears next to the wordmark — click it for the exact
+        <code>git pull</code> command. Updating is just pulling the repo you cloned.
+      </p>
+    </article>
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <span class="made"><span class="spark">✻</span> built with Bun + Preact, no build step, no runtime deps.</span>
+      <div class="links">
+        <a href="./">overview</a>
+        <a href="https://github.com/codywilliamson/loupe">github</a>
+        <a href="https://github.com/codywilliamson/loupe/releases">releases</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

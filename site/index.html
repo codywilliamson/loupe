@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>loupe — review diffs, brief your agent</title>
+  <meta name="description" content="loupe is a local git diff viewer with inline comments that compile into a structured review prompt for any LLM. Bun-powered, zero dependencies." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext x='2' y='19' font-size='19' fill='%23c96442'%3E✻%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="wrap">
+    <nav class="nav">
+      <a class="brand" href="./"><span class="spark">✻</span>loupe</a>
+      <div class="links">
+        <a class="here" href="./">overview</a>
+        <a href="docs.html">docs</a>
+        <a href="https://github.com/codywilliamson/loupe/blob/main/CHANGELOG.md">changelog</a>
+        <a href="https://github.com/codywilliamson/loupe">github</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <p class="kicker rise">local · open source · zero runtime deps</p>
+      <h1 class="display rise d1">Read the diff <em>closely</em><br />before anyone ships it.</h1>
+      <p class="lede rise d2">
+        loupe opens any git diff in an Azure DevOps-style review UI on
+        <strong>localhost</strong>. Leave inline comments — then compile them into a
+        structured review prompt your coding agent can act on.
+      </p>
+      <div class="term rise d3"><span class="ps1">$</span> git clone https://github.com/codywilliamson/loupe && cd loupe
+<span class="ps1">$</span> bun install && bun link
+<span class="ps1">$</span> cd ~/your/repo && loupe
+<span class="out">✻ loupe v0.6.0 — reviewing working tree (12 files changed)</span>
+<span class="out">  http://localhost:49507  <span class="dim">(ctrl+c to stop)</span></span></div>
+      <div class="cta-row rise d4">
+        <a class="btn solid" href="docs.html">Get started →</a>
+        <a class="btn ghost" href="https://github.com/codywilliamson/loupe">Star on GitHub</a>
+      </div>
+    </div>
+
+    <div class="shot-frame rise d4">
+      <div class="chrome"><i></i><i></i><i></i></div>
+      <img src="shots/01-overview.png" alt="loupe reviewing a diff: file tree, unified diff with inline comments, markdown preview" />
+    </div>
+
+    <hr class="rule" />
+
+    <section id="features">
+      <div class="sect-head"><span class="spark">✻</span><h2>Made for the review, not the merge button</h2></div>
+      <div class="grid">
+        <div class="card">
+          <h3><span class="spark">✻</span>Comment on any line</h3>
+          <p>Single lines, drag-selected ranges, both sides of a split view, even removed lines and whole files. Tag each one <code>nit</code>, <code>issue</code>, <code>question</code>, or <code>praise</code>.</p>
+        </div>
+        <div class="card">
+          <h3><span class="spark">✻</span>Compile a review prompt</h3>
+          <p>One click turns every comment — with surrounding diff context — into structured markdown ready to paste into Claude, or any LLM that writes code.</p>
+        </div>
+        <div class="card">
+          <h3><span class="spark">✻</span>Diffs worth reading</h3>
+          <p>Unified or side-by-side, syntax highlighting, word-level change marks inside modified lines, sticky file headers, markdown previews.</p>
+        </div>
+        <div class="card">
+          <h3><span class="spark">✻</span>Keyboard-driven</h3>
+          <p>Walk files with <code>j</code>/<code>k</code>, mark them viewed with <code>v</code>, flip views, compile — without touching the mouse. <code>?</code> shows the full map.</p>
+        </div>
+        <div class="card">
+          <h3><span class="spark">✻</span>Live while agents work</h3>
+          <p>The diff re-runs on every refresh, untracked files show up as additions, and a viewed-progress bar tracks what you've actually read.</p>
+        </div>
+        <div class="card">
+          <h3><span class="spark">✻</span>Four themes, one of them ours</h3>
+          <p>Light, dark, and two Claude-inspired warm variants — ivory paper and soft charcoal with terracotta accents.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="sect-head"><span class="spark">✻</span><h2>Three steps, no ceremony</h2></div>
+      <div class="steps">
+        <div class="step">
+          <h3>Run <code>loupe</code> in a repo</h3>
+          <p>Working tree, staged changes, a branch comparison, or any commit range — it parses the diff and opens your browser.</p>
+        </div>
+        <div class="step">
+          <h3>Review like a PR</h3>
+          <p>Read, comment, tag, and check files off. Everything saves to a local <code>.review</code> file, auto-ignored by git.</p>
+        </div>
+        <div class="step">
+          <h3>Brief your agent</h3>
+          <p><em>Compile Review Prompt</em> assembles your comments with code context. Paste it into your agent and let it do the rework.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="prompt">
+      <div class="two-col">
+        <div class="copy">
+          <div class="sect-head"><span class="spark">✻</span><h2>The export is the point</h2></div>
+          <p>
+            Review tools collect comments; loupe <em>compiles</em> them. Each comment is
+            anchored to its lines, wrapped in diff context, labeled with your intent, and
+            ordered by file — so the model fixes exactly what you flagged.
+          </p>
+          <p><a href="docs.html#export">See the full format →</a></p>
+        </div>
+        <div class="term">## Code Review — working tree — 2026-06-09
+
+### src/server/router.ts — Lines 41–45
+
+      39 | export function createServer(ctx) {
+      40 |   return Bun.serve({
+  <span class="ps1">&gt;</span> 41 | +    port,
+  <span class="ps1">&gt;</span> 42 |      fetch: (req) =&gt; route(ctx, req),
+
+<span class="out">**[issue]** validate the port before binding —
+a clear error beats a stack trace.</span>
+
+## Summary: 1 comment(s) across 1 file(s)</div>
+      </div>
+    </section>
+
+    <section id="shots">
+      <div class="sect-head"><span class="spark">✻</span><h2>In the wild</h2></div>
+      <div class="strip">
+        <figure>
+          <img src="shots/02-dark.png" alt="loupe dark theme" />
+          <figcaption>dark mode</figcaption>
+        </figure>
+        <figure>
+          <img src="shots/03-comments.png" alt="multi-line inline comment" />
+          <figcaption>multi-line range comments</figcaption>
+        </figure>
+        <figure>
+          <img src="shots/04-side-by-side.png" alt="side-by-side diff" />
+          <figcaption>side-by-side with word-level marks</figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <span class="made"><span class="spark">✻</span> built with Bun + Preact, no build step, no runtime deps.</span>
+      <div class="links">
+        <a href="docs.html">docs</a>
+        <a href="https://github.com/codywilliamson/loupe">github</a>
+        <a href="https://github.com/codywilliamson/loupe/releases">releases</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
