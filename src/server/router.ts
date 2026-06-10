@@ -37,9 +37,9 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
   return notFound();
 }
 
-export function createServer(ctx: ServerContext): Server<undefined> {
+export function createServer(ctx: ServerContext, port = 0): Server<undefined> {
   return Bun.serve({
-    port: 0,
+    port,
     fetch: (req) => route(ctx, req),
   });
 }

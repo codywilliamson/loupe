@@ -35,7 +35,8 @@ export function latestVersion(current: string, tags: string[]): string {
   return best;
 }
 
-function currentVersion(loupeRoot: string): string {
+// installed version from loupe's own package.json (also used by the cli banner).
+export function currentVersion(loupeRoot: string): string {
   const pkg = JSON.parse(readFileSync(join(loupeRoot, "package.json"), "utf8"));
   return String(pkg.version ?? "0.0.0");
 }
