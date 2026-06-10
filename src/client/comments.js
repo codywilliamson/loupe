@@ -22,12 +22,28 @@ function AutoTextarea({ value, onInput, onKeyDown }) {
   ></textarea>`;
 }
 
-// the new/edit editor card. onSave(text), onCancel().
-export function CommentEditor({ initial = "", onSave, onCancel }) {
+export const TAGS = ["nit", "issue", "question", "praise"];
+
+// optional tag row; clicking the active tag clears it.
+function TagPicker({ tag, onTag }) {
+  return html`<div class="tag-picker">
+    ${TAGS.map(
+      (t) => html`<button
+        key=${t}
+        class="tag-pill tag-${t} ${tag === t ? "on" : ""}"
+        onClick=${() => onTag(tag === t ? undefined : t)}
+      >${t}</button>`
+    )}
+  </div>`;
+}
+
+// the new/edit editor card. onSave(text, tag), onCancel().
+export function CommentEditor({ initial = "", initialTag, onSave, onCancel }) {
   const [text, setText] = useState(initial);
+  const [tag, setTag] = useState(initialTag);
   const submit = () => {
     const trimmed = text.trim();
-    if (trimmed) onSave(trimmed);
+    if (trimmed) onSave(trimmed, tag);
   };
   const onKeyDown = (e) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) submit();
@@ -38,6 +54,7 @@ export function CommentEditor({ initial = "", onSave, onCancel }) {
     <div class="comment-actions">
       <button class="btn-primary" onClick=${submit} disabled=${!text.trim()}>Save</button>
       <button class="btn-plain" onClick=${onCancel}>Cancel</button>
+      <${TagPicker} tag=${tag} onTag=${setTag} />
     </div>
   </div>`;
 }
@@ -48,8 +65,9 @@ function SavedComment({ comment, onEdit, onDelete }) {
   if (editing) {
     return html`<${CommentEditor}
       initial=${comment.text}
-      onSave=${(text) => {
-        onEdit(comment.id, text);
+      initialTag=${comment.tag}
+      onSave=${(text, tag) => {
+        onEdit(comment.id, text, tag);
         setEditing(false);
       }}
       onCancel=${() => setEditing(false)}
@@ -57,7 +75,10 @@ function SavedComment({ comment, onEdit, onDelete }) {
   }
   return html`<div class="comment-card">
     <div class="comment-meta">
-      <span class="comment-time">${relativeTime(comment.createdAt)}</span>
+      <span class="comment-time">
+        ${comment.tag && html`<span class="tag-pill tag-${comment.tag} on">${comment.tag}</span>`}
+        ${relativeTime(comment.createdAt)}
+      </span>
       <span class="comment-tools">
         <button class="btn-link" onClick=${() => setEditing(true)}>Edit</button>
         <button class="btn-link" onClick=${() => onDelete(comment.id)}>Delete</button>

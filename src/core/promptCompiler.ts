@@ -50,9 +50,10 @@ function buildContextBlock(file: DiffFile, side: Side, start: number, end: numbe
     .join("\n");
 }
 
-// joins multiple comment texts on one target with a blank line between them.
+// joins multiple comment texts on one target with a blank line between them;
+// tagged comments get a bold [tag] prefix so the llm sees the reviewer's intent.
 function joinTexts(comments: Comment[]): string {
-  return comments.map((c) => c.text).join("\n\n");
+  return comments.map((c) => (c.tag ? `**[${c.tag}]** ${c.text}` : c.text)).join("\n\n");
 }
 
 function fileLevelSection(file: string, comments: Comment[]): string {

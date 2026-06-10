@@ -29,3 +29,22 @@ mark.wd-deletion { background: var(--inline-del); }
 .tree-progress-fill { height: 100%; background: var(--ado-blue); transition: width .15s ease; }
 .tree-progress-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .tree-empty { padding: 10px 12px; color: var(--muted); font-style: italic; }
+
+/* ── comment tags ── */
+.tag-picker { display: inline-flex; gap: 4px; margin-left: auto; }
+.tag-pill {
+  font: inherit; font-size: 11px; line-height: 1; text-transform: lowercase; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 10px; padding: 3px 9px;
+  background: transparent; color: var(--muted);
+}
+span.tag-pill { cursor: default; margin-right: 6px; padding: 2px 8px; }
+.tag-pill.on { color: #fff; border-color: transparent; }
+.tag-pill.tag-nit.on { background: #6e7681; }
+.tag-pill.tag-issue.on { background: #b3392e; }
+.tag-pill.tag-question.on { background: #3a6fb8; }
+.tag-pill.tag-praise.on { background: #2f7d3f; }
+button.tag-pill.tag-nit:hover { border-color: #6e7681; color: #6e7681; }
+button.tag-pill.tag-issue:hover { border-color: #b3392e; color: #b3392e; }
+button.tag-pill.tag-question:hover { border-color: #3a6fb8; color: #3a6fb8; }
+button.tag-pill.tag-praise:hover { border-color: #2f7d3f; color: #2f7d3f; }
+button.tag-pill.on:hover { color: #fff; }

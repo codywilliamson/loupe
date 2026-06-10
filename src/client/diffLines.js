@@ -42,7 +42,7 @@ function LineComments({ anchors, threads, variant = "unified" }) {
         html`<${CommentThread} comments=${list} onEdit=${threads.onEdit} onDelete=${threads.onDelete} />`}
         ${adding &&
         html`<${CommentEditor}
-          onSave=${(text) => threads.onAdd(a.side, a.lineObj, text)}
+          onSave=${(text, tag) => threads.onAdd(a.side, a.lineObj, text, tag)}
           onCancel=${threads.onCancelAdd}
         />`}
       </td>

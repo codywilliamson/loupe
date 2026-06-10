@@ -219,4 +219,16 @@ describe("compileReviewPrompt", () => {
     expect(out).toContain("### a.ts — Old line 5");
     expect(out.indexOf("### a.ts — Line 5")).toBeLessThan(out.indexOf("### a.ts — Old line 5"));
   });
+
+  it("prefixes tagged comments with a bold [tag] and leaves untagged text bare", () => {
+    const out = run([
+      comment({ id: "c1", line: 5, tag: "nit", text: "rename this" }),
+      comment({ id: "c2", line: 5, text: "plain note" }),
+      comment({ id: "c3", line: null, tag: "praise", text: "clean module" }),
+    ]);
+    expect(out).toContain("**[nit]** rename this");
+    expect(out).toContain("**[praise]** clean module");
+    expect(out).toContain("plain note");
+    expect(out).not.toContain("**[nit]** plain note");
+  });
 });

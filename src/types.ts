@@ -45,6 +45,9 @@ export interface DiffResult {
 
 // ── review / comments ────────────────────────────────────────────────────────
 
+// optional severity/intent label; the compiled prompt prefixes the text with [tag]
+export type CommentTag = "nit" | "issue" | "question" | "praise";
+
 export interface Comment {
   id: string;
   file: string;
@@ -53,6 +56,7 @@ export interface Comment {
   endLine?: number | null; // inclusive end of a multi-line range; absent/null/equal-to-line ⇒ single line
   lineContent: string | null; // raw diff line (with marker) the comment targets, null when file-level
   text: string;
+  tag?: CommentTag; // absent = untagged
   createdAt: string; // ISO 8601
 }
 

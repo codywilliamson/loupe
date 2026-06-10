@@ -60,7 +60,7 @@ function FileSection({ file, splitView, threads }) {
       html`<div class="file-comments">
         <${CommentThread} comments=${fileComments} onEdit=${threads.onEdit} onDelete=${threads.onDelete} />
         ${threads.addingFile &&
-        html`<${CommentEditor} onSave=${(t) => threads.onAddFile(t)} onCancel=${threads.onCancelAdd} />`}
+        html`<${CommentEditor} onSave=${(t, tag) => threads.onAddFile(t, tag)} onCancel=${threads.onCancelAdd} />`}
       </div>`}
       ${md && preview
         ? html`<${MarkdownView} path=${file.path} />`
@@ -137,14 +137,14 @@ function makeThreads(file, ctx) {
     },
     onStartFileAdd: () => setAdding({ file: file.path, line: null }),
     onCancelAdd: () => setAdding(null),
-    onAdd: (side, diffLine, text) => {
+    onAdd: (side, diffLine, text, tag) => {
       const start = Math.min(adding.line, adding.endLine ?? adding.line);
       const end = Math.max(adding.line, adding.endLine ?? adding.line);
-      onAdd({ file: file.path, side, line: start, endLine: end, lineContent: rawLine(diffLine), text });
+      onAdd({ file: file.path, side, line: start, endLine: end, lineContent: rawLine(diffLine), text, tag });
       setAdding(null);
     },
-    onAddFile: (text) => {
-      onAdd({ file: file.path, line: null, lineContent: null, text });
+    onAddFile: (text, tag) => {
+      onAdd({ file: file.path, line: null, lineContent: null, text, tag });
       setAdding(null);
     },
     onEdit,
