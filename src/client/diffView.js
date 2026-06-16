@@ -39,7 +39,7 @@ function FileSection({ file, splitView, threads }) {
     if (override !== null) setOverride(null);
   }
   const split = globalFlipped ? splitView : override ?? splitView;
-  const [preview, setPreview] = useState(md); // markdown renders as a preview by default
+  const [preview, setPreview] = useState(false); // show the diff first; the Preview toggle renders markdown
   const [ratio, setRatio] = useState(0.5); // side-by-side pane split (left pane's share)
   const fileComments = threads.commentsForFile();
   return html`<section class="file-section" id=${fileAnchorId(file.path)}>
@@ -58,7 +58,7 @@ function FileSection({ file, splitView, threads }) {
     html`<div class="file-body">
       ${(fileComments.length > 0 || threads.addingFile) &&
       html`<div class="file-comments">
-        <${CommentThread} comments=${fileComments} onEdit=${threads.onEdit} onDelete=${threads.onDelete} />
+        <${CommentThread} comments=${fileComments} onEdit=${threads.onEdit} onDelete=${threads.onDelete} onResolve=${threads.onResolve} />
         ${threads.addingFile &&
         html`<${CommentEditor} onSave=${(t, tag) => threads.onAddFile(t, tag)} onCancel=${threads.onCancelAdd} />`}
       </div>`}
@@ -99,7 +99,7 @@ const sideOf = (c) => c.side ?? "new";
 // builds the per-file `threads` controller bridging comment state to the views.
 // every anchor is a (side, line) pair so old-side and new-side lines never collide.
 function makeThreads(file, ctx) {
-  const { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete } = ctx;
+  const { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve } = ctx;
   const isThisFile = adding && adding.file === file.path;
   const lineComments = comments.filter((c) => c.file === file.path && c.line != null);
   // pending range (the open editor's target) on its side, normalized to [start, end].
@@ -149,6 +149,7 @@ function makeThreads(file, ctx) {
     },
     onEdit,
     onDelete,
+    onResolve,
   };
 }
 
@@ -158,8 +159,8 @@ function rawLine(line) {
   return sign + line.content;
 }
 
-export function DiffView({ files, viewMode, activeFile, splitView, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete }) {
-  const ctx = { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete };
+export function DiffView({ files, viewMode, activeFile, splitView, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve }) {
+  const ctx = { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve };
   // single-file view shows just the active file (first file as a fallback); all-files shows the stack.
   const shown = viewMode === "single" ? [files.find((f) => f.path === activeFile) ?? files[0]].filter(Boolean) : files;
   return html`<main class="diff-pane">

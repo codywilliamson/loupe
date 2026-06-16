@@ -12,6 +12,7 @@ import { Resizer } from "/resizer.js";
 import { DiffView } from "/diffView.js";
 import { CompileModal } from "/compileModal.js";
 import { HelpOverlay } from "/helpOverlay.js";
+import { LoadingScreen } from "/loadingScreen.js";
 
 function App() {
   const [diff, setDiff] = useState(null);
@@ -64,6 +65,12 @@ function App() {
     [comments, persistComments]
   );
 
+  // resolve keeps the comment but drops it from the prompt + open counts; toggles back on reopen.
+  const onResolve = useCallback(
+    (id) => persistComments(comments.map((c) => (c.id === id ? { ...c, resolved: !c.resolved } : c))),
+    [comments, persistComments]
+  );
+
   const onToggleViewed = useCallback(
     (path) => {
       const next = viewed.includes(path) ? viewed.filter((p) => p !== path) : [...viewed, path];
@@ -102,7 +109,7 @@ function App() {
   const onResize = useCallback((x) => setSidebarWidth(clamp(x, 180, 640)), [setSidebarWidth]);
 
   const viewedSet = useMemo(() => new Set(viewed), [viewed]);
-  const countFor = useCallback((path) => comments.filter((c) => c.file === path).length, [comments]);
+  const countFor = useCallback((path) => comments.filter((c) => c.file === path && !c.resolved).length, [comments]);
 
   useShortcuts({
     files: diff?.files ?? [],
@@ -123,7 +130,7 @@ function App() {
   });
 
   if (error) return html`<div class="fatal">${error}</div>`;
-  if (!diff) return html`<div class="loading">Loading diff…</div>`;
+  if (!diff) return html`<${LoadingScreen} />`;
 
   return html`<div class="app">
     <${TopBar}
@@ -166,6 +173,7 @@ function App() {
         onAdd=${onAdd}
         onEdit=${onEdit}
         onDelete=${onDelete}
+        onResolve=${onResolve}
       />
     </div>
     ${showCompile && html`<${CompileModal} onClose=${() => setShowCompile(false)} />`}

@@ -7,17 +7,19 @@ import { langFor } from "/util.js";
 hljs.registerLanguage("powershell", powershell);
 
 // returns highlighted inner html for one line of code, or escaped plain text.
+// only highlights when the extension maps to a known language — per-line auto-detection
+// (hljs.highlightAuto) is slow on large diffs and guesses inconsistently line-to-line.
 export function highlightLine(content, path) {
-  const lang = langFor(path);
   if (!content) return "";
-  try {
-    if (lang && hljs.getLanguage(lang)) {
+  const lang = langFor(path);
+  if (lang && hljs.getLanguage(lang)) {
+    try {
       return hljs.highlight(content, { language: lang, ignoreIllegals: true }).value;
+    } catch {
+      // fall through to plain escaped text
     }
-    return hljs.highlightAuto(content).value;
-  } catch {
-    return escapeHtml(content);
   }
+  return escapeHtml(content);
 }
 
 export function escapeHtml(s) {

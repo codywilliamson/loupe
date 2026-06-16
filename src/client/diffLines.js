@@ -7,10 +7,18 @@ import { pairLines, hunkMarks, markRange } from "/wordDiff.js";
 
 const SIGN = { addition: "+", deletion: "-", context: " " };
 
-// code cell with syntax highlighting injected as html; `mark` wraps the intra-line
-// changed range of a modified pair in a tinted <mark>.
-function Code({ line, path, mark }) {
-  let inner = highlightLine(line.content, path);
+// highlight every line of a hunk once (memoized by the caller), keyed by line object so rows
+// look up pre-rendered html instead of re-highlighting on every render (drag-select, comments).
+function highlightMap(lines, path) {
+  const map = new Map();
+  for (const line of lines) map.set(line, highlightLine(line.content, path));
+  return map;
+}
+
+// code cell rendering pre-highlighted html; `mark` wraps the intra-line changed range
+// of a modified pair in a tinted <mark>.
+function Code({ line, hl, mark }) {
+  let inner = hl;
   if (mark) inner = markRange(inner, mark.start, mark.end, `wd wd-${line.type}`);
   return html`<td class="code code-${line.type}">
     <span class="sign">${SIGN[line.type]}</span><span
@@ -39,7 +47,7 @@ function LineComments({ anchors, threads, variant = "unified" }) {
       ${lead > 0 && html`<td class="gutter" colspan=${lead}></td>`}
       <td class="comment-cell" colspan=${cell}>
         ${list.length > 0 &&
-        html`<${CommentThread} comments=${list} onEdit=${threads.onEdit} onDelete=${threads.onDelete} />`}
+        html`<${CommentThread} comments=${list} onEdit=${threads.onEdit} onDelete=${threads.onDelete} onResolve=${threads.onResolve} />`}
         ${adding &&
         html`<${CommentEditor}
           onSave=${(text, tag) => threads.onAdd(a.side, a.lineObj, text, tag)}
@@ -83,7 +91,7 @@ function startSelect(e, side, anchor, threads) {
 // css until row hover) so the gutter column never resizes — no layout jump on hover.
 // two root nodes: htm returns them as an array, preact renders them as siblings
 // (a fragment shorthand <>…</> isn't registered on this raw htm.bind(h) and breaks).
-function UnifiedRow({ line, path, threads, mark }) {
+function UnifiedRow({ line, hl, threads, mark }) {
   // additions + context anchor on the new side; deletions anchor on the old side.
   const newLine = line.newLine;
   const oldLine = line.type === "deletion" ? line.oldLine : null;
@@ -99,9 +107,9 @@ function UnifiedRow({ line, path, threads, mark }) {
         ${commentable &&
         html`<button class="bubble-btn" title="Comment — drag or shift-click to select a range" onMouseDown=${(e) => startSelect(e, side, anchor, threads)}><${Bubble} /></button>`}
       </td>
-      <td class="lineno old-no">${line.oldLine ?? ""}</td>
-      <td class="lineno new-no">${line.newLine ?? ""}</td>
-      <${Code} line=${line} path=${path} mark=${mark} />
+      <td class="lineno old-no${commentable ? " sel" : ""}" onMouseDown=${commentable ? (e) => startSelect(e, side, anchor, threads) : undefined}>${line.oldLine ?? ""}</td>
+      <td class="lineno new-no${commentable ? " sel" : ""}" onMouseDown=${commentable ? (e) => startSelect(e, side, anchor, threads) : undefined}>${line.newLine ?? ""}</td>
+      <${Code} line=${line} hl=${hl.get(line)} mark=${mark} />
     </tr>
     <${LineComments} anchors=${commentable ? [{ side, line: anchor, lineObj: line }] : []} threads=${threads} />
   `;
@@ -109,25 +117,26 @@ function UnifiedRow({ line, path, threads, mark }) {
 
 export function UnifiedHunk({ hunk, path, threads }) {
   const marks = useMemo(() => hunkMarks(hunk.lines), [hunk]);
+  const hl = useMemo(() => highlightMap(hunk.lines, path), [hunk, path]);
   return html`<tbody>
     <tr class="hunk-header">
       <td colspan="4"><span class="hunk-pill">${hunk.header}</span></td>
     </tr>
     ${hunk.lines.map(
-      (l, i) => html`<${UnifiedRow} key=${i} line=${l} path=${path} threads=${threads} mark=${marks.get(l)} />`
+      (l, i) => html`<${UnifiedRow} key=${i} line=${l} hl=${hl} threads=${threads} mark=${marks.get(l)} />`
     )}
   </tbody>`;
 }
 
-function Side({ line, path, side, mark }) {
+function Side({ line, hl, side, mark, onLineDown }) {
   if (!line) return html`<td class="lineno ${side}-no empty"></td><td class="code code-empty"></td>`;
   const no = side === "old" ? line.oldLine : line.newLine;
-  return html`<td class="lineno ${side}-no">${no ?? ""}</td><${Code} line=${line} path=${path} mark=${mark} />`;
+  return html`<td class="lineno ${side}-no${onLineDown ? " sel" : ""}" onMouseDown=${onLineDown}>${no ?? ""}</td><${Code} line=${line} hl=${hl} mark=${mark} />`;
 }
 
 // one side-by-side row: an old-side bubble (removed lines) + the old cells, then a new-side
 // bubble (added/context) + the new cells, then the comment region for either anchor.
-function SplitRow({ left, right, path, threads, marks }) {
+function SplitRow({ left, right, hl, threads, marks }) {
   const newLine = right && right.newLine != null ? right.newLine : null;
   const oldLine = left && left.type === "deletion" ? left.oldLine : null;
   const oldSel = oldLine != null && (threads.pendingAt("old", oldLine) || threads.rangeAt("old", oldLine));
@@ -142,12 +151,14 @@ function SplitRow({ left, right, path, threads, marks }) {
         ${oldLine != null &&
         html`<button class="bubble-btn" title="Comment on the removed line — drag or shift-click for a range" onMouseDown=${(e) => startSelect(e, "old", oldLine, threads)}><${Bubble} /></button>`}
       </td>
-      <${Side} line=${left} path=${path} side="old" mark=${left && marks.get(left)} />
+      <${Side} line=${left} hl=${left && hl.get(left)} side="old" mark=${left && marks.get(left)}
+        onLineDown=${oldLine != null ? (e) => startSelect(e, "old", oldLine, threads) : undefined} />
       <td class="bubble-gutter">
         ${newLine != null &&
         html`<button class="bubble-btn" title="Comment on the new line — drag or shift-click for a range" onMouseDown=${(e) => startSelect(e, "new", newLine, threads)}><${Bubble} /></button>`}
       </td>
-      <${Side} line=${right} path=${path} side="new" mark=${right && marks.get(right)} />
+      <${Side} line=${right} hl=${right && hl.get(right)} side="new" mark=${right && marks.get(right)}
+        onLineDown=${newLine != null ? (e) => startSelect(e, "new", newLine, threads) : undefined} />
     </tr>
     <${LineComments} anchors=${anchors} threads=${threads} variant="split" />
   `;
@@ -156,12 +167,13 @@ function SplitRow({ left, right, path, threads, marks }) {
 export function SplitHunk({ hunk, path, threads }) {
   const rows = useMemo(() => pairLines(hunk.lines), [hunk]);
   const marks = useMemo(() => hunkMarks(hunk.lines), [hunk]);
+  const hl = useMemo(() => highlightMap(hunk.lines, path), [hunk, path]);
   return html`<tbody>
     <tr class="hunk-header">
       <td colspan="6"><span class="hunk-pill">${hunk.header}</span></td>
     </tr>
     ${rows.map(
-      (r, i) => html`<${SplitRow} key=${i} left=${r.left} right=${r.right} path=${path} threads=${threads} marks=${marks} />`
+      (r, i) => html`<${SplitRow} key=${i} left=${r.left} right=${r.right} hl=${hl} threads=${threads} marks=${marks} />`
     )}
   </tbody>`;
 }

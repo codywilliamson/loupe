@@ -220,6 +220,31 @@ describe("compileReviewPrompt", () => {
     expect(out.indexOf("### a.ts — Line 5")).toBeLessThan(out.indexOf("### a.ts — Old line 5"));
   });
 
+  it("excludes resolved comments from the prompt and the summary count", () => {
+    const out = run([
+      comment({ id: "c1", line: 4, text: "open note" }),
+      comment({ id: "c2", line: 6, text: "resolved note", resolved: true }),
+    ]);
+    expect(out).toContain("### a.ts — Line 4");
+    expect(out).toContain("open note");
+    expect(out).not.toContain("### a.ts — Line 6");
+    expect(out).not.toContain("resolved note");
+    expect(out).toContain("## Summary: 1 comment(s) across 1 file(s)");
+  });
+
+  it("drops a file from the summary when all its comments are resolved", () => {
+    const diff: DiffResult = { ref: FX, files: [file("a.ts", nineLines), file("b.ts", nineLines)] };
+    const out = run(
+      [
+        comment({ id: "c1", file: "a.ts", line: 5, text: "keep me" }),
+        comment({ id: "c2", file: "b.ts", line: 5, text: "done", resolved: true }),
+      ], diff,
+    );
+    expect(out).toContain("### a.ts — Line 5");
+    expect(out).not.toContain("### b.ts");
+    expect(out).toContain("## Summary: 1 comment(s) across 1 file(s)");
+  });
+
   it("prefixes tagged comments with a bold [tag] and leaves untagged text bare", () => {
     const out = run([
       comment({ id: "c1", line: 5, tag: "nit", text: "rename this" }),

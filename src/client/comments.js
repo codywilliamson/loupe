@@ -59,8 +59,8 @@ export function CommentEditor({ initial = "", initialTag, onSave, onCancel }) {
   </div>`;
 }
 
-// a single saved comment, with inline edit + delete.
-function SavedComment({ comment, onEdit, onDelete }) {
+// a single saved comment, with inline edit, resolve/reopen, and delete.
+function SavedComment({ comment, onEdit, onDelete, onResolve }) {
   const [editing, setEditing] = useState(false);
   if (editing) {
     return html`<${CommentEditor}
@@ -73,14 +73,17 @@ function SavedComment({ comment, onEdit, onDelete }) {
       onCancel=${() => setEditing(false)}
     />`;
   }
-  return html`<div class="comment-card">
+  const resolved = comment.resolved;
+  return html`<div class="comment-card ${resolved ? "resolved" : ""}">
     <div class="comment-meta">
       <span class="comment-time">
+        ${resolved && html`<span class="resolved-badge">Resolved</span>`}
         ${comment.tag && html`<span class="tag-pill tag-${comment.tag} on">${comment.tag}</span>`}
         ${relativeTime(comment.createdAt)}
       </span>
       <span class="comment-tools">
-        <button class="btn-link" onClick=${() => setEditing(true)}>Edit</button>
+        <button class="btn-link" onClick=${() => onResolve(comment.id)}>${resolved ? "Reopen" : "Resolve"}</button>
+        ${!resolved && html`<button class="btn-link" onClick=${() => setEditing(true)}>Edit</button>`}
         <button class="btn-link" onClick=${() => onDelete(comment.id)}>Delete</button>
       </span>
     </div>
@@ -89,7 +92,7 @@ function SavedComment({ comment, onEdit, onDelete }) {
 }
 
 // a stack of comments for one anchor (a line or a file). threads stack vertically.
-export function CommentThread({ comments, onEdit, onDelete }) {
+export function CommentThread({ comments, onEdit, onDelete, onResolve }) {
   return html`<div class="comment-thread">
     ${comments.map(
       (c) => html`<${SavedComment}
@@ -97,6 +100,7 @@ export function CommentThread({ comments, onEdit, onDelete }) {
         comment=${c}
         onEdit=${onEdit}
         onDelete=${onDelete}
+        onResolve=${onResolve}
       />`
     )}
   </div>`;

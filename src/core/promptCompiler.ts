@@ -111,8 +111,11 @@ export function compileReviewPrompt(diff: DiffResult, review: ReviewFile): strin
   const date = review.meta.updatedAt.slice(0, 10);
   const title = `## Code Review — ${ref} — ${date}`;
 
+  // resolved comments stay in the file for the record but are left out of the prompt.
+  const open = review.comments.filter((c) => !c.resolved);
+
   const byFile = new Map<string, Comment[]>();
-  for (const c of review.comments) {
+  for (const c of open) {
     const bucket = byFile.get(c.file) ?? [];
     bucket.push(c);
     byFile.set(c.file, bucket);
@@ -125,7 +128,7 @@ export function compileReviewPrompt(diff: DiffResult, review: ReviewFile): strin
     sections.push(...sectionsForFile(file, diffByPath.get(file), byFile.get(file) ?? []));
   }
 
-  const total = review.comments.length;
+  const total = open.length;
   const fileCount = byFile.size;
   const summary = `## Summary: ${total} comment(s) across ${fileCount} file(s)`;
 

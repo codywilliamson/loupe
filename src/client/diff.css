@@ -29,6 +29,9 @@
   width: 44px; min-width: 44px; text-align: right; padding: 0 8px; color: var(--muted);
   user-select: none; background: var(--surface-2); border-right: 1px solid var(--border);
 }
+/* line numbers are a drag handle: drag or shift-click to select a comment range (ADO-style) */
+.lineno.sel { cursor: ns-resize; }
+.lineno.sel:hover { color: var(--text); }
 .code { width: 100%; padding: 0 8px; white-space: pre-wrap; word-break: break-word; background: var(--ctx-line); }
 .sign { display: inline-block; width: 1ch; color: var(--muted); user-select: none; }
 .code-inner { font-family: var(--mono); }
@@ -85,6 +88,13 @@ body.selecting .file-head { pointer-events: none; }
   border-radius: 2px; padding: 8px 10px; max-width: 720px; font-family: var(--font); font-size: 13px;
 }
 .comment-card.editing { border-left-color: var(--ado-blue); }
+/* resolved: kept for the record but visually muted */
+.comment-card.resolved { opacity: .6; border-left-color: var(--muted); }
+.comment-card.resolved .comment-text { color: var(--muted); }
+.resolved-badge {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 9px; padding: 0 7px;
+}
 .comment-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
 .comment-time { color: var(--muted); font-size: 11px; }
 .comment-tools { display: flex; gap: 4px; }

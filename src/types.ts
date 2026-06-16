@@ -57,6 +57,7 @@ export interface Comment {
   lineContent: string | null; // raw diff line (with marker) the comment targets, null when file-level
   text: string;
   tag?: CommentTag; // absent = untagged
+  resolved?: boolean; // true = kept for the record but excluded from the compiled prompt + open counts
   createdAt: string; // ISO 8601
 }
 

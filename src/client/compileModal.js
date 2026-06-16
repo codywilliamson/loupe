@@ -1,5 +1,6 @@
-// modal showing the compiled review prompt in a pre-selected monospace textarea + copy.
-import { html, useState, useEffect, useRef } from "/preact.js";
+// modal showing the compiled review prompt: rendered markdown by default, raw toggle, copy.
+import { html, useState, useEffect, useRef, useMemo } from "/preact.js";
+import { marked } from "https://esm.sh/marked@12";
 import { compile } from "/api.js";
 import { X, Copy } from "/icons.js";
 
@@ -7,6 +8,7 @@ export function CompileModal({ onClose }) {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [raw, setRaw] = useState(false); // false = rendered markdown preview (default)
   const taRef = useRef(null);
 
   useEffect(() => {
@@ -17,14 +19,17 @@ export function CompileModal({ onClose }) {
     return () => (alive = false);
   }, []);
 
-  // pre-select the text once it loads for easy manual copy.
+  // pre-select the raw text whenever it's the visible view, for an easy manual-copy fallback.
   useEffect(() => {
-    if (!loading && taRef.current) {
+    if (!loading && raw && taRef.current) {
       taRef.current.focus();
       taRef.current.select();
     }
-  }, [loading]);
+  }, [loading, raw]);
 
+  const rendered = useMemo(() => (loading ? "" : marked.parse(prompt)), [loading, prompt]);
+
+  // the copy button always yields the raw markdown, regardless of which view is showing.
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(prompt);
@@ -39,17 +44,21 @@ export function CompileModal({ onClose }) {
     <div class="modal" onClick=${(e) => e.stopPropagation()}>
       <header class="modal-head">
         <h2>Compile Review Prompt</h2>
-        <button class="btn-icon" title="Close" onClick=${onClose}><${X} /></button>
+        <div class="modal-head-tools">
+          <button class="btn-toggle ${raw ? "" : "on"}" disabled=${loading} onClick=${() => setRaw((v) => !v)}>
+            ${raw ? "Raw" : "Rendered"}
+          </button>
+          <button class="btn-icon" title="Close" onClick=${onClose}><${X} /></button>
+        </div>
       </header>
-      <textarea
-        ref=${taRef}
-        class="modal-textarea"
-        readonly
-        value=${loading ? "Compiling…" : prompt}
-      ></textarea>
+      ${raw
+        ? html`<textarea ref=${taRef} class="modal-textarea" readonly value=${loading ? "Compiling…" : prompt}></textarea>`
+        : html`<div class="markdown-body modal-rendered">
+            ${loading ? "Compiling…" : html`<div dangerouslySetInnerHTML=${{ __html: rendered }}></div>`}
+          </div>`}
       <footer class="modal-foot">
         <button class="btn-primary" onClick=${copy} disabled=${loading}>
-          <${Copy} /> ${copied ? "Copied" : "Copy"}
+          <${Copy} /> ${copied ? "Copied" : "Copy as Markdown"}
         </button>
         <button class="btn-plain" onClick=${onClose}>Close</button>
       </footer>
