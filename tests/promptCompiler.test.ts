@@ -160,16 +160,16 @@ describe("compileReviewPrompt", () => {
     expect(out).toContain("## Summary: 3 comment(s) across 2 file(s)");
   });
 
-  it("handles a missing diff file by emitting the header with an empty block", () => {
+  it("excludes a comment whose file is absent from the diff, leaving an empty summary", () => {
     const out = run([comment({ file: "ghost.ts", line: 5 })], { ref: FX, files: [] });
-    expect(out).toContain("### ghost.ts — Line 5");
-    expect(out).not.toContain(" | ");
+    expect(out).not.toContain("### ghost.ts");
+    expect(out).toContain("## Summary: 0 comment(s) across 0 file(s)");
   });
 
-  it("handles a comment whose line is absent from the diff slice (empty block)", () => {
+  it("excludes a comment whose line is absent from the diff slice", () => {
     const out = run([comment({ line: 999 })]);
-    expect(out).toContain("### a.ts — Line 999");
-    expect(out).not.toContain(" | ");
+    expect(out).not.toContain("### a.ts — Line 999");
+    expect(out).toContain("## Summary: 0 comment(s) across 0 file(s)");
   });
 
   it("produces an empty summary with zero comments", () => {
@@ -242,6 +242,35 @@ describe("compileReviewPrompt", () => {
     );
     expect(out).toContain("### a.ts — Line 5");
     expect(out).not.toContain("### b.ts");
+    expect(out).toContain("## Summary: 1 comment(s) across 1 file(s)");
+  });
+
+  it("excludes a comment whose file is no longer in the diff (orphaned)", () => {
+    const out = run([
+      comment({ id: "c1", file: "a.ts", line: 5, text: "kept note" }),
+      comment({ id: "c2", file: "gone.ts", line: 5, text: "orphan file note" }),
+    ]);
+    expect(out).toContain("kept note");
+    expect(out).not.toContain("### gone.ts");
+    expect(out).not.toContain("orphan file note");
+    expect(out).toContain("## Summary: 1 comment(s) across 1 file(s)");
+  });
+
+  it("excludes a comment whose line is no longer present in the diff (orphaned)", () => {
+    const out = run([
+      comment({ id: "c1", line: 5, text: "kept note" }),
+      comment({ id: "c2", line: 999, text: "orphan line note" }),
+    ]);
+    expect(out).toContain("kept note");
+    expect(out).not.toContain("orphan line note");
+    expect(out).not.toContain("Line 999");
+    expect(out).toContain("## Summary: 1 comment(s) across 1 file(s)");
+  });
+
+  it("keeps a range comment when any line in [line, endLine] still exists", () => {
+    // lines 8-12: only 8 and 9 exist in the 9-line file -> still anchored, still rendered
+    const out = run([comment({ line: 8, endLine: 12, text: "partial range note" })]);
+    expect(out).toContain("partial range note");
     expect(out).toContain("## Summary: 1 comment(s) across 1 file(s)");
   });
 

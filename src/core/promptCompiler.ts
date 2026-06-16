@@ -1,18 +1,10 @@
 import type { DiffResult, ReviewFile, Comment, DiffFile, DiffLine } from "../types";
+import { type Side, sideOf, numOn, rangeEnd, isAnchored } from "./anchor";
 
 // assembles inline review comments + their diff context into a markdown prompt.
 // pure: all header values derive from inputs, no clock access.
 
 const DIVIDER = "\n\n---\n\n";
-
-type Side = "old" | "new";
-
-const sideOf = (c: Comment): Side => c.side ?? "new";
-
-// the line's number on the given side (deletions lack a new number, additions an old one).
-function numOn(line: DiffLine, side: Side): number | null {
-  return side === "old" ? line.oldLine : line.newLine;
-}
 
 // lines that carry a number on `side`: new = additions + context, old = deletions + context.
 function lineSlice(file: DiffFile, side: Side): DiffLine[] {
@@ -61,11 +53,6 @@ function fileLevelSection(file: string, comments: Comment[]): string {
   return `### ${file} — File-level\n\n${joinTexts(comments)}`;
 }
 
-// the inclusive end of a comment's range; single-line when absent/null/equal-to-line.
-function rangeEnd(c: Comment): number {
-  return c.endLine != null ? Math.max(c.line as number, c.endLine) : (c.line as number);
-}
-
 function lineSection(file: string, diffFile: DiffFile | undefined, side: Side, start: number, end: number, comments: Comment[]): string {
   // new side uses "Line n" / "Lines a–b"; old side prefixes with "Old" for removed lines.
   const one = side === "old" ? "Old line" : "Line";
@@ -111,8 +98,9 @@ export function compileReviewPrompt(diff: DiffResult, review: ReviewFile): strin
   const date = review.meta.updatedAt.slice(0, 10);
   const title = `## Code Review — ${ref} — ${date}`;
 
-  // resolved comments stay in the file for the record but are left out of the prompt.
-  const open = review.comments.filter((c) => !c.resolved);
+  // resolved comments stay in the file for the record; orphaned comments (anchor no longer
+  // in the diff) are managed in the ui. both are left out of the prompt.
+  const open = review.comments.filter((c) => !c.resolved && isAnchored(c, diff));
 
   const byFile = new Map<string, Comment[]>();
   for (const c of open) {
