@@ -4,6 +4,14 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-06-16
+
+### Added
+- **Orphaned-comment cleanup** — when the code moves on and a comment's line or file leaves the current diff, the comment used to disappear from the view while still bloating the compiled prompt. Such orphaned comments are now gathered in the *Compile Review Prompt* dialog under **From earlier reviews**, each with resolve and delete, so every saved comment stays reachable
+
+### Fixed
+- **Stale comments no longer leak into the compiled prompt** — comments whose anchor is absent from the current diff are excluded (like resolved ones), so prompts only contain notes about code you're actually reviewing
+
 ## [0.7.0] — 2026-06-16
 
 ### Added
