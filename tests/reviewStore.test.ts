@@ -74,4 +74,35 @@ describe("reviewStore", () => {
     writeReview(dir, fixture);
     expect(existsSync(join(dir, ".gitignore"))).toBe(false);
   });
+
+  const emptyReview: ReviewFile = {
+    meta: { ref: "x", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" },
+    viewed: [],
+    comments: [],
+  };
+
+  it("does not create .review when there are no comments yet (viewed-only)", () => {
+    const dir = tempDir();
+    writeReview(dir, { ...emptyReview, viewed: ["a.ts"] });
+    expect(existsSync(join(dir, ".review"))).toBe(false);
+  });
+
+  it("leaves .gitignore untouched when there is nothing to save", () => {
+    const dir = tempDir();
+    writeFileSync(join(dir, ".gitignore"), "node_modules\n");
+    writeReview(dir, emptyReview);
+    const lines = readFileSync(join(dir, ".gitignore"), "utf8")
+      .split(/\r?\n/)
+      .map((l) => l.trim());
+    expect(lines).not.toContain(".review");
+  });
+
+  it("keeps updating an existing .review even after its comments are cleared", () => {
+    const dir = tempDir();
+    writeReview(dir, fixture); // creates it — fixture has comments
+    writeReview(dir, { ...fixture, comments: [], viewed: ["x.ts"] });
+    const saved = readReview(dir);
+    expect(saved?.comments).toEqual([]);
+    expect(saved?.viewed).toEqual(["x.ts"]);
+  });
 });

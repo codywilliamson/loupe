@@ -16,8 +16,11 @@ export function readReview(dir: string): ReviewFile | null {
 }
 
 // writes <dir>/.review (pretty json, 2-space + trailing newline) then ensures .gitignore.
+// won't create the file just from browsing or marking viewed — only once there's a comment
+// worth saving. an existing .review keeps updating (even to empty) so edits never get lost.
 export function writeReview(dir: string, review: ReviewFile): void {
   const path = join(dir, ".review");
+  if (!existsSync(path) && review.comments.length === 0) return;
   writeFileSync(path, `${JSON.stringify(review, null, 2)}\n`);
   appendToGitignore(dir);
 }
