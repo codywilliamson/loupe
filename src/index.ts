@@ -66,7 +66,7 @@ function main(): void {
   }
 
   const clientDir = join(import.meta.dir, "client");
-  const ctx = { diff, cwd, clientDir, loupeRoot, newRef, diffArgs, includeUntracked, meta };
+  const ctx = { diff, cwd, clientDir, loupeRoot, newRef, diffArgs, includeUntracked, meta, served: false };
   let server;
   try {
     server = createServer(ctx, opts.port);

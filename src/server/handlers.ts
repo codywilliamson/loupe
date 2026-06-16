@@ -18,6 +18,7 @@ export interface ServerContext {
   diffArgs: string[]; // git args to re-run the diff on demand (refresh)
   includeUntracked: boolean; // working-tree mode also surfaces untracked files
   meta?: DiffMeta; // stable review context (repo + refs); reused across refreshes
+  served: boolean; // true once the launch-computed diff has been handed to the client
 }
 
 // small json response helper.
@@ -45,8 +46,13 @@ function loadOrInit(ctx: ServerContext): ReviewFile {
 }
 
 // re-runs git diff so the view reflects the repo's current state (refresh / live review),
-// keeping the last good diff if git errors transiently.
+// keeping the last good diff if git errors transiently. the first call reuses the diff already
+// computed at launch — no point running git twice for the initial page load.
 export function handleGetDiff(ctx: ServerContext): Response {
+  if (!ctx.served) {
+    ctx.served = true;
+    return json(ctx.diff);
+  }
   try {
     const raw = collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked);
     ctx.diff = { ...parseDiff(raw, ctx.diff.ref), meta: ctx.meta };
