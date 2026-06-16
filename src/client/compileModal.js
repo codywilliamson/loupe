@@ -3,8 +3,9 @@ import { html, useState, useEffect, useRef, useMemo } from "/preact.js";
 import { marked } from "https://esm.sh/marked@12";
 import { compile } from "/api.js";
 import { X, Copy } from "/icons.js";
+import { StaleComments } from "/staleComments.js";
 
-export function CompileModal({ onClose }) {
+export function CompileModal({ onClose, comments, diff, onEdit, onDelete, onResolve }) {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -51,6 +52,7 @@ export function CompileModal({ onClose }) {
           <button class="btn-icon" title="Close" onClick=${onClose}><${X} /></button>
         </div>
       </header>
+      <${StaleComments} comments=${comments} diff=${diff} onEdit=${onEdit} onDelete=${onDelete} onResolve=${onResolve} />
       ${raw
         ? html`<textarea ref=${taRef} class="modal-textarea" readonly value=${loading ? "Compiling…" : prompt}></textarea>`
         : html`<div class="markdown-body modal-rendered">

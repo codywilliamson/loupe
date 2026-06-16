@@ -60,7 +60,7 @@ export function CommentEditor({ initial = "", initialTag, onSave, onCancel }) {
 }
 
 // a single saved comment, with inline edit, resolve/reopen, and delete.
-function SavedComment({ comment, onEdit, onDelete, onResolve }) {
+export function SavedComment({ comment, onEdit, onDelete, onResolve }) {
   const [editing, setEditing] = useState(false);
   if (editing) {
     return html`<${CommentEditor}

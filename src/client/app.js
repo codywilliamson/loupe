@@ -176,7 +176,15 @@ function App() {
         onResolve=${onResolve}
       />
     </div>
-    ${showCompile && html`<${CompileModal} onClose=${() => setShowCompile(false)} />`}
+    ${showCompile &&
+    html`<${CompileModal}
+      onClose=${() => setShowCompile(false)}
+      comments=${comments}
+      diff=${diff}
+      onEdit=${onEdit}
+      onDelete=${onDelete}
+      onResolve=${onResolve}
+    />`}
     ${showHelp && html`<${HelpOverlay} onClose=${() => setShowHelp(false)} />`}
   </div>`;
 }

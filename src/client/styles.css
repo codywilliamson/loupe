@@ -192,6 +192,16 @@ body.resizing { cursor: col-resize; user-select: none; }
 }
 .modal-foot { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
 
+/* orphaned comments from earlier reviews, listed in the compile modal for cleanup */
+.stale-comments {
+  margin: 12px 16px 0; padding: 10px 12px; max-height: 30vh; overflow: auto;
+  border: 1px solid var(--border); border-radius: 4px; background: var(--surface-2);
+}
+.stale-title { font-weight: 600; font-size: 13px; color: var(--text); }
+.stale-note { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stale-item { margin-top: 8px; }
+.stale-loc { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+
 /* ── markdown rendering (compile preview + .md file preview) ── */
 .markdown-body { font-family: var(--font); font-size: 13px; line-height: 1.55; color: var(--text); }
 .markdown-body h1, .markdown-body h2, .markdown-body h3 { margin: 16px 0 8px; line-height: 1.25; }

@@ -85,3 +85,35 @@ export function buildTree(files) {
 export function fileAnchorId(path) {
   return "file-" + path.replace(/[^a-zA-Z0-9]/g, "-");
 }
+
+// ── staleness — mirror of src/core/anchor.ts (the buildless client can't import the ts core) ──
+
+const sideOf = (c) => c.side ?? "new";
+const numOn = (l, side) => (side === "old" ? l.oldLine : l.newLine);
+const rangeEnd = (c) => (c.endLine != null ? Math.max(c.line, c.endLine) : c.line);
+
+// a comment is anchored if its file is in the diff and (for line comments) some hunk line
+// on its side still carries a number within [line, endLine]; file-level is anchored iff
+// the file is present. a range counts as anchored when ANY line in it survives.
+export function isAnchored(comment, diff) {
+  const file = diff.files.find((f) => f.path === comment.file);
+  if (!file) return false;
+  if (comment.line == null) return true;
+  const side = sideOf(comment);
+  const start = comment.line;
+  const end = rangeEnd(comment);
+  return file.hunks.some((h) =>
+    h.lines.some((l) => {
+      const n = numOn(l, side);
+      return n != null && n >= start && n <= end;
+    })
+  );
+}
+
+// splits comments into those still anchored in the diff and those orphaned, preserving order.
+export function partitionComments(comments, diff) {
+  const anchored = [];
+  const stale = [];
+  for (const c of comments) (isAnchored(c, diff) ? anchored : stale).push(c);
+  return { anchored, stale };
+}
