@@ -4,8 +4,21 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-06-16
+
+### Added
+- **Resolve comments** — mark a comment resolved instead of deleting it; it stays in the thread (dimmed, with a badge) but drops out of the compiled prompt and the open-comment counts, and reopens with one click
+- **Markdown preview in the compile dialog** — *Compile Review Prompt* now renders as formatted markdown by default, with a toggle to the raw source; the copy button reads **Copy as Markdown**
+- **Loading screen** — an animated indicator while the initial diff loads, instead of a bare "Loading…" line
+
 ### Changed
-- Site redesigned as a self-demonstrating review session — the landing page is a diff under review (hunk pills, struck-through deletions, comment-card copy), with a proper mobile-first layout
+- **Range comments from the line numbers** — drag across the line-number gutter (or shift-click a second line) to select a range, Azure DevOps-style; the hover bubble still works too
+- **Markdown opens as a diff** — `.md` files now show their changes by default so edits are obvious; the per-file Preview toggle still renders them
+- **`.review` is created lazily** — only your first comment writes the file and appends it to `.gitignore`; just browsing or marking files viewed no longer touches your repo
+- Site redesigned as a self-demonstrating review session — the landing page is a diff under review (hunk pills, struck-through deletions, comment-card copy), with a mobile-first layout, active-section highlighting, and a scrollable nav on the docs page
+
+### Performance
+- Faster initial load on large diffs: the launch-time diff is served for the first request instead of re-running `git diff`, and syntax highlighting is computed once per hunk (no per-line language auto-detection)
 
 ## [0.6.0] — 2026-06-09
 
