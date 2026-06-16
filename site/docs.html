@@ -102,6 +102,14 @@
         counts, and reopens with one click. Handy mid-loop: after an agent addresses your notes,
         resolve what's done and recompile so only the open ones go to the next round.
       </p>
+      <h3>Orphaned comments</h3>
+      <p>
+        Comments anchor to a line or file in the diff. When the code moves on — you push, then make
+        more unrelated changes — a comment's anchor can leave the current diff. Rather than vanish or
+        silently bloat your prompt, these <strong>orphaned</strong> comments are gathered in the compile
+        dialog under <strong>From earlier reviews</strong>, each with resolve and delete. They're kept
+        out of the compiled prompt, so stale notes from older rounds never leak into a fresh review.
+      </p>
       <h3>File-level comments &amp; viewed tracking</h3>
       <p>
         The speech-bubble button in a file header attaches a comment to the whole file. The
@@ -140,7 +148,7 @@
       <p>
         <em>Compile Review Prompt</em> assembles every open comment into ordered markdown: file-level
         notes first, then line comments sorted by position, each wrapped in ±2 lines of diff
-        context with the commented range marked by <code>&gt;</code>. Resolved comments are left out.
+        context with the commented range marked by <code>&gt;</code>. Resolved and orphaned comments are left out.
       </p>
       <div class="term">## Code Review — feature/x — 2026-06-10
 

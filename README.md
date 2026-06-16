@@ -67,8 +67,12 @@ Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
 Saved to `.review` in the directory you run the command from — created on your first comment,
 then added to `.gitignore` automatically. Just browsing or marking files viewed won't write anything.
 
-**Resolve** a comment to keep it on the record but drop it from the compiled prompt and the open-comment counts — reopen it any time. Markdown files open showing their diff; use the per-file **Preview** toggle to render them.
+**Resolve** a comment to keep it on the record but drop it from the compiled prompt and the open-comment counts — reopen it any time.
+
+When the code moves on and a comment's line or file leaves the current diff, it becomes **orphaned** — still saved, but no longer anchored anywhere in the view. The compile dialog gathers these under **From earlier reviews**, where you can resolve or delete each one, and keeps them out of the compiled prompt so old notes never leak into a fresh review.
+
+Markdown files open showing their diff; use the per-file **Preview** toggle to render them.
 
 ## Releases
 
-See [CHANGELOG.md](CHANGELOG.md). Current: **v0.7.0**.
+See [CHANGELOG.md](CHANGELOG.md). Current: **v0.8.0**.
