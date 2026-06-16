@@ -6,7 +6,7 @@ Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on an
 
 ## Screenshots
 
-![loupe — unified diff with markdown preview, a file tree, and inline comments](docs/screenshots/01-overview.png)
+![loupe — a unified diff with a file tree and inline comments](docs/screenshots/01-overview.png)
 
 | Dark mode | Inline multi-line comment | Side-by-side |
 | --- | --- | --- |
@@ -26,8 +26,25 @@ Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on an
 Flags: `--port <n>` fixed port, `--no-open` don't launch the browser, `--version`, `--help`.
 
 loupe reviews whichever git repo you run it from, then prints a `http://localhost:<port>`
-URL and opens it in your browser — the diff renders there, not in the terminal. Press `?`
-in the UI for keyboard shortcuts.
+URL and opens it in your browser — the diff renders there, not in the terminal.
+
+## Keyboard shortcuts
+
+Press `?` in the UI for this list at any time.
+
+| key | action |
+| --- | --- |
+| `j` / `k` | next / previous file |
+| `v` | toggle viewed on the current file |
+| `s` | unified ↔ side-by-side |
+| `o` | single-file ↔ all-files view |
+| `t` | cycle theme (light → dark → claude → claude dark) |
+| `r` | re-run the diff |
+| `c` | compile the review prompt |
+| `?` | show the shortcut overlay |
+| `Esc` | close dialogs |
+
+To comment on a range, drag across the line numbers (or shift-click a second line), like Azure DevOps.
 
 ## Install as a `loupe` command
 
@@ -47,8 +64,11 @@ Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
 
 ## Comments
 
-Saved to `.review` in the directory you run the command from (auto-added to `.gitignore`).
+Saved to `.review` in the directory you run the command from — created on your first comment,
+then added to `.gitignore` automatically. Just browsing or marking files viewed won't write anything.
+
+**Resolve** a comment to keep it on the record but drop it from the compiled prompt and the open-comment counts — reopen it any time. Markdown files open showing their diff; use the per-file **Preview** toggle to render them.
 
 ## Releases
 
-See [CHANGELOG.md](CHANGELOG.md). Current: **v0.5.0**.
+See [CHANGELOG.md](CHANGELOG.md). Current: **v0.7.0**.

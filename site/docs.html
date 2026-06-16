@@ -84,16 +84,23 @@
       <h2 id="reviewing"><span class="hunk">@@ reviewing @@</span></h2>
       <h3>Line comments</h3>
       <p>
-        Hover any line and press the bubble to comment. <strong>Drag</strong> across lines to
-        select a range, or <strong>shift-click</strong> a second line to extend one. In
-        side-by-side view you can comment on either pane — removed lines included — and the
-        export labels them <code>Old line N</code>.
+        Hover any line and press the bubble to comment. To comment on a range,
+        <strong>drag across the line numbers</strong> (or <strong>shift-click</strong> a second
+        line) — just like Azure DevOps. In side-by-side view you can comment on either pane —
+        removed lines included — and the export labels them <code>Old line N</code>.
       </p>
       <h3>Tags</h3>
       <p>
         Each comment can carry an intent tag — <code>nit</code>, <code>issue</code>,
         <code>question</code>, or <code>praise</code>. Tags show as pills in the UI and become
         <code>**[tag]**</code> prefixes in the compiled prompt, so the model knows severity.
+      </p>
+      <h3>Resolving</h3>
+      <p>
+        Done with a comment but want to keep it? <strong>Resolve</strong> it instead of deleting —
+        it stays in the thread, dimmed, but drops out of the compiled prompt and the open-comment
+        counts, and reopens with one click. Handy mid-loop: after an agent addresses your notes,
+        resolve what's done and recompile so only the open ones go to the next round.
       </p>
       <h3>File-level comments &amp; viewed tracking</h3>
       <p>
@@ -131,9 +138,9 @@
 
       <h2 id="export"><span class="hunk">@@ prompt export @@</span></h2>
       <p>
-        <em>Compile Review Prompt</em> assembles every comment into ordered markdown: file-level
+        <em>Compile Review Prompt</em> assembles every open comment into ordered markdown: file-level
         notes first, then line comments sorted by position, each wrapped in ±2 lines of diff
-        context with the commented range marked by <code>&gt;</code>.
+        context with the commented range marked by <code>&gt;</code>. Resolved comments are left out.
       </p>
       <div class="term">## Code Review — feature/x — 2026-06-10
 
@@ -159,8 +166,9 @@
       <h2 id="review-file"><span class="hunk">@@ the .review file @@</span></h2>
       <p>
         Comments and viewed-state persist to a <code>.review</code> JSON file in the directory
-        you ran loupe from. It's appended to <code>.gitignore</code> automatically, never
-        committed, and survives restarts — close the tab, come back tomorrow, your review is
+        you ran loupe from. It's created on your first comment — just browsing or marking files
+        viewed never touches your repo — then appended to <code>.gitignore</code> automatically,
+        never committed. It survives restarts: close the tab, come back tomorrow, your review is
         still there.
       </p>
 
@@ -186,5 +194,38 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    // scrollspy: highlight the section the reader is in — the last heading scrolled past the
+    // sticky header — and keep the active pill in view on the mobile horizontal strip.
+    (() => {
+      const toc = document.querySelector(".toc");
+      const links = new Map(
+        [...document.querySelectorAll('.toc a[href^="#"]')].map((a) => [a.getAttribute("href").slice(1), a])
+      );
+      const sections = [...document.querySelectorAll(".prose h2[id]")];
+      const THRESHOLD = 120; // a heading counts as "reached" once it crosses below this y
+      let current = null;
+      const setActive = (id) => {
+        if (id === current) return;
+        current = id;
+        links.forEach((a) => a.classList.remove("active"));
+        const a = links.get(id);
+        if (!a) return;
+        a.classList.add("active");
+        if (toc && toc.scrollWidth > toc.clientWidth) a.scrollIntoView({ block: "nearest", inline: "center" });
+      };
+      const onScroll = () => {
+        let id = sections[0]?.id;
+        for (const s of sections) {
+          if (s.getBoundingClientRect().top <= THRESHOLD) id = s.id;
+          else break;
+        }
+        if (id) setActive(id);
+      };
+      addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
 </body>
 </html>
