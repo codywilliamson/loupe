@@ -22,6 +22,8 @@ Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on an
     bun src/index.ts staged           # staged changes only
     bun src/index.ts <branch>         # current branch vs named branch
     bun src/index.ts <ref1>..<ref2>   # commit range
+    bun src/index.ts browse           # review the whole codebase
+    bun src/index.ts browse src/      # scope to a subtree
 
 Flags: `--port <n>` fixed port, `--no-open` don't launch the browser, `--version`, `--help`.
 

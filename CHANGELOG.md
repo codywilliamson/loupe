@@ -4,6 +4,9 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Added
+- **Codebase browse mode** — `loupe browse [path]` opens the whole tracked codebase (optionally scoped to a subtree) in the same review UI, so you can read every file and leave inline questions/notes, then **Compile Review Prompt** to feed an LLM for onboarding or learning. Comments share the existing `.review` store.
+
 ## [0.8.1] — 2026-06-23
 
 ### Fixed
