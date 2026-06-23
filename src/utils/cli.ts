@@ -2,6 +2,7 @@
 
 export interface CliOptions {
   spec: string | undefined; // ref spec; absent = working tree vs HEAD
+  scope: string | undefined; // path scope for `browse`; ignored otherwise
   port: number; // 0 = any free port
   open: boolean; // open the browser once serving
   help: boolean;
@@ -18,6 +19,7 @@ Refs
   staged            staged changes only
   <branch>          current branch vs <branch> (pr-style three-dot)
   <ref1>..<ref2>    commit range
+  browse [path]     review the whole codebase (optionally scoped to a path)
 
 Options
   -p, --port <n>    serve on a fixed port (default: any free port)
@@ -33,7 +35,7 @@ const MAX_PORT = 65535;
 // maps argv (already sliced past the runtime + script) into options.
 // throws a user-facing message on unknown flags or a bad port.
 export function parseCliArgs(argv: string[]): CliOptions {
-  const opts: CliOptions = { spec: undefined, port: 0, open: true, help: false, version: false };
+  const opts: CliOptions = { spec: undefined, scope: undefined, port: 0, open: true, help: false, version: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i] as string;
     if (arg === "-h" || arg === "--help") opts.help = true;
@@ -50,6 +52,8 @@ export function parseCliArgs(argv: string[]): CliOptions {
       throw new Error(`unknown option: ${arg} (try --help)`);
     } else if (opts.spec === undefined) {
       opts.spec = arg;
+    } else if (opts.spec === "browse" && opts.scope === undefined) {
+      opts.scope = arg;
     } else {
       throw new Error(`unexpected argument: ${arg} (only one ref spec, try --help)`);
     }
