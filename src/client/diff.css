@@ -32,7 +32,7 @@
 /* line numbers are a drag handle: drag or shift-click to select a comment range (ADO-style) */
 .lineno.sel { cursor: ns-resize; }
 .lineno.sel:hover { color: var(--text); }
-.code { width: 100%; padding: 0 8px; white-space: pre-wrap; word-break: break-word; background: var(--ctx-line); }
+.code { width: 100%; padding: 0 8px; white-space: pre; background: var(--ctx-line); }
 .sign { display: inline-block; width: 1ch; color: var(--muted); user-select: none; }
 .code-inner { font-family: var(--mono); }
 
@@ -52,6 +52,7 @@
 .diff-row.split .lineno { border-right: none; border-left: 1px solid var(--border); }
 .diff-row.split .new-no { border-left: 2px solid var(--border); }
 /* draggable divider between the two side-by-side panes */
+.file-body { overflow-x: auto; }
 .split-wrap { position: relative; }
 .split-resizer {
   position: absolute; top: 0; bottom: 0; width: 7px; margin-left: -3px;

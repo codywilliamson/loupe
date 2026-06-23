@@ -4,6 +4,16 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.8.1] — 2026-06-23
+
+### Fixed
+- **Top-bar layout at narrow viewports** — left side now shrinks and truncates the ref label instead of colliding with the right side; file count and delta hidden below 640px (visible in the file tree anyway)
+- **Code cells no longer wrap** — diff lines scroll horizontally instead of reflowing onto multiple rows
+- **"Compile Review Prompt" button stays on one line** — no longer wraps at small widths
+
+### Added
+- **Multiline comment gestures in the shortcuts help** — drag the gutter or shift-click to select a range, now documented in the `?` overlay
+
 ## [0.8.0] — 2026-06-16
 
 ### Added

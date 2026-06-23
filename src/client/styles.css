@@ -46,11 +46,11 @@ body.resizing { cursor: col-resize; user-select: none; }
 
 /* ── top bar ── */
 .top-bar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center;
   height: 48px; padding: 0 16px; border-bottom: 1px solid var(--border);
   background: var(--surface); flex: none;
 }
-.top-left { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.top-left { display: flex; align-items: baseline; gap: 12px; min-width: 0; flex: 1; }
 .wordmark { font-size: 18px; font-weight: 600; color: var(--ado-blue); letter-spacing: .2px; flex: none; }
 .ref-label { color: var(--muted); font-size: 12px; }
 .diff-info { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
@@ -59,15 +59,16 @@ body.resizing { cursor: col-resize; user-select: none; }
   flex: none; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--pill-text);
   background: var(--pill-bg); border-radius: 10px; padding: 1px 8px;
 }
-.ref-pair { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ref-pair { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .ref-pair .arrow { opacity: .6; margin: 0 1px; }
-.top-right { display: flex; align-items: center; gap: 16px; }
-.file-count { color: var(--muted); }
+.top-right { display: flex; align-items: center; gap: 16px; flex: none; }
+.file-count { color: var(--muted); white-space: nowrap; }
+@media (max-width: 640px) { .file-count, .top-delta { display: none; } }
 .top-delta .add, .file-delta .add, .tree-delta .add { color: #107c10; }
 .top-delta .del, .file-delta .del, .tree-delta .del { color: #a4262c; margin-left: 4px; }
 .btn-compile {
   background: var(--ado-blue); color: #fff; border: none; border-radius: 2px;
-  padding: 7px 14px; font: inherit; font-weight: 600; cursor: pointer;
+  padding: 7px 14px; font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .btn-compile:hover { background: var(--ado-blue-dark); }
 

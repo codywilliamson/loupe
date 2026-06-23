@@ -13,6 +13,8 @@ export const SHORTCUTS = [
   ["c", "Compile review prompt"],
   ["?", "Show this help"],
   ["Esc", "Close dialogs"],
+  ["drag gutter", "Select a line range to comment on"],
+  ["Shift-click gutter", "Extend an open comment to another line"],
 ];
 
 const isTyping = (el) => el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
