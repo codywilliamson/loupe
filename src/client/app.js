@@ -168,6 +168,7 @@ function App() {
         viewMode=${viewMode}
         activeFile=${activeFile}
         splitView=${splitView && !browse}
+        browse=${browse}
         comments=${comments}
         adding=${adding}
         setAdding=${setAdding}

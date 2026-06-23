@@ -7,26 +7,27 @@ import { CommentThread, CommentEditor } from "/comments.js";
 import { MarkdownView } from "/markdownView.js";
 import { SplitResizer } from "/splitResizer.js";
 
-function FileHeader({ file, open, split, md, preview, onToggleOpen, onToggleSplit, onTogglePreview, onAddFileComment }) {
+function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onToggleSplit, onTogglePreview, onAddFileComment }) {
   const title = file.oldPath ? `${file.oldPath} → ${file.path}` : file.path;
   return html`<div class="file-head">
     <button class="file-collapse" onClick=${onToggleOpen}>
       ${open ? html`<${ChevronDown} />` : html`<${ChevronRight} />`}
     </button>
-    <span class="badge badge-${file.changeType}">${changeBadge(file.changeType)}</span>
+    ${!browse && html`<span class="badge badge-${file.changeType}">${changeBadge(file.changeType)}</span>`}
     <span class="file-path" title=${title}>${title}</span>
-    <span class="file-delta"><span class="add">+${file.additions}</span> <span class="del">-${file.deletions}</span></span>
+    ${!browse &&
+    html`<span class="file-delta"><span class="add">+${file.additions}</span> <span class="del">-${file.deletions}</span></span>`}
     <span class="file-tools">
       <button class="btn-plain" title="Add file comment" onClick=${onAddFileComment}><${MessageSquare} /></button>
       ${md &&
       html`<button class="btn-toggle ${preview ? "on" : ""}" onClick=${onTogglePreview}>${preview ? "Preview" : "Diff"}</button>`}
-      ${(!md || !preview) &&
+      ${(!md || !preview) && !browse &&
       html`<button class="btn-toggle ${split ? "on" : ""}" onClick=${onToggleSplit}>${split ? "Side-by-side" : "Unified"}</button>`}
     </span>
   </div>`;
 }
 
-function FileSection({ file, splitView, threads }) {
+function FileSection({ file, splitView, threads, browse }) {
   const md = isMarkdown(file.path) && file.changeType !== "deleted";
   const [open, setOpen] = useState(true);
   // split follows the global toggle; a per-file toggle overrides it until the next global flip.
@@ -49,6 +50,7 @@ function FileSection({ file, splitView, threads }) {
       split=${split}
       md=${md}
       preview=${preview}
+      browse=${browse}
       onToggleOpen=${() => setOpen(!open)}
       onToggleSplit=${() => setOverride(!split)}
       onTogglePreview=${() => setPreview(!preview)}
@@ -159,13 +161,13 @@ function rawLine(line) {
   return sign + line.content;
 }
 
-export function DiffView({ files, viewMode, activeFile, splitView, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve }) {
+export function DiffView({ files, viewMode, activeFile, splitView, browse, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve }) {
   const ctx = { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve };
   // single-file view shows just the active file (first file as a fallback); all-files shows the stack.
   const shown = viewMode === "single" ? [files.find((f) => f.path === activeFile) ?? files[0]].filter(Boolean) : files;
   return html`<main class="diff-pane">
     ${shown.map(
-      (file) => html`<${FileSection} key=${file.path} file=${file} splitView=${splitView} threads=${makeThreads(file, ctx)} />`
+      (file) => html`<${FileSection} key=${file.path} file=${file} splitView=${splitView} browse=${browse} threads=${makeThreads(file, ctx)} />`
     )}
   </main>`;
 }
