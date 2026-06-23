@@ -7,6 +7,7 @@ import { readReview, writeReview } from "../core/reviewStore";
 import { compileReviewPrompt } from "../core/promptCompiler";
 import { parseDiff } from "../core/diffParser";
 import { checkForUpdate } from "../core/updateCheck";
+import { scanProject } from "../core/projectScan";
 import { collectDiff, runGit } from "../utils/git";
 
 export interface ServerContext {
@@ -18,6 +19,8 @@ export interface ServerContext {
   diffArgs: string[]; // git args to re-run the diff on demand (refresh)
   includeUntracked: boolean; // working-tree mode also surfaces untracked files
   meta?: DiffMeta; // stable review context (repo + refs); reused across refreshes
+  mode?: "diff" | "browse"; // browse re-scans the codebase on refresh instead of re-diffing
+  scope?: string; // browse path scope, reused on refresh
   served: boolean; // true once the launch-computed diff has been handed to the client
 }
 
@@ -54,8 +57,10 @@ export function handleGetDiff(ctx: ServerContext): Response {
     return json(ctx.diff);
   }
   try {
-    const raw = collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked);
-    ctx.diff = { ...parseDiff(raw, ctx.diff.ref), meta: ctx.meta };
+    ctx.diff =
+      ctx.mode === "browse"
+        ? scanProject(ctx.cwd, ctx.scope)
+        : { ...parseDiff(collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked), ctx.diff.ref), meta: ctx.meta };
   } catch {
     // keep the previous diff
   }
