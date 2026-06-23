@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { resolveRef, collectDiff, repoName } from "./utils/git";
 import { parseCliArgs, USAGE } from "./utils/cli";
 import { parseDiff } from "./core/diffParser";
+import { scanProject } from "./core/projectScan";
 import { currentVersion } from "./core/updateCheck";
 import { createServer } from "./server/router";
 import type { DiffMeta } from "./types";
@@ -54,19 +55,25 @@ function main(): void {
   let diffArgs: string[] = [];
   let includeUntracked = false;
   let meta: DiffMeta | undefined;
+  const mode: "diff" | "browse" = opts.spec === "browse" ? "browse" : "diff";
   try {
-    const plan = resolveRef(opts.spec, cwd);
-    newRef = plan.newRef;
-    diffArgs = plan.diffArgs;
-    includeUntracked = plan.includeUntracked;
-    meta = { repo: repoName(cwd), mode: plan.mode, source: plan.source, target: plan.target };
-    diff = { ...parseDiff(collectDiff(plan.diffArgs, cwd, includeUntracked), plan.refLabel), meta };
+    if (mode === "browse") {
+      diff = scanProject(cwd, opts.scope);
+      meta = diff.meta;
+    } else {
+      const plan = resolveRef(opts.spec, cwd);
+      newRef = plan.newRef;
+      diffArgs = plan.diffArgs;
+      includeUntracked = plan.includeUntracked;
+      meta = { repo: repoName(cwd), mode: plan.mode, source: plan.source, target: plan.target };
+      diff = { ...parseDiff(collectDiff(plan.diffArgs, cwd, includeUntracked), plan.refLabel), meta };
+    }
   } catch (err) {
     fail(err instanceof Error ? err.message : String(err));
   }
 
   const clientDir = join(import.meta.dir, "client");
-  const ctx = { diff, cwd, clientDir, loupeRoot, newRef, diffArgs, includeUntracked, meta, served: false };
+  const ctx = { diff, cwd, clientDir, loupeRoot, newRef, diffArgs, includeUntracked, meta, mode, scope: opts.scope, served: false };
   let server;
   try {
     server = createServer(ctx, opts.port);
@@ -77,7 +84,8 @@ function main(): void {
 
   if (opts.open) openBrowser(url);
   const files = diff.files.length;
-  console.log(`${accent("✻ loupe")} ${dim(`v${currentVersion(loupeRoot)}`)} — reviewing ${bold(diff.ref)} (${files} file${files === 1 ? "" : "s"} changed)`);
+  const changed = mode === "browse" ? "" : " changed";
+  console.log(`${accent("✻ loupe")} ${dim(`v${currentVersion(loupeRoot)}`)} — reviewing ${bold(diff.ref)} (${files} file${files === 1 ? "" : "s"}${changed})`);
   console.log(`  ${bold(url)}  ${dim("(ctrl+c to stop)")}`);
 }
 
