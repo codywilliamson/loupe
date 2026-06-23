@@ -9,8 +9,14 @@ import { UpdateBadge } from "/update.js";
 const THEME_ICONS = { light: Sun, dark: Moon, claude: Spark, "claude-dark": Spark };
 
 // repo + mode + "source → target" so you know exactly what you're reviewing.
+// browse mode has no source/target pair — just the repo + mode pill.
 function DiffInfo({ meta, refLabel }) {
   if (!meta) return html`<span class="ref-label" title=${refLabel}>${refLabel}</span>`;
+  if (meta.mode === "browse")
+    return html`<span class="diff-info">
+      <span class="repo-name" title=${meta.repo}>${meta.repo}</span>
+      <span class="mode-pill">${meta.mode}</span>
+    </span>`;
   return html`<span class="diff-info">
     <span class="repo-name" title=${meta.repo}>${meta.repo}</span>
     <span class="mode-pill">${meta.mode}</span>
@@ -37,6 +43,7 @@ export function TopBar({
   onHelp,
 }) {
   const { add, del } = totalDelta(files);
+  const browse = meta?.mode === "browse";
   const viewTip = viewMode === "single" ? "All-files view" : "Single-file view";
   const splitTip = splitView ? "Unified (all files)" : "Side-by-side (all files)";
   const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
@@ -50,16 +57,18 @@ export function TopBar({
     </div>
     <div class="top-right">
       <span class="file-count">${files.length} file${files.length === 1 ? "" : "s"}</span>
-      <span class="top-delta">
+      ${!browse &&
+      html`<span class="top-delta">
         <span class="add">+${add}</span>
         <span class="del">-${del}</span>
-      </span>
+      </span>`}
       <button class="btn-icon icon-btn ${viewMode === "single" ? "on" : ""}" data-tip=${viewTip} aria-label=${viewTip} onClick=${onToggleView}>
         <${File} />
       </button>
-      <button class="btn-icon icon-btn ${splitView ? "on" : ""}" data-tip=${splitTip} aria-label=${splitTip} onClick=${onToggleSplit}>
+      ${!browse &&
+      html`<button class="btn-icon icon-btn ${splitView ? "on" : ""}" data-tip=${splitTip} aria-label=${splitTip} onClick=${onToggleSplit}>
         <${Columns} />
-      </button>
+      </button>`}
       <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" data-tip="Re-run the diff" aria-label="Re-run the diff" onClick=${onRefresh}>
         <${Refresh} />
       </button>

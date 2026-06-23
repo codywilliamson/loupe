@@ -119,9 +119,10 @@ export function UnifiedHunk({ hunk, path, threads }) {
   const marks = useMemo(() => hunkMarks(hunk.lines), [hunk]);
   const hl = useMemo(() => highlightMap(hunk.lines, path), [hunk, path]);
   return html`<tbody>
-    <tr class="hunk-header">
+    ${hunk.header &&
+    html`<tr class="hunk-header">
       <td colspan="4"><span class="hunk-pill">${hunk.header}</span></td>
-    </tr>
+    </tr>`}
     ${hunk.lines.map(
       (l, i) => html`<${UnifiedRow} key=${i} line=${l} hl=${hl} threads=${threads} mark=${marks.get(l)} />`
     )}
@@ -169,9 +170,10 @@ export function SplitHunk({ hunk, path, threads }) {
   const marks = useMemo(() => hunkMarks(hunk.lines), [hunk]);
   const hl = useMemo(() => highlightMap(hunk.lines, path), [hunk, path]);
   return html`<tbody>
-    <tr class="hunk-header">
+    ${hunk.header &&
+    html`<tr class="hunk-header">
       <td colspan="6"><span class="hunk-pill">${hunk.header}</span></td>
-    </tr>
+    </tr>`}
     ${rows.map(
       (r, i) => html`<${SplitRow} key=${i} left=${r.left} right=${r.right} hl=${hl} threads=${threads} marks=${marks} />`
     )}

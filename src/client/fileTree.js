@@ -22,14 +22,15 @@ function TreeHead({ filter, onFilter, files, viewedSet }) {
   </div>`;
 }
 
-function FileRow({ file, viewed, commentCount, active, onSelect, onToggleViewed }) {
+function FileRow({ file, viewed, commentCount, active, browse, onSelect, onToggleViewed }) {
   return html`<div class="tree-file ${active ? "active" : ""}" onClick=${() => onSelect(file.path)}>
     <span class="tree-file-name" title=${file.path}>${file.name}</span>
-    <span class="badge badge-${file.changeType}">${changeBadge(file.changeType)}</span>
-    <span class="tree-delta">
+    ${!browse && html`<span class="badge badge-${file.changeType}">${changeBadge(file.changeType)}</span>`}
+    ${!browse &&
+    html`<span class="tree-delta">
       <span class="add">+${file.additions}</span>
       <span class="del">-${file.deletions}</span>
-    </span>
+    </span>`}
     ${commentCount > 0 && html`<span class="comment-dot" title=${`${commentCount} comment(s)`}></span>`}
     <input
       type="checkbox"
@@ -68,12 +69,12 @@ function Folder({ node, depth, ...rest }) {
   </div>`;
 }
 
-export function FileTree({ files, viewedSet, countFor, activeFile, onSelect, onToggleViewed, width }) {
+export function FileTree({ files, viewedSet, countFor, activeFile, onSelect, onToggleViewed, width, browse }) {
   const [filter, setFilter] = useState("");
   const needle = filter.trim().toLowerCase();
   const shown = needle ? files.filter((f) => f.path.toLowerCase().includes(needle)) : files;
   const root = buildTree(shown);
-  const rest = { viewedSet, countFor, activeFile, onSelect, onToggleViewed };
+  const rest = { viewedSet, countFor, activeFile, onSelect, onToggleViewed, browse };
   return html`<nav class="file-tree" style=${`width:${width}px`}>
     <${TreeHead} filter=${filter} onFilter=${setFilter} files=${files} viewedSet=${viewedSet} />
     ${needle && shown.length === 0 && html`<div class="tree-empty">No files match “${filter}”</div>`}
@@ -88,6 +89,7 @@ export function FileTree({ files, viewedSet, countFor, activeFile, onSelect, onT
           viewed=${viewedSet.has(f.path)}
           commentCount=${countFor(f.path)}
           active=${activeFile === f.path}
+          browse=${browse}
           onSelect=${onSelect}
           onToggleViewed=${onToggleViewed}
         />`

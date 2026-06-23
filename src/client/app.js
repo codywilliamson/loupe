@@ -132,6 +132,8 @@ function App() {
   if (error) return html`<div class="fatal">${error}</div>`;
   if (!diff) return html`<${LoadingScreen} />`;
 
+  const browse = diff.meta?.mode === "browse";
+
   return html`<div class="app">
     <${TopBar}
       refLabel=${diff.ref}
@@ -158,13 +160,14 @@ function App() {
         onSelect=${onSelectFile}
         onToggleViewed=${onToggleViewed}
         width=${sidebarWidth}
+        browse=${browse}
       />
       <${Resizer} onResize=${onResize} />
       <${DiffView}
         files=${diff.files}
         viewMode=${viewMode}
         activeFile=${activeFile}
-        splitView=${splitView}
+        splitView=${splitView && !browse}
         comments=${comments}
         adding=${adding}
         setAdding=${setAdding}
