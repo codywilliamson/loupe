@@ -13,6 +13,7 @@ import { Resizer } from "/resizer.js";
 import { DiffView } from "/diffView.js";
 import { CompileModal } from "/compileModal.js";
 import { HelpOverlay } from "/helpOverlay.js";
+import { useWhatsNew, WhatsNewModal } from "/whatsNewModal.js";
 import { LoadingScreen } from "/loadingScreen.js";
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
   const [refreshing, setRefreshing] = useState(false);
   const update = useUpdateCheck();
   const { comments, setComments, onAdd, onEdit, onDelete, onResolve } = useComments(setError);
+  const wn = useWhatsNew(update?.current);
 
   useEffect(() => {
     Promise.all([getDiff(), getComments()])
@@ -92,11 +94,13 @@ function App() {
     cycleTheme: onToggleTheme,
     refresh: onRefresh,
     compile: () => setShowCompile(true),
+    whatsNew: wn.reopen,
     toggleHelp: () => setShowHelp((v) => !v),
     closeOverlays: () => {
       setShowHelp(false);
       setShowCompile(false);
       setAdding(null);
+      wn.close();
     },
   });
 
@@ -121,6 +125,7 @@ function App() {
       onToggleSplit=${onToggleSplit}
       onCompile=${() => setShowCompile(true)}
       onHelp=${() => setShowHelp(true)}
+      onWhatsNew=${wn.reopen}
     />
     <div class="body">
       <${FileTree}
@@ -161,6 +166,7 @@ function App() {
       onResolve=${onResolve}
     />`}
     ${showHelp && html`<${HelpOverlay} onClose=${() => setShowHelp(false)} />`}
+    ${wn.open && html`<${WhatsNewModal} entry=${wn.entry} onClose=${wn.close} />`}
   </div>`;
 }
 

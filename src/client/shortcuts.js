@@ -11,6 +11,7 @@ export const SHORTCUTS = [
   ["t", "Cycle theme"],
   ["r", "Re-run the diff"],
   ["c", "Compile review prompt"],
+  ["n", "What's new"],
   ["?", "Show this help"],
   ["Esc", "Close dialogs"],
   ["drag gutter", "Select a line range to comment on"],
@@ -20,7 +21,7 @@ export const SHORTCUTS = [
 const isTyping = (el) => el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
 
 // ctx: { files, activeFile, selectFile, toggleViewed, toggleSplit, toggleView,
-//        cycleTheme, refresh, compile, toggleHelp, closeOverlays }
+//        cycleTheme, refresh, compile, whatsNew, toggleHelp, closeOverlays }
 export function useShortcuts(ctx) {
   const ref = useRef(ctx);
   ref.current = ctx;
@@ -46,6 +47,7 @@ export function useShortcuts(ctx) {
       else if (e.key === "t") c.cycleTheme();
       else if (e.key === "r") c.refresh();
       else if (e.key === "c") c.compile();
+      else if (e.key === "n") c.whatsNew();
       else if (e.key === "?") c.toggleHelp();
       else return;
       e.preventDefault();
