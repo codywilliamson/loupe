@@ -6,7 +6,7 @@ import { UnifiedHunk, SplitHunk } from "/diffLines.js";
 import { CommentThread, CommentEditor } from "/comments.js";
 import { MarkdownView } from "/markdownView.js";
 import { SplitResizer } from "/splitResizer.js";
-import { usePaneWidths, syncPane, useShiftScroll } from "/splitScroll.js";
+import { usePaneWidths, setPaneShift, useShiftScroll } from "/splitScroll.js";
 
 function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onToggleSplit, onTogglePreview, onAddFileComment }) {
   const title = file.oldPath ? `${file.oldPath} → ${file.path}` : file.path;
@@ -88,9 +88,9 @@ function FileSection({ file, splitView, threads, browse, wrap }) {
                   html`<tbody class="hscroll-row">
                     <tr>
                       <td></td><td></td>
-                      <td><div class="hscroll hscroll-old" onScroll=${(e) => syncPane(tableRef, "old", e.currentTarget.scrollLeft)}><div class="hscroll-spacer" style=${`width:${paneW.old}px`}></div></div></td>
+                      <td><div class="hscroll hscroll-old" onScroll=${(e) => setPaneShift(tableRef, "old", e.currentTarget.scrollLeft)}><div class="hscroll-spacer" style=${`width:${paneW.old}px`}></div></div></td>
                       <td></td><td></td>
-                      <td><div class="hscroll hscroll-new" onScroll=${(e) => syncPane(tableRef, "new", e.currentTarget.scrollLeft)}><div class="hscroll-spacer" style=${`width:${paneW.new}px`}></div></div></td>
+                      <td><div class="hscroll hscroll-new" onScroll=${(e) => setPaneShift(tableRef, "new", e.currentTarget.scrollLeft)}><div class="hscroll-spacer" style=${`width:${paneW.new}px`}></div></div></td>
                     </tr>
                   </tbody>`}
                 </table>

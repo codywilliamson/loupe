@@ -21,10 +21,10 @@ function Code({ line, hl, mark, side }) {
   let inner = hl;
   if (mark) inner = markRange(inner, mark.start, mark.end, `wd wd-${line.type}`);
   return html`<td class="code code-${line.type}${side ? " " + side : ""}">
-    <span class="sign">${SIGN[line.type]}</span><span
+    <span class="code-shift"><span class="sign">${SIGN[line.type]}</span><span
       class="code-inner"
       dangerouslySetInnerHTML=${{ __html: inner }}
-    ></span>
+    ></span></span>
   </td>`;
 }
 

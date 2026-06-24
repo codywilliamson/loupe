@@ -20,11 +20,12 @@ export function usePaneWidths(tableRef, deps) {
   return widths;
 }
 
-// scroll every code cell on `side` to match the pane scrollbar's position.
-export function syncPane(tableRef, side, scrollLeft) {
+// shift every line on `side` by the scrollbar's position — as one unit. a single CSS
+// variable on the table translates all lines uniformly (no per-line clamping), so the whole
+// pane moves together instead of each line scrolling on its own.
+export function setPaneShift(tableRef, side, scrollLeft) {
   const table = tableRef.current;
-  if (!table) return;
-  for (const cell of table.querySelectorAll(`td.code.${side}`)) cell.scrollLeft = scrollLeft;
+  if (table) table.style.setProperty(`--sx-${side}`, `${-scrollLeft}px`);
 }
 
 // shift+wheel (or a dominant horizontal trackpad swipe) over a pane scrolls that side

@@ -53,6 +53,11 @@
 /* code clips instead of overflowing across the other pane; its scrollLeft is driven by the
    per-pane scrollbar below. */
 .diff-table.split .code { width: auto; overflow: hidden; }
+/* each line shifts as one unit via a per-side CSS variable the scrollbar sets — uniform
+   across every line on that side (no per-line clamping, so the whole pane moves together). */
+.diff-table.split .code-shift { display: inline-block; }
+.diff-table.split .code.old .code-shift { transform: translateX(var(--sx-old, 0px)); }
+.diff-table.split .code.new .code-shift { transform: translateX(var(--sx-new, 0px)); }
 .diff-row.split .lineno { border-right: none; border-left: 1px solid var(--border); }
 .diff-row.split .new-no { border-left: 2px solid var(--border); }
 /* per-pane horizontal scrollbar: one sticky strip per code column, scrolling that whole side.
@@ -69,6 +74,7 @@
 /* word-wrap toggle: wrap long lines in both views; split stops clipping so the wrap shows. */
 .diff-pane.wrap .code { white-space: pre-wrap; overflow-wrap: anywhere; }
 .diff-pane.wrap .diff-table.split .code { overflow: visible; }
+.diff-pane.wrap .diff-table.split .code-shift { display: inline; transform: none; }
 /* draggable divider between the two side-by-side panes */
 .file-body { overflow-x: auto; }
 .split-wrap { position: relative; }
