@@ -9,6 +9,7 @@ All notable changes to loupe are documented here. This project follows [semantic
 - **"What's new" modal** — on the first run of a new version, loupe pops a curated highlights modal; reopen it anytime from the top-bar sparkles button or the `n` shortcut.
 - **Independent side-by-side scrolling** — each side-by-side pane now has its own slim horizontal scrollbar (drag it, or **Shift**+scroll over the pane), so a long line scrolls that pane on its own without shoving the other. Fixes long lines overlapping across panes.
 - **Word-wrap toggle** — a top-bar button (and the `w` shortcut) turns line wrapping on/off in both unified and side-by-side; off by default. Applies in browse mode too.
+- **Comment either pane in side-by-side** — unchanged lines can now be commented on the left (old) pane too, not just the right; the comment remembers its side.
 
 ## [0.8.1] — 2026-06-23
 

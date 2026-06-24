@@ -135,11 +135,13 @@ function Side({ line, hl, side, mark, onLineDown }) {
   return html`<td class="lineno ${side}-no${onLineDown ? " sel" : ""}" onMouseDown=${onLineDown}>${no ?? ""}</td><${Code} line=${line} hl=${hl} mark=${mark} side=${side} />`;
 }
 
-// one side-by-side row: an old-side bubble (removed lines) + the old cells, then a new-side
-// bubble (added/context) + the new cells, then the comment region for either anchor.
+// one side-by-side row: an old-side bubble (any line present on the old side — removed or
+// unchanged) + the old cells, then a new-side bubble (added/unchanged) + the new cells, then
+// the comment region for either anchor. unchanged lines anchor on both sides, so you can
+// comment either pane.
 function SplitRow({ left, right, hl, threads, marks }) {
   const newLine = right && right.newLine != null ? right.newLine : null;
-  const oldLine = left && left.type === "deletion" ? left.oldLine : null;
+  const oldLine = left && left.oldLine != null ? left.oldLine : null;
   const oldSel = oldLine != null && (threads.pendingAt("old", oldLine) || threads.rangeAt("old", oldLine));
   const newSel = newLine != null && (threads.pendingAt("new", newLine) || threads.rangeAt("new", newLine));
   const cls = `diff-row split${oldSel || newSel ? " range-selected" : ""}`;
