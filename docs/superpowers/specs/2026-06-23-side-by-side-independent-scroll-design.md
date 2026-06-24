@@ -20,16 +20,21 @@ for free — perfect row **alignment**, full-width inline **comment rows** (cols
 table and add per-pane horizontal scroll on top:
 
 - Code cells clip (`overflow: hidden`) instead of overflowing — kills the cross-pane overlap.
-  Their `scrollLeft` is driven programmatically (overflow:hidden still scrolls via scrollLeft).
+- Each line's content sits in a `.code-shift` wrapper that's translated by a **single per-side
+  CSS variable** (`--sx-old` / `--sx-new`) set on the table. One variable update moves *every*
+  line on that side by the same amount — **uniformly, as one unit, with no per-line clamping.**
+  (The earlier attempt scrolled each cell's own `scrollLeft`, which clamped short lines short of
+  long ones — the ragged "each line scrolls on its own" bug.)
 - One **synthetic horizontal scrollbar per pane**, rendered as a sticky-bottom row *inside the
   table* so its two cells sit in the old/new code columns and auto-resize with the resizer (no
   manual positioning math). Each scrollbar cell is an `overflow-x: auto` strip whose inner
-  spacer is as wide as that side's widest line.
-- A small sync: scrolling a pane's scrollbar sets `scrollLeft` on every code cell of that side;
-  `Shift`+wheel over a pane scrolls it too.
+  spacer is as wide as that side's widest line; its `onScroll` sets that side's CSS variable.
+- `Shift`+wheel (or a dominant horizontal trackpad swipe) over a pane drives the same scrollbar.
 
 This isolates all new behavior to a scroll module + CSS; comments, alignment, and the resizer
-keep working untouched.
+keep working untouched. Why not the industry-standard two-separate-tables side-by-side? Because
+keeping rows aligned across two tables (especially with wrap, and with loupe's full-width inline
+comment rows) is a documented hard problem (diff2html#99); the single table sidesteps it.
 
 ## Behavior
 
