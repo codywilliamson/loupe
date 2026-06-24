@@ -107,8 +107,8 @@ is acceptable for v1.
   comment-count dots.
 - **`src/client/diffLines.js`**: suppress the hunk-header pill row when `header === ""`.
 
-Deferred polish (not v1): collapse the two identical line-number columns into a single
-gutter in browse mode. v1 shows both columns (identical numbers), which is acceptable.
+Single gutter in browse mode: the two line-number columns are identical, so the old-side
+column is hidden via a `.app.browse` CSS rule, leaving one gutter.
 
 ## Data shapes — no contract changes
 
@@ -162,7 +162,6 @@ Unchanged: `src/types.ts`, `src/core/reviewStore.ts`, `src/core/promptCompiler.t
 - **Lazy loading**: serve the file tree upfront, fetch each file's contents on demand
   (reusing `/api/file`) for large repos. Add if eager scanning gets sluggish.
 - **Live LLM integration**: answer questions in-app instead of paste-the-prompt.
-- **Single-gutter rendering** in browse mode (cosmetic).
 
 ## Release
 
