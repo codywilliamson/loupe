@@ -1,7 +1,7 @@
 // top bar: wordmark + update badge + diff context on the left; counts, view toggles, theme + compile on the right.
 import { html } from "/preact.js";
 import { totalDelta } from "/util.js";
-import { Sun, Moon, Spark, Refresh, Columns, File, HelpCircle, Sparkles } from "/icons.js";
+import { Sun, Moon, Spark, Refresh, Columns, File, HelpCircle, Sparkles, WrapText } from "/icons.js";
 import { THEMES, THEME_LABELS } from "/theme.js";
 import { UpdateBadge } from "/update.js";
 
@@ -34,11 +34,13 @@ export function TopBar({
   refreshing,
   viewMode,
   splitView,
+  wrap,
   update,
   onRefresh,
   onToggleTheme,
   onToggleView,
   onToggleSplit,
+  onToggleWrap,
   onCompile,
   onHelp,
   onWhatsNew,
@@ -47,6 +49,7 @@ export function TopBar({
   const browse = meta?.mode === "browse";
   const viewTip = viewMode === "single" ? "All-files view" : "Single-file view";
   const splitTip = splitView ? "Unified (all files)" : "Side-by-side (all files)";
+  const wrapTip = wrap ? "No wrap" : "Wrap lines";
   const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
   const themeTip = `Theme: ${THEME_LABELS[theme]} — next: ${THEME_LABELS[next]}`;
   const ThemeIcon = THEME_ICONS[theme] ?? Sun;
@@ -70,6 +73,9 @@ export function TopBar({
       html`<button class="btn-icon icon-btn ${splitView ? "on" : ""}" data-tip=${splitTip} aria-label=${splitTip} onClick=${onToggleSplit}>
         <${Columns} />
       </button>`}
+      <button class="btn-icon icon-btn ${wrap ? "on" : ""}" data-tip=${wrapTip} aria-label=${wrapTip} onClick=${onToggleWrap}>
+        <${WrapText} />
+      </button>
       <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" data-tip="Re-run the diff" aria-label="Re-run the diff" onClick=${onRefresh}>
         <${Refresh} />
       </button>

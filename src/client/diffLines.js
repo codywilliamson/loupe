@@ -17,10 +17,10 @@ function highlightMap(lines, path) {
 
 // code cell rendering pre-highlighted html; `mark` wraps the intra-line changed range
 // of a modified pair in a tinted <mark>.
-function Code({ line, hl, mark }) {
+function Code({ line, hl, mark, side }) {
   let inner = hl;
   if (mark) inner = markRange(inner, mark.start, mark.end, `wd wd-${line.type}`);
-  return html`<td class="code code-${line.type}">
+  return html`<td class="code code-${line.type}${side ? " " + side : ""}">
     <span class="sign">${SIGN[line.type]}</span><span
       class="code-inner"
       dangerouslySetInnerHTML=${{ __html: inner }}
@@ -130,9 +130,9 @@ export function UnifiedHunk({ hunk, path, threads }) {
 }
 
 function Side({ line, hl, side, mark, onLineDown }) {
-  if (!line) return html`<td class="lineno ${side}-no empty"></td><td class="code code-empty"></td>`;
+  if (!line) return html`<td class="lineno ${side}-no empty"></td><td class="code code-empty ${side}"></td>`;
   const no = side === "old" ? line.oldLine : line.newLine;
-  return html`<td class="lineno ${side}-no${onLineDown ? " sel" : ""}" onMouseDown=${onLineDown}>${no ?? ""}</td><${Code} line=${line} hl=${hl} mark=${mark} />`;
+  return html`<td class="lineno ${side}-no${onLineDown ? " sel" : ""}" onMouseDown=${onLineDown}>${no ?? ""}</td><${Code} line=${line} hl=${hl} mark=${mark} side=${side} />`;
 }
 
 // one side-by-side row: an old-side bubble (removed lines) + the old cells, then a new-side

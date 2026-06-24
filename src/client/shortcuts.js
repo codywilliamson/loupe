@@ -7,6 +7,7 @@ export const SHORTCUTS = [
   ["k", "Previous file"],
   ["v", "Toggle viewed on the current file"],
   ["s", "Unified ↔ side-by-side"],
+  ["w", "Wrap lines"],
   ["o", "Single-file ↔ all-files view"],
   ["t", "Cycle theme"],
   ["r", "Re-run the diff"],
@@ -20,7 +21,7 @@ export const SHORTCUTS = [
 
 const isTyping = (el) => el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
 
-// ctx: { files, activeFile, selectFile, toggleViewed, toggleSplit, toggleView,
+// ctx: { files, activeFile, selectFile, toggleViewed, toggleSplit, toggleWrap, toggleView,
 //        cycleTheme, refresh, compile, whatsNew, toggleHelp, closeOverlays }
 export function useShortcuts(ctx) {
   const ref = useRef(ctx);
@@ -43,6 +44,7 @@ export function useShortcuts(ctx) {
       else if (e.key === "k") step(-1);
       else if (e.key === "v" && current) c.toggleViewed(current);
       else if (e.key === "s") c.toggleSplit();
+      else if (e.key === "w") c.toggleWrap();
       else if (e.key === "o") c.toggleView();
       else if (e.key === "t") c.cycleTheme();
       else if (e.key === "r") c.refresh();

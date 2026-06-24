@@ -6,6 +6,7 @@ import { UnifiedHunk, SplitHunk } from "/diffLines.js";
 import { CommentThread, CommentEditor } from "/comments.js";
 import { MarkdownView } from "/markdownView.js";
 import { SplitResizer } from "/splitResizer.js";
+import { usePaneWidths, syncPane } from "/splitScroll.js";
 
 function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onToggleSplit, onTogglePreview, onAddFileComment }) {
   const title = file.oldPath ? `${file.oldPath} → ${file.path}` : file.path;
@@ -27,9 +28,11 @@ function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onTo
   </div>`;
 }
 
-function FileSection({ file, splitView, threads, browse }) {
+function FileSection({ file, splitView, threads, browse, wrap }) {
   const md = isMarkdown(file.path) && file.changeType !== "deleted";
   const [open, setOpen] = useState(true);
+  const tableRef = useRef(null);
+  const paneW = usePaneWidths(tableRef, [file.path, wrap, open]);
   // split follows the global toggle; a per-file toggle overrides it until the next global flip.
   // derived from the prop each render (no effect) so a global flip always takes — never gets stuck.
   const [override, setOverride] = useState(null);
@@ -57,7 +60,7 @@ function FileSection({ file, splitView, threads, browse }) {
       onAddFileComment=${threads.onStartFileAdd}
     />
     ${open &&
-    html`<div class="file-body">
+    html`<div class="file-body${split ? " split-body" : ""}">
       ${(fileComments.length > 0 || threads.addingFile) &&
       html`<div class="file-comments">
         <${CommentThread} comments=${fileComments} onEdit=${threads.onEdit} onDelete=${threads.onDelete} onResolve=${threads.onResolve} />
@@ -70,7 +73,7 @@ function FileSection({ file, splitView, threads, browse }) {
           ? html`<div class="binary-note">Binary file — no preview</div>`
           : split
             ? html`<div class="split-wrap">
-                <table class="diff-table split">
+                <table class="diff-table split" ref=${tableRef}>
                   <colgroup>
                     <col class="cg-bubble" />
                     <col class="cg-no" />
@@ -80,6 +83,15 @@ function FileSection({ file, splitView, threads, browse }) {
                     <col style=${`width: ${((1 - ratio) * 100).toFixed(2)}%`} />
                   </colgroup>
                   ${file.hunks.map((hunk, i) => html`<${SplitHunk} key=${i} hunk=${hunk} path=${file.path} threads=${threads} />`)}
+                  ${!wrap &&
+                  html`<tbody class="hscroll-row">
+                    <tr>
+                      <td></td><td></td>
+                      <td><div class="hscroll" onScroll=${(e) => syncPane(tableRef, "old", e.currentTarget.scrollLeft)}><div class="hscroll-spacer" style=${`width:${paneW.old}px`}></div></div></td>
+                      <td></td><td></td>
+                      <td><div class="hscroll" onScroll=${(e) => syncPane(tableRef, "new", e.currentTarget.scrollLeft)}><div class="hscroll-spacer" style=${`width:${paneW.new}px`}></div></div></td>
+                    </tr>
+                  </tbody>`}
                 </table>
                 <${SplitResizer} ratio=${ratio} onRatio=${setRatio} />
               </div>`
@@ -161,13 +173,13 @@ function rawLine(line) {
   return sign + line.content;
 }
 
-export function DiffView({ files, viewMode, activeFile, splitView, browse, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve }) {
+export function DiffView({ files, viewMode, activeFile, splitView, browse, wrap, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve }) {
   const ctx = { comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve };
   // single-file view shows just the active file (first file as a fallback); all-files shows the stack.
   const shown = viewMode === "single" ? [files.find((f) => f.path === activeFile) ?? files[0]].filter(Boolean) : files;
-  return html`<main class="diff-pane">
+  return html`<main class="diff-pane ${wrap ? "wrap" : ""}">
     ${shown.map(
-      (file) => html`<${FileSection} key=${file.path} file=${file} splitView=${splitView} browse=${browse} threads=${makeThreads(file, ctx)} />`
+      (file) => html`<${FileSection} key=${file.path} file=${file} splitView=${splitView} browse=${browse} wrap=${wrap} threads=${makeThreads(file, ctx)} />`
     )}
   </main>`;
 }

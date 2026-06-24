@@ -27,6 +27,7 @@ function App() {
   const [theme, setTheme] = useState(() => initTheme());
   const [sidebarWidth, setSidebarWidth] = usePersistedState("loupe-sidebar", 280, Number);
   const [splitView, setSplitView] = usePersistedState("loupe-split", false, (v) => v === "true");
+  const [wrap, setWrap] = usePersistedState("loupe-wrap", false, (v) => v === "true");
   const [viewMode, setViewMode] = usePersistedState("loupe-view", "all"); // "all" | "single"
   const [activeFile, setActiveFile] = useState(null); // path shown in single-file view
   const [refreshing, setRefreshing] = useState(false);
@@ -65,6 +66,7 @@ function App() {
 
   const onToggleTheme = useCallback(() => setTheme((t) => nextTheme(t)), []);
   const onToggleSplit = useCallback(() => setSplitView((v) => !v), [setSplitView]);
+  const onToggleWrap = useCallback(() => setWrap((w) => !w), [setWrap]);
   const onToggleView = useCallback(() => setViewMode((m) => (m === "single" ? "all" : "single")), [setViewMode]);
 
   // re-fetch the (server-recomputed) diff in place, preserving comments + open files.
@@ -90,6 +92,7 @@ function App() {
     selectFile: onSelectFile,
     toggleViewed: onToggleViewed,
     toggleSplit: onToggleSplit,
+    toggleWrap: onToggleWrap,
     toggleView: onToggleView,
     cycleTheme: onToggleTheme,
     refresh: onRefresh,
@@ -118,11 +121,13 @@ function App() {
       refreshing=${refreshing}
       viewMode=${viewMode}
       splitView=${splitView}
+      wrap=${wrap}
       update=${update}
       onRefresh=${onRefresh}
       onToggleTheme=${onToggleTheme}
       onToggleView=${onToggleView}
       onToggleSplit=${onToggleSplit}
+      onToggleWrap=${onToggleWrap}
       onCompile=${() => setShowCompile(true)}
       onHelp=${() => setShowHelp(true)}
       onWhatsNew=${wn.reopen}
@@ -145,6 +150,7 @@ function App() {
         activeFile=${activeFile}
         splitView=${splitView && !browse}
         browse=${browse}
+        wrap=${wrap}
         comments=${comments}
         adding=${adding}
         setAdding=${setAdding}
