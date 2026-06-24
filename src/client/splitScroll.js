@@ -26,3 +26,25 @@ export function syncPane(tableRef, side, scrollLeft) {
   if (!table) return;
   for (const cell of table.querySelectorAll(`td.code.${side}`)) cell.scrollLeft = scrollLeft;
 }
+
+// shift+wheel (or a dominant horizontal trackpad swipe) over a pane scrolls that side
+// horizontally via its scrollbar; falls through to vertical page scroll at the pane's edge.
+export function useShiftScroll(tableRef) {
+  useEffect(() => {
+    const table = tableRef.current;
+    if (!table) return;
+    const onWheel = (e) => {
+      const delta = e.shiftKey ? e.deltaY : Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : 0;
+      if (!delta) return;
+      const cell = e.target.closest?.("td.code.old, td.code.new");
+      if (!cell) return;
+      const bar = table.querySelector(cell.classList.contains("old") ? ".hscroll-old" : ".hscroll-new");
+      if (!bar) return;
+      const before = bar.scrollLeft;
+      bar.scrollLeft += delta;
+      if (bar.scrollLeft !== before) e.preventDefault(); // only when we actually scrolled
+    };
+    table.addEventListener("wheel", onWheel, { passive: false });
+    return () => table.removeEventListener("wheel", onWheel);
+  }, [tableRef]);
+}

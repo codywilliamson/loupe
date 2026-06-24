@@ -59,8 +59,12 @@
    split file-body must not be its own scroll container or the strip can't stick to the
    diff-pane's bottom edge (the split table is fixed-width, so it never needs to scroll here). */
 .file-body.split-body { overflow: visible; }
-.hscroll-row td { position: sticky; bottom: 0; padding: 0; background: var(--surface-2); z-index: 2; }
-.hscroll { overflow-x: auto; }
+.hscroll-row td { position: sticky; bottom: 0; padding: 0; background: var(--surface-2); border-top: 1px solid var(--border); z-index: 2; }
+.hscroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+.hscroll::-webkit-scrollbar { height: 9px; }
+.hscroll::-webkit-scrollbar-track { background: transparent; }
+.hscroll::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 5px; border: 2px solid var(--surface-2); }
+.hscroll::-webkit-scrollbar-thumb:hover { background: var(--text); }
 .hscroll-spacer { height: 1px; }
 /* word-wrap toggle: wrap long lines in both views; split stops clipping so the wrap shows. */
 .diff-pane.wrap .code { white-space: pre-wrap; overflow-wrap: anywhere; }
