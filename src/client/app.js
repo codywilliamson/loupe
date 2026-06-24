@@ -134,7 +134,7 @@ function App() {
 
   const browse = diff.meta?.mode === "browse";
 
-  return html`<div class="app">
+  return html`<div class="app${browse ? " browse" : ""}">
     <${TopBar}
       refLabel=${diff.ref}
       meta=${diff.meta}

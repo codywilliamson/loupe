@@ -32,6 +32,8 @@
 /* line numbers are a drag handle: drag or shift-click to select a comment range (ADO-style) */
 .lineno.sel { cursor: ns-resize; }
 .lineno.sel:hover { color: var(--text); }
+/* browse mode shows whole files (all-context): old === new, so collapse to one gutter. */
+.app.browse .lineno.old-no { display: none; }
 .code { width: 100%; padding: 0 8px; white-space: pre; background: var(--ctx-line); }
 .sign { display: inline-block; width: 1ch; color: var(--muted); user-select: none; }
 .code-inner { font-family: var(--mono); }
