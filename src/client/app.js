@@ -1,6 +1,7 @@
 // root component: owns diff + comments + viewed + view prefs, coordinates saves, renders the layout.
 import { html, render, useState, useEffect, useMemo, useCallback } from "/preact.js";
-import { getDiff, getComments, saveComments, saveViewed } from "/api.js";
+import { getDiff, getComments, saveViewed } from "/api.js";
+import { useComments } from "/useComments.js";
 import { fileAnchorId, clamp } from "/util.js";
 import { initTheme, nextTheme } from "/theme.js";
 import { usePersistedState } from "/prefs.js";
@@ -16,7 +17,6 @@ import { LoadingScreen } from "/loadingScreen.js";
 
 function App() {
   const [diff, setDiff] = useState(null);
-  const [comments, setComments] = useState([]);
   const [viewed, setViewed] = useState([]);
   const [adding, setAdding] = useState(null); // {file, line|null, endLine?} while composing
   const [selecting, setSelecting] = useState(null); // {file, from, to} during a drag-select
@@ -30,6 +30,7 @@ function App() {
   const [activeFile, setActiveFile] = useState(null); // path shown in single-file view
   const [refreshing, setRefreshing] = useState(false);
   const update = useUpdateCheck();
+  const { comments, setComments, onAdd, onEdit, onDelete, onResolve } = useComments(setError);
 
   useEffect(() => {
     Promise.all([getDiff(), getComments()])
@@ -40,36 +41,6 @@ function App() {
       })
       .catch((e) => setError(String(e)));
   }, []);
-
-  // every mutation persists the full array (full-replace contract), then trusts local state.
-  const persistComments = useCallback((next) => {
-    setComments(next);
-    saveComments(next).catch((e) => setError(String(e)));
-  }, []);
-
-  const onAdd = useCallback(
-    (partial) => {
-      const comment = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), ...partial };
-      persistComments([...comments, comment]);
-    },
-    [comments, persistComments]
-  );
-
-  const onEdit = useCallback(
-    (id, text, tag) => persistComments(comments.map((c) => (c.id === id ? { ...c, text, tag } : c))),
-    [comments, persistComments]
-  );
-
-  const onDelete = useCallback(
-    (id) => persistComments(comments.filter((c) => c.id !== id)),
-    [comments, persistComments]
-  );
-
-  // resolve keeps the comment but drops it from the prompt + open counts; toggles back on reopen.
-  const onResolve = useCallback(
-    (id) => persistComments(comments.map((c) => (c.id === id ? { ...c, resolved: !c.resolved } : c))),
-    [comments, persistComments]
-  );
 
   const onToggleViewed = useCallback(
     (path) => {
