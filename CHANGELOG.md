@@ -4,6 +4,15 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.9.1] — 2026-06-24
+
+### Fixed
+- **"What's new" modal no longer reappears every launch** — the dismissed version was remembered in `localStorage`, but loupe serves on a random port each run, so every launch was a fresh origin with no memory. The seen version now persists per-user in `~/.loupe/state.json`, so once you've dismissed it, it stays dismissed across repos and launches.
+- **Couldn't drag the resizers** — because the what's-new modal popped on every launch, its full-screen backdrop quietly intercepted the very first resize drag (sidebar and side-by-side panes). With the modal fixed, both resizers grab as expected.
+
+### Changed
+- **Restyled the "what's new" modal** — it no longer borrows the wide compile-modal frame; it's a compact 460px card with a sparkles badge, version/date subtitle, and accent-marked highlights.
+
 ## [0.9.0] — 2026-06-24
 
 ### Added
