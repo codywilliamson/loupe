@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, extname, resolve } from "node:path";
 import type { DiffResult, DiffMeta, ReviewFile, Comment } from "../types";
 import { readReview, writeReview } from "../core/reviewStore";
+import { readUserState, writeUserState } from "../core/userState";
 import { compileReviewPrompt } from "../core/promptCompiler";
 import { parseDiff } from "../core/diffParser";
 import { checkForUpdate } from "../core/updateCheck";
@@ -115,6 +116,26 @@ export function handleGetCompile(ctx: ServerContext): Response {
 // reports whether a newer loupe release exists on origin (best-effort, never throws).
 export function handleGetUpdate(ctx: ServerContext): Response {
   return json(checkForUpdate(ctx.loupeRoot));
+}
+
+// user-level state (~/.loupe/state.json). carries the dismissed what's-new version
+// across launches, since each launch's random port gives localStorage a fresh origin.
+export function handleGetState(): Response {
+  return json(readUserState());
+}
+
+export async function handlePostState(req: Request): Promise<Response> {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return apiError("invalid json body", 400);
+  }
+  const seenVersion = (body as { seenVersion?: unknown }).seenVersion;
+  if (typeof seenVersion !== "string") {
+    return apiError("seenVersion must be a string", 400);
+  }
+  return json(writeUserState({ seenVersion }));
 }
 
 // returns the new-side full content of a file (for markdown preview). working tree

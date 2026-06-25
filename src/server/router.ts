@@ -10,6 +10,8 @@ import {
   handleGetCompile,
   handleGetFile,
   handleGetUpdate,
+  handleGetState,
+  handlePostState,
   serveStatic,
   notFound,
 } from "./handlers";
@@ -25,6 +27,7 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
     if (pathname === "/api/comments") return handleGetComments(ctx);
     if (pathname === "/api/compile") return handleGetCompile(ctx);
     if (pathname === "/api/update") return handleGetUpdate(ctx);
+    if (pathname === "/api/state") return handleGetState();
     if (pathname === "/api/file") return handleGetFile(ctx, new URL(req.url));
     if (!pathname.startsWith("/api/")) return serveStatic(ctx, pathname);
   }
@@ -32,6 +35,7 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
   if (method === "POST") {
     if (pathname === "/api/comments") return handlePostComments(ctx, req);
     if (pathname === "/api/viewed") return handlePostViewed(ctx, req);
+    if (pathname === "/api/state") return handlePostState(req);
   }
 
   return notFound();

@@ -85,6 +85,17 @@ export interface ViewedUpdateRequest {
   viewed: string[];
 }
 
+// user-level state, persisted in ~/.loupe/state.json so it survives across loupe
+// launches (each picks a random port, so port-scoped localStorage can't be trusted).
+export interface UserState {
+  seenVersion?: string; // loupe version whose what's-new highlights the user has dismissed
+}
+
+// POST /api/state — record the dismissed what's-new version
+export interface StateUpdateRequest {
+  seenVersion: string;
+}
+
 // GET /api/update — loupe's own release status vs its git origin
 export interface UpdateStatus {
   behind: boolean; // true when a newer release tag exists on origin
