@@ -60,13 +60,30 @@
       </div>
     </div>
 
+    <!-- hero demo video -->
+    <section id="demo">
+      <div class="sect-label"><span class="hunk">@@ watch it work @@</span></div>
+      <div class="demo">
+        <figure>
+          <div class="frame">
+            <div class="chrome"><i></i><i></i><i></i></div>
+            <video poster="shots/01-overview.png" autoplay muted loop playsinline controls preload="metadata" aria-label="end-to-end loupe demo: comment, range-select, compile, side-by-side, themes, and browse mode">
+              <source src="shots/demo-hero.webm" type="video/webm" />
+              <source src="shots/demo-hero.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <figcaption>one pass: comment &amp; tag · drag a range · compile the prompt · side-by-side, themes, browse</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- install -->
     <section id="install">
       <div class="sect-label"><span class="hunk">@@ install @@</span></div>
       <div class="term"><span class="ps1">$</span> <span class="cmd">git clone https://github.com/codywilliamson/loupe && cd loupe</span>
 <span class="ps1">$</span> <span class="cmd">bun install && bun link</span>
 <span class="ps1">$</span> <span class="cmd">cd ~/any/repo && loupe</span>
-<span class="ok">✻ loupe v0.6.0 — reviewing working tree (12 files changed)</span>
+<span class="ok">✻ loupe v0.9.1 — reviewing working tree (12 files changed)</span>
 <span class="ok">  http://localhost:49507</span>  <span class="dim">(ctrl+c to stop)</span>
 
 <span class="dim"># also: loupe staged · loupe origin/main · loupe v1..v2 · --port · --no-open</span></div>
@@ -133,8 +150,33 @@ a clear error beats a stack trace.</span>
       </div>
     </section>
 
-    <!-- screenshots -->
+    <!-- in motion -->
     <section id="shots">
+      <div class="sect-label"><span class="hunk">@@ in motion @@</span></div>
+      <div class="strip">
+        <figure>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-comment.gif" alt="hovering the gutter to leave an inline comment and tag it" loading="lazy" /></div>
+          <figcaption>comment a line, tag the intent</figcaption>
+        </figure>
+        <figure>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-range.gif" alt="dragging across the line numbers to select a range, then commenting" loading="lazy" /></div>
+          <figcaption>drag the gutter for a range</figcaption>
+        </figure>
+        <figure>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-compile.gif" alt="compiling every comment into one agent-ready markdown prompt" loading="lazy" /></div>
+          <figcaption>compile the review prompt</figcaption>
+        </figure>
+      </div>
+      <div class="strip" style="margin-top:16px">
+        <figure style="grid-column:1/-1">
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-breadth.gif" alt="toggling side-by-side, cycling four themes, and switching to browse mode" loading="lazy" /></div>
+          <figcaption>side-by-side · four themes · browse the whole codebase</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- stills -->
+    <section id="stills">
       <div class="sect-label"><span class="hunk">@@ in the wild @@</span></div>
       <div class="strip">
         <figure>
@@ -142,11 +184,11 @@ a clear error beats a stack trace.</span>
           <figcaption>unified view, inline comments</figcaption>
         </figure>
         <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/03-comments.png" alt="a multi-line range comment in loupe" loading="lazy" /></div>
-          <figcaption>multi-line range comments</figcaption>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/02-dark.png" alt="loupe in dark mode" loading="lazy" /></div>
+          <figcaption>dark mode</figcaption>
         </figure>
         <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/04-side-by-side.png" alt="side-by-side diff in loupe" loading="lazy" /></div>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/04-side-by-side.png" alt="side-by-side diff in loupe with word-level marks" loading="lazy" /></div>
           <figcaption>side-by-side, word-level marks</figcaption>
         </figure>
       </div>

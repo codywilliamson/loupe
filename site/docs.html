@@ -48,6 +48,19 @@
         no runtime dependencies.
       </p>
 
+      <div class="demo">
+        <figure>
+          <div class="frame">
+            <div class="chrome"><i></i><i></i><i></i></div>
+            <video poster="shots/01-overview.png" autoplay muted loop playsinline controls preload="metadata" aria-label="end-to-end loupe demo">
+              <source src="shots/demo-hero.webm" type="video/webm" />
+              <source src="shots/demo-hero.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <figcaption>the whole loop in one pass</figcaption>
+        </figure>
+      </div>
+
       <h2 id="install"><span class="hunk">@@ install @@</span></h2>
       <p>loupe runs on <a href="https://bun.sh">Bun</a> (1.0+) and needs <code>git</code> on your PATH.</p>
       <div class="term"><span class="ps1">$</span> <span class="cmd">git clone https://github.com/codywilliamson/loupe</span>
@@ -89,6 +102,18 @@
         line) — just like Azure DevOps. In side-by-side view you can comment on either pane —
         removed lines included — and the export labels them <code>Old line N</code>.
       </p>
+      <div class="demo">
+        <figure>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-comment.gif" alt="leaving an inline comment and tagging it" loading="lazy" /></div>
+          <figcaption>hover the gutter, write a note, tag it</figcaption>
+        </figure>
+      </div>
+      <div class="demo">
+        <figure>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-range.gif" alt="dragging across the line numbers to comment on a range" loading="lazy" /></div>
+          <figcaption>drag the line numbers to comment on a range</figcaption>
+        </figure>
+      </div>
       <h3>Tags</h3>
       <p>
         Each comment can carry an intent tag — <code>nit</code>, <code>issue</code>,
@@ -143,6 +168,12 @@
         with terracotta accents (this site wears the dark one). Your choice persists; the first
         run follows your OS preference.
       </p>
+      <div class="demo">
+        <figure>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-breadth.gif" alt="side-by-side, cycling themes, and browse mode" loading="lazy" /></div>
+          <figcaption>side-by-side, the four themes, and browse mode</figcaption>
+        </figure>
+      </div>
 
       <h2 id="export"><span class="hunk">@@ prompt export @@</span></h2>
       <p>
@@ -150,6 +181,12 @@
         notes first, then line comments sorted by position, each wrapped in ±2 lines of diff
         context with the commented range marked by <code>&gt;</code>. Resolved and orphaned comments are left out.
       </p>
+      <div class="demo">
+        <figure>
+          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-compile.gif" alt="compiling comments into an agent-ready markdown prompt" loading="lazy" /></div>
+          <figcaption>every comment, compiled into one prompt</figcaption>
+        </figure>
+      </div>
       <div class="term">## Code Review — feature/x — 2026-06-10
 
 ### src/utils/cli.ts — Lines 38–40

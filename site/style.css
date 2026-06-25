@@ -168,6 +168,18 @@ code {
 .strip img { display: block; width: 100%; }
 .strip figcaption { font-size: 11.5px; color: var(--faint); margin-top: 8px; }
 .strip figcaption::before { content: "# "; color: var(--clay); }
+.strip .frame video { display: block; width: 100%; }
+
+/* ── demos: a single wide gif/video in browser chrome (hero + inline docs) ── */
+.demo { margin: 22px 0; }
+.demo .frame { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel-2); }
+.demo .chrome { display: flex; gap: 6px; padding: 8px 11px; border-bottom: 1px solid var(--line); }
+.demo .chrome i { width: 9px; height: 9px; border-radius: 50%; background: #46433c; }
+.demo .chrome i:first-child { background: var(--clay); opacity: .75; }
+.demo .frame img, .demo .frame video { display: block; width: 100%; }
+.demo figcaption { font-size: 11.5px; color: var(--faint); margin-top: 8px; }
+.demo figcaption::before { content: "# "; color: var(--clay); }
+.prose .demo { margin: 18px 0 6px; }
 
 /* ── sections ── */
 section { margin: 56px 0 0; }

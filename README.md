@@ -4,6 +4,12 @@ Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on an
 
 **Site & docs: [codywilliamson.github.io/loupe](https://codywilliamson.github.io/loupe/)**
 
+## Demo
+
+![comment a line and tag it](docs/screenshots/demo-comment.gif)
+
+The whole loop — comment, drag a range, compile the prompt, side-by-side/themes/browse — is in the [hero video](docs/screenshots/demo-hero.mp4) and on the [site](https://codywilliamson.github.io/loupe/#demo).
+
 ## Screenshots
 
 ![loupe — a unified diff with a file tree and inline comments](docs/screenshots/01-overview.png)
