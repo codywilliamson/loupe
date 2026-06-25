@@ -181,9 +181,27 @@ code {
 .demo figcaption::before { content: "# "; color: var(--clay); }
 .prose .demo { margin: 18px 0 6px; }
 
+/* ── lightbox: click any framed shot/gif to view it full-size ── */
+.frame img.zoomable { cursor: zoom-in; }
+.lb-backdrop {
+  position: fixed; inset: 0; z-index: 1000; padding: 4vmin; cursor: zoom-out;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10, 9, 8, .85); opacity: 0; transition: opacity .18s ease;
+}
+.lb-backdrop.on { opacity: 1; }
+.lb-img {
+  max-width: 95vw; max-height: 92vh; border-radius: 8px;
+  border: 1px solid var(--line); box-shadow: 0 16px 60px rgba(0, 0, 0, .6);
+  transform: scale(.98); transition: transform .18s ease;
+}
+.lb-backdrop.on .lb-img { transform: scale(1); }
+.lb-hint { position: fixed; bottom: 18px; left: 0; right: 0; text-align: center; color: var(--faint); font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .lb-backdrop, .lb-img { transition: none; } }
+
 /* ── sections ── */
 section { margin: 56px 0 0; }
 .sect-label { margin-bottom: 6px; }
+.zoom-tip { font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
 
 /* ── footer ── */
 footer { margin-top: 70px; border-top: 1px solid var(--line); background: var(--panel); }
@@ -253,6 +271,7 @@ kbd {
   .ccard h1, .ccard h2 { font-size: 32px; }
   .feats { grid-template-columns: 1fr 1fr; gap: 14px; }
   .strip { grid-template-columns: repeat(3, 1fr); }
+  .strip.m2 { grid-template-columns: 1fr 1fr; } /* motion gifs: fewer, larger tiles */
   .docs { display: grid; grid-template-columns: 205px 1fr; gap: 40px; align-items: start; }
   /* desktop: back to a vertical, sticky list in the left column */
   .toc { position: sticky; top: 76px; z-index: auto; display: block; overflow: visible; padding: 10px 0; margin-bottom: 0; font-size: 13px; }
