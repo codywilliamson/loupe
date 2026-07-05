@@ -84,7 +84,12 @@ function App() {
   const onResize = useCallback((x) => setSidebarWidth(clamp(x, 180, 640)), [setSidebarWidth]);
 
   const viewedSet = useMemo(() => new Set(viewed), [viewed]);
-  const countFor = useCallback((path) => comments.filter((c) => c.file === path && !c.resolved).length, [comments]);
+  const countsByFile = useMemo(() => {
+    const m = new Map();
+    for (const c of comments) if (!c.resolved) m.set(c.file, (m.get(c.file) ?? 0) + 1);
+    return m;
+  }, [comments]);
+  const countFor = useCallback((path) => countsByFile.get(path) ?? 0, [countsByFile]);
 
   useShortcuts({
     files: diff?.files ?? [],

@@ -68,18 +68,27 @@ function startSelect(e, side, anchor, threads) {
   const section = e.currentTarget.closest(".file-section");
   const attr = side === "old" ? "oldline" : "newline";
   threads.onSelectMove(side, anchor, anchor);
+  // rAF-throttle: coalesce mousemove bursts to at most one state update per frame, skip no-ops.
+  let raf = 0;
+  let lastXY = null;
   const move = (ev) => {
-    const row = document.elementFromPoint(ev.clientX, ev.clientY)?.closest("tr.diff-row");
-    const n = row && section.contains(row) ? row.dataset[attr] : "";
-    if (n) {
-      head = Number(n);
-      threads.onSelectMove(side, anchor, head);
-    }
+    lastXY = [ev.clientX, ev.clientY];
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const row = document.elementFromPoint(lastXY[0], lastXY[1])?.closest("tr.diff-row");
+      const n = row && section.contains(row) ? row.dataset[attr] : "";
+      if (n && Number(n) !== head) {
+        head = Number(n);
+        threads.onSelectMove(side, anchor, head);
+      }
+    });
   };
   const stop = () => {
     document.removeEventListener("mousemove", move);
     document.removeEventListener("mouseup", stop);
     document.body.classList.remove("selecting");
+    cancelAnimationFrame(raf); // drop any pending move so a stale frame can't land after commit
     threads.onSelectCommit(side, Math.min(anchor, head), Math.max(anchor, head));
   };
   document.addEventListener("mousemove", move);

@@ -7,7 +7,8 @@ import {
   useMemo,
   useCallback,
 } from "https://esm.sh/preact@10.23.2/hooks";
+import { memo } from "https://esm.sh/preact@10.23.2/compat";
 import htm from "https://esm.sh/htm@3.1.1";
 
 export const html = htm.bind(h);
-export { render, useState, useEffect, useRef, useMemo, useCallback };
+export { render, useState, useEffect, useRef, useMemo, useCallback, memo };
