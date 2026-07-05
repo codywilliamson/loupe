@@ -2,6 +2,7 @@
 
 import type { Server } from "bun";
 import type { ServerContext } from "./handlers";
+import { maybeCompress } from "./compress";
 import {
   handleGetDiff,
   handleGetComments,
@@ -44,6 +45,6 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
 export function createServer(ctx: ServerContext, port = 0): Server<undefined> {
   return Bun.serve({
     port,
-    fetch: (req) => route(ctx, req),
+    fetch: async (req) => maybeCompress(req, await route(ctx, req)),
   });
 }
