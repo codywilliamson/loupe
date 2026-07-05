@@ -4,6 +4,19 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.10.0] — 2026-07-05
+
+Performance overhaul for large diffs and large codebases. Baseline: a 150-file / 40k-line diff froze the tab for minutes and shipped 11 MB of JSON. Now it paints in ~3 seconds, stays smooth, and ships ~1 MB.
+
+### Added
+- **Giant-file guard** — files over 2,000 diff lines start collapsed behind a "Load diff (N lines)" note, so one monster lockfile can't stall the whole review. One click loads it.
+
+### Changed
+- **Lazy-mounted file bodies** — file sections render as height-preserving placeholders until you scroll near them (with a generous lookahead), then mount for real and unmount again when far away. The DOM stays small no matter how big the diff; open comment editors pin their section so drafts survive scrolling away and back.
+- **Isolated re-renders** — commenting, drag-selecting, and selecting files now re-render only the file section you're touching instead of every file in the diff; drag-select is also frame-throttled. Large diffs no longer stutter while you work.
+- **Gzipped responses** — the server now gzips API and static responses (~10× smaller diff payloads on the wire).
+- **Faster startup** — the pinned CDN modules are preconnected and module-preloaded so the first paint isn't gated on a discovery waterfall.
+
 ## [0.9.1] — 2026-06-24
 
 ### Fixed

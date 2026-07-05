@@ -3,6 +3,20 @@
 
 export const WHATS_NEW = [
   {
+    version: "0.10.0",
+    date: "2026-07-05",
+    items: [
+      {
+        title: "Large diffs are fast now",
+        body: "File bodies render lazily as you scroll and interactions only re-render the file you're touching — a 150-file, 40k-line diff paints in seconds instead of freezing the tab.",
+      },
+      {
+        title: "Giant files load on demand",
+        body: "Files over 2,000 diff lines start collapsed behind a Load diff button, so one huge lockfile can't slow the rest of the review.",
+      },
+    ],
+  },
+  {
     version: "0.9.0",
     date: "2026-06-23",
     items: [
