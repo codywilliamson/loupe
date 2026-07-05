@@ -60,6 +60,20 @@ export function clamp(n, lo, hi) {
   return Math.max(lo, Math.min(hi, n));
 }
 
+// diff rows render at line-height 1.5 * 12px; used to size lazy placeholders.
+export const ROW_HEIGHT = 18;
+
+export function lineCountOf(file) {
+  let n = 0;
+  for (const h of file.hunks) n += h.lines.length;
+  return n;
+}
+
+// placeholder height for an unmounted file body: one row per line + one per hunk header.
+export function estimatedHeight(file) {
+  return Math.max((lineCountOf(file) + file.hunks.length) * ROW_HEIGHT, ROW_HEIGHT);
+}
+
 // group files into a nested tree by directory segments.
 // returns { name, path, dirs: Map<name,node>, files: DiffFile[] }.
 export function buildTree(files) {

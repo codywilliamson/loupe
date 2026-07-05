@@ -15,6 +15,16 @@
 .btn-plain { display: inline-flex; align-items: center; }
 .binary-note { padding: 16px; color: var(--muted); font-style: italic; }
 
+/* lazy body placeholders keep layout stable while offscreen */
+.lazy-body:empty {
+  background: repeating-linear-gradient(transparent 0 17px, var(--border) 17px 18px);
+  opacity: 0.35;
+}
+.giant-note {
+  padding: 24px 16px; color: var(--muted);
+  display: flex; gap: 12px; align-items: center;
+}
+
 /* ── diff table ── */
 .diff-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; line-height: 1.5; }
 .diff-row td { vertical-align: top; }

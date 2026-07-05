@@ -30,7 +30,7 @@ export function setPaneShift(tableRef, side, scrollLeft) {
 
 // shift+wheel (or a dominant horizontal trackpad swipe) over a pane scrolls that side
 // horizontally via its scrollbar; falls through to vertical page scroll at the pane's edge.
-export function useShiftScroll(tableRef) {
+export function useShiftScroll(tableRef, live) {
   useEffect(() => {
     const table = tableRef.current;
     if (!table) return;
@@ -47,5 +47,5 @@ export function useShiftScroll(tableRef) {
     };
     table.addEventListener("wheel", onWheel, { passive: false });
     return () => table.removeEventListener("wheel", onWheel);
-  }, [tableRef]);
+  }, [tableRef, live]);
 }

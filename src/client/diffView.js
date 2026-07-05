@@ -1,6 +1,7 @@
 // right pane: each file as a collapsible section with hunks + a per-file split toggle.
 import { html, useState, useRef, useMemo, memo } from "/preact.js";
-import { changeBadge, fileAnchorId, isMarkdown } from "/util.js";
+import { changeBadge, fileAnchorId, isMarkdown, lineCountOf, estimatedHeight } from "/util.js";
+import { LazyMount } from "/lazySection.js";
 import { ChevronRight, ChevronDown, MessageSquare } from "/icons.js";
 import { UnifiedHunk, SplitHunk } from "/diffLines.js";
 import { CommentThread, CommentEditor } from "/comments.js";
@@ -8,6 +9,8 @@ import { MarkdownView } from "/markdownView.js";
 import { SplitResizer } from "/splitResizer.js";
 import { usePaneWidths, setPaneShift, useShiftScroll } from "/splitScroll.js";
 import { makeThreads } from "/threads.js";
+
+const GIANT_FILE_LINES = 2000; // above this the body is hidden behind a load-diff button
 
 function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onToggleSplit, onTogglePreview, onAddFileComment }) {
   const title = file.oldPath ? `${file.oldPath} → ${file.path}` : file.path;
@@ -34,8 +37,9 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
   const md = isMarkdown(file.path) && file.changeType !== "deleted";
   const [open, setOpen] = useState(true);
   const tableRef = useRef(null);
-  const paneW = usePaneWidths(tableRef, [file.path, wrap, open]);
-  useShiftScroll(tableRef);
+  const [bodyLive, setBodyLive] = useState(false);
+  const paneW = usePaneWidths(tableRef, [file.path, wrap, open, bodyLive]);
+  useShiftScroll(tableRef, bodyLive);
   // split follows the global toggle; a per-file toggle overrides it until the next global flip.
   // derived from the prop each render (no effect) so a global flip always takes — never gets stuck.
   const [override, setOverride] = useState(null);
@@ -49,6 +53,9 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
   const [preview, setPreview] = useState(false); // show the diff first; the Preview toggle renders markdown
   const [ratio, setRatio] = useState(0.5); // side-by-side pane split (left pane's share)
   const fileLevelComments = threads.commentsForFile();
+  const lines = lineCountOf(file);
+  const [forceShow, setForceShow] = useState(false);
+  const giant = lines > GIANT_FILE_LINES && !forceShow;
   return html`<section class="file-section" id=${fileAnchorId(file.path)}>
     <${FileHeader}
       file=${file}
@@ -70,6 +77,12 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
         ${threads.addingFile &&
         html`<${CommentEditor} onSave=${(t, tag) => threads.onAddFile(t, tag)} onCancel=${threads.onCancelAdd} />`}
       </div>`}
+      ${giant
+        ? html`<div class="giant-note">
+            Large diff (${lines.toLocaleString()} lines) — hidden to keep things fast.
+            <button class="btn-toggle" onClick=${() => setForceShow(true)}>Load diff</button>
+          </div>`
+        : html`<${LazyMount} estimate=${estimatedHeight(file)} keepMounted=${adding != null || selecting != null} onVisible=${setBodyLive}>
       ${md && preview
         ? html`<${MarkdownView} path=${file.path} />`
         : file.binary
@@ -101,6 +114,7 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
             : html`<table class="diff-table">
                 ${file.hunks.map((hunk, i) => html`<${UnifiedHunk} key=${i} hunk=${hunk} path=${file.path} threads=${threads} />`)}
               </table>`}
+    </${LazyMount}>`}
     </div>`}
   </section>`;
 }
