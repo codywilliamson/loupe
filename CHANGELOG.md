@@ -4,6 +4,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.10.1] — 2026-08-04
+
 ### Fixed
 - **Fresh long lines can always scroll in side-by-side view** — re-running a diff now remeasures each changed pane even when the file path is unchanged, so a newly introduced long line gets the correct independent horizontal scrollbar.
 - **Remote-only branches resolve automatically** — when a ref is not available locally, loupe now tries the matching `origin/<ref>` for both branch and range reviews.

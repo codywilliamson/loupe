@@ -83,4 +83,4 @@ Markdown files open showing their diff; use the per-file **Preview** toggle to r
 
 ## Releases
 
-See [CHANGELOG.md](CHANGELOG.md). Current: **v0.9.0**.
+See [CHANGELOG.md](CHANGELOG.md). Current: **v0.10.1**.
