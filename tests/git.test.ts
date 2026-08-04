@@ -19,6 +19,9 @@ beforeAll(() => {
   writeFileSync(join(repo, "tracked.txt"), "one\n");
   git(["add", "-A"], repo);
   git(["commit", "-q", "-m", "init"], repo);
+  git(["update-ref", "refs/remotes/origin/feature/remote-only", "HEAD"], repo);
+  git(["branch", "feature/local", "HEAD"], repo);
+  git(["update-ref", "refs/remotes/origin/feature/local", "HEAD"], repo);
   writeFileSync(join(repo, "tracked.txt"), "one\ntwo\n"); // modify a tracked file
   writeFileSync(join(repo, "fresh.txt"), "brand new\n"); // brand-new untracked file
 });
@@ -73,5 +76,25 @@ describe("resolveRef meta", () => {
     const plan = resolveRef("staged", repo);
     expect(plan.mode).toBe("staged");
     expect(plan.includeUntracked).toBe(false);
+  });
+
+  it("falls back to an origin branch when the local ref is missing", () => {
+    const plan = resolveRef("feature/remote-only", repo);
+    expect(plan.diffArgs).toEqual(["diff", "origin/feature/remote-only...HEAD"]);
+    expect(plan.refLabel).toBe("main → origin/feature/remote-only");
+    expect(plan.target).toBe("origin/feature/remote-only");
+  });
+
+  it("prefers an exact local ref over the origin fallback", () => {
+    const plan = resolveRef("feature/local", repo);
+    expect(plan.diffArgs).toEqual(["diff", "feature/local...HEAD"]);
+    expect(plan.target).toBe("feature/local");
+  });
+
+  it("falls back to origin for refs inside a range", () => {
+    const plan = resolveRef("feature/remote-only..HEAD", repo);
+    expect(plan.diffArgs).toEqual(["diff", "origin/feature/remote-only..HEAD"]);
+    expect(plan.newRef).toBe("HEAD");
+    expect(plan.source).toBe("origin/feature/remote-only");
   });
 });

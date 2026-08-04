@@ -4,6 +4,10 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Fixed
+- **Fresh long lines can always scroll in side-by-side view** — re-running a diff now remeasures each changed pane even when the file path is unchanged, so a newly introduced long line gets the correct independent horizontal scrollbar.
+- **Remote-only branches resolve automatically** — when a ref is not available locally, loupe now tries the matching `origin/<ref>` for both branch and range reviews.
+
 ## [0.10.0] — 2026-07-05
 
 Performance overhaul for large diffs and large codebases. Baseline: a 150-file / 40k-line diff froze the tab for minutes and shipped 11 MB of JSON. Now it paints in ~3 seconds, stays smooth, and ships ~1 MB.

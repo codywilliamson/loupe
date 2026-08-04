@@ -38,7 +38,9 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
   const [open, setOpen] = useState(true);
   const tableRef = useRef(null);
   const [bodyLive, setBodyLive] = useState(false);
-  const paneW = usePaneWidths(tableRef, [file.path, wrap, open, bodyLive]);
+  // Include the file object, not just its stable path: a diff refresh can replace
+  // the lines in-place and introduce overflow that needs a newly sized scrollbar.
+  const paneW = usePaneWidths(tableRef, [file, wrap, open, bodyLive]);
   useShiftScroll(tableRef, bodyLive);
   // split follows the global toggle; a per-file toggle overrides it until the next global flip.
   // derived from the prop each render (no effect) so a global flip always takes — never gets stuck.

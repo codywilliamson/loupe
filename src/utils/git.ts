@@ -65,6 +65,15 @@ function refExists(ref: string, cwd: string): boolean {
   return Bun.spawnSync(["git", "rev-parse", "--verify", "--quiet", ref], { cwd }).exitCode === 0;
 }
 
+// Prefer the ref exactly as typed. If it is not available locally, accept the
+// corresponding origin ref so `loupe feature/x` works after a fetch without
+// requiring the more verbose `loupe origin/feature/x`.
+function resolveAvailableRef(ref: string, cwd: string): string | null {
+  if (refExists(ref, cwd)) return ref;
+  const originRef = `origin/${ref}`;
+  return ref.startsWith("origin/") || !refExists(originRef, cwd) ? null : originRef;
+}
+
 function currentBranch(cwd: string): string {
   return runGit(["rev-parse", "--abbrev-ref", "HEAD"], cwd).trim();
 }
@@ -86,14 +95,25 @@ export function resolveRef(spec: string | undefined, cwd: string): DiffPlan {
   const parts = spec.split("..");
   if (parts.length === 2) {
     const [from, to] = parts as [string, string];
-    for (const ref of [from, to]) {
-      if (ref && !refExists(ref, cwd)) throw new Error(`unknown ref: ${ref}`);
+    let resolvedFrom = "";
+    let resolvedTo = "";
+    if (from) {
+      const resolved = resolveAvailableRef(from, cwd);
+      if (!resolved) throw new Error(`unknown ref: ${from}`);
+      resolvedFrom = resolved;
     }
-    return { diffArgs: ["diff", spec], refLabel: `${from} → ${to}`, newRef: to || "HEAD", mode: "range", source: from, target: to, includeUntracked: false };
+    if (to) {
+      const resolved = resolveAvailableRef(to, cwd);
+      if (!resolved) throw new Error(`unknown ref: ${to}`);
+      resolvedTo = resolved;
+    }
+    const range = `${resolvedFrom}..${resolvedTo}`;
+    return { diffArgs: ["diff", range], refLabel: `${resolvedFrom} → ${resolvedTo}`, newRef: resolvedTo || "HEAD", mode: "range", source: resolvedFrom, target: resolvedTo, includeUntracked: false };
   }
 
   // a single named branch: show what the current branch added relative to it (pr-style three-dot)
-  if (!refExists(spec, cwd)) throw new Error(`unknown ref: ${spec}`);
+  const target = resolveAvailableRef(spec, cwd);
+  if (!target) throw new Error(`unknown ref: ${spec}`);
   const branch = currentBranch(cwd);
-  return { diffArgs: ["diff", `${spec}...HEAD`], refLabel: `${branch} → ${spec}`, newRef: "HEAD", mode: "branch", source: branch, target: spec, includeUntracked: false };
+  return { diffArgs: ["diff", `${target}...HEAD`], refLabel: `${branch} → ${target}`, newRef: "HEAD", mode: "branch", source: branch, target, includeUntracked: false };
 }
