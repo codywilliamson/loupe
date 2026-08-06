@@ -4,6 +4,9 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Fixed
+- **Browse-mode comments sit under the code again** — browse hides the old-line-number column, which dropped a `<td>` from every row while the comment row still spanned four columns. The comment box landed in a phantom column to the right of the code. The row and its comment row now derive their column count from the same place.
+
 ## [0.10.2] — 2026-08-06
 
 ### Fixed

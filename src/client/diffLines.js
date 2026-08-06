@@ -30,9 +30,11 @@ function Code({ line, hl, mark, side }) {
 
 // cell spans [lead, cell, trail] so the comment box sits under the pane it belongs to:
 // unified = box under the code column; split = box under the old (left) or new (right) pane.
+// browse drops the old-line column, so its lead is one narrower — get this wrong and the
+// comment row declares more columns than the diff rows, pushing the box off to the right.
 function commentLayout(variant, side) {
   if (variant === "split") return side === "old" ? [0, 3, 3] : [3, 3, 0];
-  return [3, 1, 0];
+  return [variant === "browse" ? 2 : 3, 1, 0];
 }
 
 // the per-row comment region: one comment row PER anchor, aligned under its side, with the
@@ -100,7 +102,8 @@ function startSelect(e, side, anchor, threads) {
 // css until row hover) so the gutter column never resizes — no layout jump on hover.
 // two root nodes: htm returns them as an array, preact renders them as siblings
 // (a fragment shorthand <>…</> isn't registered on this raw htm.bind(h) and breaks).
-function UnifiedRow({ line, hl, threads, mark }) {
+// browse mode shows whole files (all-context): old === new, so the old column is dropped.
+function UnifiedRow({ line, hl, threads, mark, browse }) {
   // additions + context anchor on the new side; deletions anchor on the old side.
   const newLine = line.newLine;
   const oldLine = line.type === "deletion" ? line.oldLine : null;
@@ -116,24 +119,25 @@ function UnifiedRow({ line, hl, threads, mark }) {
         ${commentable &&
         html`<button class="bubble-btn" title="Comment — drag or shift-click to select a range" onMouseDown=${(e) => startSelect(e, side, anchor, threads)}><${Bubble} /></button>`}
       </td>
-      <td class="lineno old-no${commentable ? " sel" : ""}" onMouseDown=${commentable ? (e) => startSelect(e, side, anchor, threads) : undefined}>${line.oldLine ?? ""}</td>
+      ${!browse &&
+      html`<td class="lineno old-no${commentable ? " sel" : ""}" onMouseDown=${commentable ? (e) => startSelect(e, side, anchor, threads) : undefined}>${line.oldLine ?? ""}</td>`}
       <td class="lineno new-no${commentable ? " sel" : ""}" onMouseDown=${commentable ? (e) => startSelect(e, side, anchor, threads) : undefined}>${line.newLine ?? ""}</td>
       <${Code} line=${line} hl=${hl.get(line)} mark=${mark} />
     </tr>
-    <${LineComments} anchors=${commentable ? [{ side, line: anchor, lineObj: line }] : []} threads=${threads} />
+    <${LineComments} anchors=${commentable ? [{ side, line: anchor, lineObj: line }] : []} threads=${threads} variant=${browse ? "browse" : "unified"} />
   `;
 }
 
-export function UnifiedHunk({ hunk, path, threads }) {
+export function UnifiedHunk({ hunk, path, threads, browse }) {
   const marks = useMemo(() => hunkMarks(hunk.lines), [hunk]);
   const hl = useMemo(() => highlightMap(hunk.lines, path), [hunk, path]);
   return html`<tbody>
     ${hunk.header &&
     html`<tr class="hunk-header">
-      <td colspan="4"><span class="hunk-pill">${hunk.header}</span></td>
+      <td colspan=${browse ? 3 : 4}><span class="hunk-pill">${hunk.header}</span></td>
     </tr>`}
     ${hunk.lines.map(
-      (l, i) => html`<${UnifiedRow} key=${i} line=${l} hl=${hl} threads=${threads} mark=${marks.get(l)} />`
+      (l, i) => html`<${UnifiedRow} key=${i} line=${l} hl=${hl} threads=${threads} mark=${marks.get(l)} browse=${browse} />`
     )}
   </tbody>`;
 }

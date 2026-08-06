@@ -114,7 +114,7 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
                 <${SplitResizer} ratio=${ratio} onRatio=${setRatio} />
               </div>`
             : html`<table class="diff-table">
-                ${file.hunks.map((hunk, i) => html`<${UnifiedHunk} key=${i} hunk=${hunk} path=${file.path} threads=${threads} />`)}
+                ${file.hunks.map((hunk, i) => html`<${UnifiedHunk} key=${i} hunk=${hunk} path=${file.path} threads=${threads} browse=${browse} />`)}
               </table>`}
     </${LazyMount}>`}
     </div>`}
