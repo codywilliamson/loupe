@@ -4,6 +4,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.10.2] — 2026-08-06
+
 ### Fixed
 - **`loupe browse` no longer dies on deleted files** — `git ls-files` reads the index, so it still lists tracked files that have been deleted from the working tree; reading the first one threw `ENOENT` and took the whole browse down. Deleted files are now dropped from the scan, and any other unreadable path (broken symlink, permissions) is skipped instead of aborting it.
 
