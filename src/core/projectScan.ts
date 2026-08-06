@@ -8,10 +8,16 @@ import type { DiffResult, DiffFile, DiffLine } from "../types";
 import { runGit, repoName } from "../utils/git";
 
 // tracked files under the optional scope path, in git's order. respects .gitignore.
+// `ls-files` reads the index, so it still lists files deleted from the working tree —
+// drop those, or reading them throws and takes the whole browse down.
 function trackedFiles(cwd: string, scope: string | undefined): string[] {
-  const args = ["ls-files", "-z"];
-  if (scope) args.push("--", scope);
-  return runGit(args, cwd).split("\0").filter(Boolean);
+  const list = (flags: string[]): string[] => {
+    const args = ["ls-files", "-z", ...flags];
+    if (scope) args.push("--", scope);
+    return runGit(args, cwd).split("\0").filter(Boolean);
+  };
+  const deleted = new Set(list(["--deleted"]));
+  return list([]).filter((path) => !deleted.has(path));
 }
 
 // one file's text as all-context lines numbered from 1; a single trailing empty line from
@@ -28,9 +34,20 @@ export function contextFile(path: string, text: string): DiffFile {
   return { path, oldPath: null, changeType: "modified", additions: 0, deletions: 0, hunks: [{ header: "", lines }] };
 }
 
+// a broken symlink, a permission error, or a file removed since the git listing shouldn't
+// abort the scan — that file is simply left out.
+function readOrNull(file: string) {
+  try {
+    return readFileSync(file);
+  } catch {
+    return null;
+  }
+}
+
 // binary files (a NUL byte present) render like binary diff entries: flagged, no hunks.
-function readFileAsDiff(cwd: string, path: string): DiffFile {
-  const buf = readFileSync(join(cwd, path));
+function readFileAsDiff(cwd: string, path: string): DiffFile | null {
+  const buf = readOrNull(join(cwd, path));
+  if (!buf) return null;
   if (buf.includes(0)) {
     return { path, oldPath: null, changeType: "modified", additions: 0, deletions: 0, binary: true, hunks: [] };
   }
@@ -38,7 +55,9 @@ function readFileAsDiff(cwd: string, path: string): DiffFile {
 }
 
 export function scanProject(cwd: string, scope?: string): DiffResult {
-  const files = trackedFiles(cwd, scope).map((p) => readFileAsDiff(cwd, p));
+  const files = trackedFiles(cwd, scope)
+    .map((p) => readFileAsDiff(cwd, p))
+    .filter((f): f is DiffFile => f !== null);
   return {
     ref: "codebase",
     meta: { repo: repoName(cwd), mode: "browse", source: "codebase", target: "" },

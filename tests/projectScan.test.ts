@@ -76,6 +76,26 @@ describe("scanProject", () => {
     expect(bin?.hunks).toEqual([]);
   });
 
+  it("skips tracked files deleted from the working tree", () => {
+    writeFileSync(join(dir, "kept.ts"), "1\n");
+    writeFileSync(join(dir, "gone.ts"), "2\n");
+    git(["add", "-A"], dir);
+    git(["commit", "-qm", "init"], dir);
+    rmSync(join(dir, "gone.ts"));
+
+    // ls-files still reports gone.ts from the index; reading it would throw ENOENT
+    expect(scanProject(dir).files.map((f) => f.path)).toEqual(["kept.ts"]);
+  });
+
+  it("survives every tracked file being deleted", () => {
+    writeFileSync(join(dir, "gone.ts"), "1\n");
+    git(["add", "-A"], dir);
+    git(["commit", "-qm", "init"], dir);
+    rmSync(join(dir, "gone.ts"));
+
+    expect(scanProject(dir).files).toEqual([]);
+  });
+
   it("scopes the scan to a path argument", () => {
     writeFileSync(join(dir, "root.ts"), "1\n");
     mkdirSync(join(dir, "src"));
