@@ -4,6 +4,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-08-17
+
 ### Added
 - **Settings menu** — a gear in the top bar, holding one setting: **Review the `.review` file**. Settings live in `~/.loupe/state.json`, so they stick across launches even though each one picks a fresh port.
 

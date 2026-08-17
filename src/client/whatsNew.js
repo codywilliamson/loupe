@@ -3,6 +3,20 @@
 
 export const WHATS_NEW = [
   {
+    version: "0.11.0",
+    date: "2026-08-17",
+    items: [
+      {
+        title: "Your .review file stays out of the review",
+        body: "A .review committed before you ever ran loupe used to show up as a reviewable file in branch, range, staged and browse mode — it's hidden in every mode now. loupe also keeps it out of git via .git/info/exclude instead of .gitignore, so hiding it no longer edits a tracked file mid-review.",
+      },
+      {
+        title: "Settings menu",
+        body: "A gear in the top bar, starting with a toggle to review the .review file anyway. Settings live in ~/.loupe/state.json, so they stick across launches even though each one picks a fresh port.",
+      },
+    ],
+  },
+  {
     version: "0.10.0",
     date: "2026-07-05",
     items: [
