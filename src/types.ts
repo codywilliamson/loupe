@@ -45,6 +45,10 @@ export interface DiffResult {
 
 // ── review / comments ────────────────────────────────────────────────────────
 
+// loupe's own comment file, written in the directory being reviewed. kept out of the review
+// (and out of git) unless UserState.showReviewFile opts in.
+export const REVIEW_FILE = ".review";
+
 // optional severity/intent label; the compiled prompt prefixes the text with [tag]
 export type CommentTag = "nit" | "issue" | "question" | "praise";
 
@@ -89,11 +93,13 @@ export interface ViewedUpdateRequest {
 // launches (each picks a random port, so port-scoped localStorage can't be trusted).
 export interface UserState {
   seenVersion?: string; // loupe version whose what's-new highlights the user has dismissed
+  showReviewFile?: boolean; // true = review REVIEW_FILE like any other file instead of hiding it
 }
 
-// POST /api/state — record the dismissed what's-new version
+// POST /api/state — patch user-level state. every field optional; only the ones present change.
 export interface StateUpdateRequest {
-  seenVersion: string;
+  seenVersion?: string;
+  showReviewFile?: boolean;
 }
 
 // GET /api/update — loupe's own release status vs its git origin

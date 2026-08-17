@@ -4,6 +4,13 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Added
+- **Settings menu** — a gear in the top bar, holding one setting: **Review the `.review` file**. Settings live in `~/.loupe/state.json`, so they stick across launches even though each one picks a fresh port.
+
+### Changed
+- **`.review` stays out of the review** — it was only filtered from the untracked listing in working-tree mode, so a `.review` committed to the repo before loupe ever ran showed up as a reviewable file in branch, range, staged and browse listings. One filter now covers every mode. Turn the new setting on to review it like any other file.
+- **`.review` is excluded via `.git/info/exclude`, not `.gitignore`** — `.gitignore` is tracked, so appending to it created a working-tree change that surfaced in the very review you were running. The exclude file is per-clone and never committed, and loupe writes it whether or not a `.gitignore` exists (it skips the write entirely when `.gitignore` already covers `.review`). Existing `.gitignore` entries are left alone.
+
 ## [0.10.3] — 2026-08-06
 
 ### Fixed

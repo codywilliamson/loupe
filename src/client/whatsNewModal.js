@@ -3,7 +3,7 @@
 // (server-side) — not localStorage — so it survives across launches, each of which picks a
 // random port and would otherwise get a fresh, empty per-origin store (and re-pop the modal).
 import { html, useState, useEffect } from "/preact.js";
-import { getState, saveSeenVersion } from "/api.js";
+import { getState, saveState } from "/api.js";
 import { WHATS_NEW, whatsNewFor, shouldAutoShow } from "/whatsNew.js";
 import { X, Sparkles } from "/icons.js";
 
@@ -26,7 +26,7 @@ export function useWhatsNew(current) {
     setOpen(false);
     if (current) {
       setSeen(current);
-      saveSeenVersion(current).catch(() => {});
+      saveState({ seenVersion: current }).catch(() => {});
     }
   };
   return { entry, open, close, reopen: () => setOpen(true) };

@@ -6,6 +6,8 @@ import { resolveRef, collectDiff, repoName } from "./utils/git";
 import { parseCliArgs, USAGE } from "./utils/cli";
 import { parseDiff } from "./core/diffParser";
 import { scanProject } from "./core/projectScan";
+import { excludeReviewFile } from "./core/reviewFilter";
+import { readUserState } from "./core/userState";
 import { currentVersion } from "./core/updateCheck";
 import { createServer } from "./server/router";
 import type { DiffMeta } from "./types";
@@ -56,9 +58,10 @@ function main(): void {
   let includeUntracked = false;
   let meta: DiffMeta | undefined;
   const mode: "diff" | "browse" = opts.spec === "browse" ? "browse" : "diff";
+  const showReview = readUserState().showReviewFile === true;
   try {
     if (mode === "browse") {
-      diff = scanProject(cwd, opts.scope);
+      diff = excludeReviewFile(scanProject(cwd, opts.scope), showReview);
       meta = diff.meta;
     } else {
       const plan = resolveRef(opts.spec, cwd);
@@ -66,7 +69,8 @@ function main(): void {
       diffArgs = plan.diffArgs;
       includeUntracked = plan.includeUntracked;
       meta = { repo: repoName(cwd), mode: plan.mode, source: plan.source, target: plan.target };
-      diff = { ...parseDiff(collectDiff(plan.diffArgs, cwd, includeUntracked), plan.refLabel), meta };
+      const raw = collectDiff(plan.diffArgs, cwd, includeUntracked, showReview);
+      diff = excludeReviewFile({ ...parseDiff(raw, plan.refLabel), meta }, showReview);
     }
   } catch (err) {
     fail(err instanceof Error ? err.message : String(err));

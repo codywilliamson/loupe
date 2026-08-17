@@ -136,6 +136,7 @@ function App() {
       onCompile=${() => setShowCompile(true)}
       onHelp=${() => setShowHelp(true)}
       onWhatsNew=${wn.reopen}
+      onSettingsChange=${onRefresh}
     />
     <div class="body">
       <${FileTree}

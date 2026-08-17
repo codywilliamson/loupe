@@ -11,11 +11,10 @@ import {
   handleGetCompile,
   handleGetFile,
   handleGetUpdate,
-  handleGetState,
-  handlePostState,
   serveStatic,
   notFound,
 } from "./handlers";
+import { handleGetState, handlePostState } from "./stateHandlers";
 
 export type { ServerContext } from "./handlers";
 

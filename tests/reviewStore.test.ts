@@ -17,6 +17,19 @@ function tempDir(): string {
   return dir;
 }
 
+// a real repo, so `git rev-parse --git-path` and `git check-ignore` behave as they do in anger.
+function tempRepo(): string {
+  const dir = tempDir();
+  Bun.spawnSync(["git", "init", "-q", "-b", "main"], { cwd: dir });
+  return dir;
+}
+
+function excludeLines(dir: string): string[] {
+  const path = join(dir, ".git", "info", "exclude");
+  if (!existsSync(path)) return [];
+  return readFileSync(path, "utf8").split(/\r?\n/).map((l) => l.trim());
+}
+
 afterEach(() => {
   while (dirs.length) {
     const dir = dirs.pop();
@@ -48,30 +61,44 @@ describe("reviewStore", () => {
     expect(existsSync(join(dir, ".review"))).toBe(true);
   });
 
-  it("appends .review to .gitignore when the entry is missing", () => {
-    const dir = tempDir();
-    writeFileSync(join(dir, ".gitignore"), "node_modules\n");
+  it("adds .review to .git/info/exclude", () => {
+    const dir = tempRepo();
     writeReview(dir, fixture);
-    const lines = readFileSync(join(dir, ".gitignore"), "utf8")
-      .split(/\r?\n/)
-      .map((l) => l.trim());
-    expect(lines).toContain(".review");
+    expect(excludeLines(dir)).toContain(".review");
   });
 
-  it("does not duplicate the .gitignore entry on a second write", () => {
-    const dir = tempDir();
+  it("never touches the tracked .gitignore", () => {
+    const dir = tempRepo();
     writeFileSync(join(dir, ".gitignore"), "node_modules\n");
     writeReview(dir, fixture);
-    writeReview(dir, fixture);
-    const count = readFileSync(join(dir, ".gitignore"), "utf8")
-      .split(/\r?\n/)
-      .filter((l) => l.trim() === ".review").length;
-    expect(count).toBe(1);
+    expect(readFileSync(join(dir, ".gitignore"), "utf8")).toBe("node_modules\n");
   });
 
-  it("does nothing to .gitignore when the file is absent", () => {
+  it("does not duplicate the exclude entry on a second write", () => {
+    const dir = tempRepo();
+    writeReview(dir, fixture);
+    writeReview(dir, fixture);
+    expect(excludeLines(dir).filter((l) => l === ".review")).toHaveLength(1);
+  });
+
+  it("leaves the exclude file alone when .gitignore already covers .review", () => {
+    const dir = tempRepo();
+    writeFileSync(join(dir, ".gitignore"), ".review\n");
+    writeReview(dir, fixture);
+    expect(excludeLines(dir)).not.toContain(".review");
+  });
+
+  it("skips the exclude write when the user opted into reviewing .review", () => {
+    const dir = tempRepo();
+    writeReview(dir, fixture, false);
+    expect(excludeLines(dir)).not.toContain(".review");
+    expect(existsSync(join(dir, ".review"))).toBe(true);
+  });
+
+  it("does nothing outside a git repo", () => {
     const dir = tempDir();
     writeReview(dir, fixture);
+    expect(existsSync(join(dir, ".review"))).toBe(true);
     expect(existsSync(join(dir, ".gitignore"))).toBe(false);
   });
 
@@ -87,14 +114,10 @@ describe("reviewStore", () => {
     expect(existsSync(join(dir, ".review"))).toBe(false);
   });
 
-  it("leaves .gitignore untouched when there is nothing to save", () => {
-    const dir = tempDir();
-    writeFileSync(join(dir, ".gitignore"), "node_modules\n");
+  it("leaves the exclude file untouched when there is nothing to save", () => {
+    const dir = tempRepo();
     writeReview(dir, emptyReview);
-    const lines = readFileSync(join(dir, ".gitignore"), "utf8")
-      .split(/\r?\n/)
-      .map((l) => l.trim());
-    expect(lines).not.toContain(".review");
+    expect(excludeLines(dir)).not.toContain(".review");
   });
 
   it("keeps updating an existing .review even after its comments are cleared", () => {

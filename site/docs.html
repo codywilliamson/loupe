@@ -212,9 +212,15 @@
       <p>
         Comments and viewed-state persist to a <code>.review</code> JSON file in the directory
         you ran loupe from. It's created on your first comment — just browsing or marking files
-        viewed never touches your repo — then appended to <code>.gitignore</code> automatically,
-        never committed. It survives restarts: close the tab, come back tomorrow, your review is
-        still there.
+        viewed never touches your repo — then added to <code>.git/info/exclude</code> automatically.
+        It survives restarts: close the tab, come back tomorrow, your review is still there.
+      </p>
+      <p>
+        The exclude file, not <code>.gitignore</code>: <code>.gitignore</code> is tracked, so editing
+        it would show up as a repo change in the very review you're running. loupe also keeps
+        <code>.review</code> out of the file list it renders, so one committed before you ever ran
+        loupe still stays out of the way. Flip <strong>Review the <code>.review</code> file</strong>
+        in the settings menu (the gear in the top bar) to review it like any other file.
       </p>
 
       <h2 id="updates"><span class="hunk">@@ staying updated @@</span></h2>

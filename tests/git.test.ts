@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, basename } from "node:path";
-import { collectDiff, repoName, resolveRef } from "../src/utils/git";
+import { collectDiff, gitExcludePath, isIgnored, repoName, resolveRef } from "../src/utils/git";
 import { parseDiff } from "../src/core/diffParser";
 
 function git(args: string[], cwd: string): void {
@@ -45,7 +45,7 @@ describe("collectDiff", () => {
     expect(paths).not.toContain("fresh.txt");
   });
 
-  it("never surfaces loupe's own .review file", () => {
+  it("hides loupe's own .review file by default", () => {
     writeFileSync(join(repo, ".review"), "{}\n");
     try {
       const paths = parseDiff(collectDiff(["diff", "HEAD"], repo, true), "wt").files.map((f) => f.path);
@@ -54,6 +54,47 @@ describe("collectDiff", () => {
     } finally {
       rmSync(join(repo, ".review"), { force: true });
     }
+  });
+
+  // `--exclude-standard` drops an excluded .review, so opting in has to add it back by hand.
+  it("surfaces .review when the user opts in, even once git excludes it", () => {
+    writeFileSync(join(repo, ".review"), "{}\n");
+    writeFileSync(join(repo, ".git", "info", "exclude"), ".review\n");
+    try {
+      const paths = parseDiff(collectDiff(["diff", "HEAD"], repo, true, true), "wt").files.map((f) => f.path);
+      expect(paths).toContain(".review");
+      expect(paths.filter((p) => p === ".review")).toHaveLength(1);
+    } finally {
+      rmSync(join(repo, ".review"), { force: true });
+      writeFileSync(join(repo, ".git", "info", "exclude"), "");
+    }
+  });
+
+  it("does not add .review twice when it is untracked and not yet excluded", () => {
+    writeFileSync(join(repo, ".review"), "{}\n");
+    try {
+      const paths = parseDiff(collectDiff(["diff", "HEAD"], repo, true, true), "wt").files.map((f) => f.path);
+      expect(paths.filter((p) => p === ".review")).toHaveLength(1);
+    } finally {
+      rmSync(join(repo, ".review"), { force: true });
+    }
+  });
+});
+
+describe("isIgnored / gitExcludePath", () => {
+  it("reports git's exclude rules", () => {
+    writeFileSync(join(repo, ".git", "info", "exclude"), "ignored.txt\n");
+    try {
+      expect(isIgnored("ignored.txt", repo)).toBe(true);
+      expect(isIgnored("tracked.txt", repo)).toBe(false);
+    } finally {
+      writeFileSync(join(repo, ".git", "info", "exclude"), "");
+    }
+  });
+
+  it("resolves the per-clone exclude path inside a repo and null outside one", () => {
+    expect(gitExcludePath(repo)).toContain("info/exclude");
+    expect(gitExcludePath(tmpdir())).toBeNull();
   });
 });
 

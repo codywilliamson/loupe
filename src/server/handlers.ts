@@ -4,12 +4,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, extname, resolve } from "node:path";
 import type { DiffResult, DiffMeta, ReviewFile, Comment } from "../types";
 import { readReview, writeReview } from "../core/reviewStore";
-import { readUserState, writeUserState } from "../core/userState";
+import { excludeReviewFile } from "../core/reviewFilter";
+import { readUserState } from "../core/userState";
 import { compileReviewPrompt } from "../core/promptCompiler";
 import { parseDiff } from "../core/diffParser";
 import { checkForUpdate } from "../core/updateCheck";
 import { scanProject } from "../core/projectScan";
 import { collectDiff, runGit } from "../utils/git";
+import { apiError, json } from "./respond";
 
 export interface ServerContext {
   diff: DiffResult; // seeded at launch, re-run on each GET /api/diff for live review
@@ -25,16 +27,15 @@ export interface ServerContext {
   served: boolean; // true once the launch-computed diff has been handed to the client
 }
 
-// small json response helper.
-export function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
+// read fresh per request — the settings menu can flip it between calls.
+function showReviewFile(): boolean {
+  return readUserState().showReviewFile === true;
 }
 
-function apiError(message: string, status: number): Response {
-  return json({ error: message }, status);
+// stamps the review and persists it, mirroring the current setting into git's local excludes.
+function saveReview(ctx: ServerContext, review: ReviewFile): void {
+  review.meta.updatedAt = new Date().toISOString();
+  writeReview(ctx.cwd, review, !showReviewFile());
 }
 
 // load the current .review, or build a fresh empty one. used by both posts + compile.
@@ -57,11 +58,13 @@ export function handleGetDiff(ctx: ServerContext): Response {
     ctx.served = true;
     return json(ctx.diff);
   }
+  const show = showReviewFile();
   try {
-    ctx.diff =
+    const fresh =
       ctx.mode === "browse"
         ? scanProject(ctx.cwd, ctx.scope)
-        : { ...parseDiff(collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked), ctx.diff.ref), meta: ctx.meta };
+        : { ...parseDiff(collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked, show), ctx.diff.ref), meta: ctx.meta };
+    ctx.diff = excludeReviewFile(fresh, show);
   } catch {
     // keep the previous diff
   }
@@ -85,8 +88,7 @@ export async function handlePostComments(ctx: ServerContext, req: Request): Prom
   }
   const review = loadOrInit(ctx);
   review.comments = comments as Comment[];
-  review.meta.updatedAt = new Date().toISOString();
-  writeReview(ctx.cwd, review);
+  saveReview(ctx, review);
   return json(review);
 }
 
@@ -103,8 +105,7 @@ export async function handlePostViewed(ctx: ServerContext, req: Request): Promis
   }
   const review = loadOrInit(ctx);
   review.viewed = viewed as string[];
-  review.meta.updatedAt = new Date().toISOString();
-  writeReview(ctx.cwd, review);
+  saveReview(ctx, review);
   return json(review);
 }
 
@@ -116,26 +117,6 @@ export function handleGetCompile(ctx: ServerContext): Response {
 // reports whether a newer loupe release exists on origin (best-effort, never throws).
 export function handleGetUpdate(ctx: ServerContext): Response {
   return json(checkForUpdate(ctx.loupeRoot));
-}
-
-// user-level state (~/.loupe/state.json). carries the dismissed what's-new version
-// across launches, since each launch's random port gives localStorage a fresh origin.
-export function handleGetState(): Response {
-  return json(readUserState());
-}
-
-export async function handlePostState(req: Request): Promise<Response> {
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return apiError("invalid json body", 400);
-  }
-  const seenVersion = (body as { seenVersion?: unknown }).seenVersion;
-  if (typeof seenVersion !== "string") {
-    return apiError("seenVersion must be a string", 400);
-  }
-  return json(writeUserState({ seenVersion }));
 }
 
 // returns the new-side full content of a file (for markdown preview). working tree

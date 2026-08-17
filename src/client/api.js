@@ -48,14 +48,14 @@ export function getUpdate() {
   return getJson("/api/update");
 }
 
-// UserState — { seenVersion? } from ~/.loupe/state.json (persists across launches/ports)
+// UserState from ~/.loupe/state.json (persists across launches/ports)
 export function getState() {
   return getJson("/api/state");
 }
 
-// records the dismissed what's-new version; returns the merged UserState
-export function saveSeenVersion(seenVersion) {
-  return postJson("/api/state", { seenVersion });
+// merges a partial UserState into the stored one; returns the merged UserState
+export function saveState(patch) {
+  return postJson("/api/state", patch);
 }
 
 // { path, content } — new-side full content of a file, for markdown preview.

@@ -1,6 +1,8 @@
 // git shell helpers: run git, resolve a cli ref spec into a concrete diff plan, collect the diff.
 
-import { basename } from "node:path";
+import { basename, join } from "node:path";
+import { existsSync } from "node:fs";
+import { REVIEW_FILE } from "../types";
 
 // how to produce the diff plus the review context shown in the ui.
 export interface DiffPlan {
@@ -34,6 +36,21 @@ export function repoName(cwd: string): string {
   return basename(cwd) || cwd;
 }
 
+// true when git's standard exclude rules (.gitignore, .git/info/exclude, …) hide `path`.
+export function isIgnored(path: string, cwd: string): boolean {
+  return Bun.spawnSync(["git", "check-ignore", "-q", "--", path], { cwd }).exitCode === 0;
+}
+
+// git's own path to the per-clone exclude file, relative to cwd. null outside a repo.
+// `rev-parse --git-path` gets this right for worktrees and submodules, where .git is a file.
+export function gitExcludePath(cwd: string): string | null {
+  try {
+    return runGit(["rev-parse", "--git-path", "info/exclude"], cwd).trim() || null;
+  } catch {
+    return null;
+  }
+}
+
 // `git diff --no-index` exits 1 whenever the files differ (always true for a new file),
 // so it can't go through runGit (which throws on non-zero). we just want its stdout.
 function untrackedDiff(path: string, cwd: string): string {
@@ -41,16 +58,25 @@ function untrackedDiff(path: string, cwd: string): string {
   return proc.stdout.toString();
 }
 
+// loupe excludes .review from git, so `--exclude-standard` drops it from the untracked listing.
+// when the user opts into reviewing it we add it back — unless it is tracked, in which case the
+// plain diff already covers it and a synthetic entry would duplicate the file.
+function untrackedReviewFile(cwd: string): string[] {
+  if (!existsSync(join(cwd, REVIEW_FILE))) return [];
+  return runGit(["ls-files", "--", REVIEW_FILE], cwd).trim() ? [] : [REVIEW_FILE];
+}
+
 // runs the planned diff; in working-tree mode also appends synthetic "new file" diffs for
 // untracked files (which `git diff` omits by design) so they show up and are commentable.
-export function collectDiff(diffArgs: string[], cwd: string, includeUntracked: boolean): string {
+export function collectDiff(diffArgs: string[], cwd: string, includeUntracked: boolean, showReview = false): string {
   let raw = runGit(diffArgs, cwd);
   if (!includeUntracked) return raw;
   const untracked = runGit(["ls-files", "--others", "--exclude-standard"], cwd)
     .split("\n")
     .map((p) => p.trim())
     .filter(Boolean)
-    .filter((p) => p !== ".review"); // never review loupe's own review file
+    .filter((p) => p !== REVIEW_FILE); // handled below, so the setting decides in one place
+  if (showReview) untracked.push(...untrackedReviewFile(cwd));
   if (untracked.length && raw && !raw.endsWith("\n")) raw += "\n";
   for (const path of untracked) raw += untrackedDiff(path, cwd);
   return raw;

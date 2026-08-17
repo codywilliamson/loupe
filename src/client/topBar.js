@@ -4,6 +4,7 @@ import { totalDelta } from "/util.js";
 import { Sun, Moon, Spark, Refresh, Columns, File, HelpCircle, Sparkles, WrapText } from "/icons.js";
 import { THEMES, THEME_LABELS } from "/theme.js";
 import { UpdateBadge } from "/update.js";
+import { SettingsMenu } from "/settingsMenu.js";
 
 // the icon shown for the current theme; claude variants share the starburst.
 const THEME_ICONS = { light: Sun, dark: Moon, claude: Spark, "claude-dark": Spark };
@@ -44,6 +45,7 @@ export function TopBar({
   onCompile,
   onHelp,
   onWhatsNew,
+  onSettingsChange,
 }) {
   const { add, del } = totalDelta(files);
   const browse = meta?.mode === "browse";
@@ -88,6 +90,7 @@ export function TopBar({
       <button class="btn-icon icon-btn" data-tip="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" onClick=${onHelp}>
         <${HelpCircle} />
       </button>
+      <${SettingsMenu} onChange=${onSettingsChange} />
       <button class="btn-compile" onClick=${onCompile}>Compile Review Prompt</button>
     </div>
   </header>`;

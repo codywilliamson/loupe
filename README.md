@@ -73,7 +73,13 @@ Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
 ## Comments
 
 Saved to `.review` in the directory you run the command from — created on your first comment,
-then added to `.gitignore` automatically. Just browsing or marking files viewed won't write anything.
+then added to `.git/info/exclude` automatically. Just browsing or marking files viewed won't write anything.
+
+loupe uses `.git/info/exclude` rather than `.gitignore` because `.gitignore` is tracked: editing it
+would show up as a repo change in the very review you're running. The exclude file is per-clone and
+never committed. loupe also leaves `.review` out of the file list it renders, so a `.review` that was
+committed before you ever ran loupe still stays out of the way. Flip **Review the `.review` file** in
+the settings menu (the gear in the top bar) to review it like any other file.
 
 **Resolve** a comment to keep it on the record but drop it from the compiled prompt and the open-comment counts — reopen it any time.
 
