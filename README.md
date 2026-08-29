@@ -49,7 +49,7 @@ Press `?` in the UI for this list at any time.
 | `o` | single-file ↔ all-files view |
 | `t` | cycle theme (light → dark → claude → claude dark) |
 | `r` | re-run the diff |
-| `c` | compile the review prompt |
+| `c` | preview review feedback |
 | `?` | show the shortcut overlay |
 | `Esc` | close dialogs |
 
@@ -88,9 +88,42 @@ Markdown files open showing their diff; use the per-file **Preview** toggle to r
 
 ## Agent integrations
 
-The Codex marketplace lives under `.agents/plugins/`; Claude Code packages live under
-`integrations/claude-code/`. They invoke the same six-tool local MCP server; explicit review is the
-default and completion hooks are separate opt-in packages. See `integrations/README.md` for local installation.
+First make the `loupe` command available:
+
+    bun install
+    bun link
+    loupe --version
+
+From the Loupe repository root, install the explicit review integration for your agent.
+
+### Codex
+
+    codex plugin marketplace add .agents/plugins
+    codex plugin add loupe-review@loupe-local
+    codex plugin list
+
+Start a new Codex task after installation. Existing tasks do not reload newly installed skills and
+MCP servers. In the new task, ask: `Review my current changes with Loupe.`
+
+### Claude Code
+
+    claude plugin marketplace add .
+    claude plugin install loupe-review@loupe-local --scope user
+    claude plugin list
+
+Start a new Claude Code session, or run `/reload-plugins` in an existing one. Then ask:
+`Review my current changes with Loupe.`
+
+Automatic completion review is optional. Install the companion only when you want every completed
+turn to open Loupe:
+
+    codex plugin add loupe-review-hook@loupe-local
+    claude plugin install loupe-review-hook@loupe-local --scope user
+
+If an agent reports that it cannot start the Loupe MCP server, run `loupe --version` in the same
+shell. If the command is missing, rerun `bun link`, restart that shell, and start a fresh agent session.
+
+The package sources and maintenance notes live in [`integrations/`](integrations/README.md).
 
 ## Releases
 

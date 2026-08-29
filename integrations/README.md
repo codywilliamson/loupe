@@ -26,3 +26,6 @@ claude plugin install loupe-review@loupe-local --scope user
 
 To opt into automatic completion review, additionally install
 `loupe-review-hook@loupe-local` with the matching client command.
+
+Newly installed Codex plugins load in a new task. Claude Code loads them in a new
+session or after `/reload-plugins`.
