@@ -30,4 +30,6 @@ docs/screenshots/agent-review-walkthrough.gif
 docs/screenshots/agent-review-walkthrough.png
 ```
 
+The GIF is rendered at half speed so each review step remains readable in the README. The MP4 and WebM retain the capture's normal pacing.
+
 If Chromium is missing, rerun `bunx playwright install chromium`. If port `43127` is occupied, stop the existing process before capturing again. The script never commits the generated demo repository.

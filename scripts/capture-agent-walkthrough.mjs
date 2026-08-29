@@ -13,6 +13,7 @@ const rawVideo = join(work, "video");
 const agentCache = join(root, "out", "agent-walkthrough-agent-cache");
 const shots = join(root, "docs", "screenshots");
 const port = 43127;
+const gifSlowdown = 2;
 const candidateReminder = `import type { Order } from "./orders";
 
 export async function loadOrders(endpoint: string): Promise<Order[]> {
@@ -88,7 +89,7 @@ function updateReview(reviewId) {
 async function convert(video) {
   const webm = join(shots, "agent-review-walkthrough.webm"); const mp4 = join(shots, "agent-review-walkthrough.mp4"); const gif = join(shots, "agent-review-walkthrough.gif"); copyFileSync(video, webm);
   const mp4Result = run("ffmpeg", ["-y", "-i", webm, "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", mp4]);
-  const gifResult = run("ffmpeg", ["-y", "-i", webm, "-vf", "fps=12,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer", gif]);
+  const gifResult = run("ffmpeg", ["-y", "-i", webm, "-vf", `setpts=${gifSlowdown}*PTS,fps=12,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer`, gif]);
   if (mp4Result.status !== 0 || gifResult.status !== 0) throw new Error("media conversion failed");
 }
 
