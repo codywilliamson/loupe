@@ -137,4 +137,4 @@ The package sources and maintenance notes live in [`integrations/`](integrations
 
 ## Releases
 
-See [CHANGELOG.md](CHANGELOG.md). Current: **v0.11.0**.
+See [CHANGELOG.md](CHANGELOG.md). Current: **v0.12.0**.

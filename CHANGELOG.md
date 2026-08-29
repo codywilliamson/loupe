@@ -4,6 +4,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-08-29
+
 ### Added
 - **Durable Review Records** — reviews now live under the user's Loupe data directory with summaries, agent replies, addressed/resolved comments, explicit outcomes, and retained history.
 - **Local MCP server** — six structured review tools power Codex and Claude Code integrations while keeping approval and resolution reviewer-owned.
