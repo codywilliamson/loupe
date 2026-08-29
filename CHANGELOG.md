@@ -4,6 +4,20 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Added
+- **Durable Review Records** — reviews now live under the user's Loupe data directory with summaries, agent replies, addressed/resolved comments, explicit outcomes, and retained history.
+- **Local MCP server** — six structured review tools power Codex and Claude Code integrations while keeping approval and resolution reviewer-owned.
+- **Native and MCPB packaging** — Loupe compiles to a local executable and stages a validated platform bundle with its browser assets.
+- **Manual feedback formats** — copy unresolved feedback as structured JSON or context-rich Markdown.
+- **0.12 What's New** — the in-app release summary now introduces the agent loop, durable history, and optional completion hooks.
+
+### Changed
+- **Loupe-native product language** — refreshed product copy and internal design tokens around Loupe's own review model.
+- **Legacy `.review` handling** — existing files are never migrated automatically; reviewers choose import, confirmed removal, or ignore.
+- **Release-quality review workflow** — review state uses plain-language labels, agent/manual next-step guidance sits beside the outcome controls, and feedback actions lead the toolbar.
+- **Responsive review workspace** — mobile uses the full viewport for the diff, moves controls into a two-row toolbar, and presents review actions in a fitted sheet.
+- **Legacy setting removed** — the obsolete `.review` visibility gear, persisted option, and supporting code are gone; legacy files stay hidden until explicitly imported.
+
 ## [0.11.0] — 2026-08-17
 
 ### Added
@@ -86,7 +100,7 @@ Performance overhaul for large diffs and large codebases. Baseline: a 150-file /
 - **Loading screen** — an animated indicator while the initial diff loads, instead of a bare "Loading…" line
 
 ### Changed
-- **Range comments from the line numbers** — drag across the line-number gutter (or shift-click a second line) to select a range, Azure DevOps-style; the hover bubble still works too
+- **Range comments from the line numbers** — drag across the line-number gutter (or shift-click a second line) to select a range; the hover bubble still works too
 - **Markdown opens as a diff** — `.md` files now show their changes by default so edits are obvious; the per-file Preview toggle still renders them
 - **`.review` is created lazily** — only your first comment writes the file and appends it to `.gitignore`; just browsing or marking files viewed no longer touches your repo
 - Site redesigned as a self-demonstrating review session — the landing page is a diff under review (hunk pills, struck-through deletions, comment-card copy), with a mobile-first layout, active-section highlighting, and a scrollable nav on the docs page
@@ -161,7 +175,7 @@ Performance overhaul for large diffs and large codebases. Baseline: a 150-file /
 ## [0.1.0] — 2026-06-02
 
 ### Added
-- Unified and side-by-side git diff viewer with an ADO-faithful UI
+- Unified and side-by-side git diff viewer with a focused review UI
 - Inline line-level and file-level comments, persisted to `.review`
 - Viewed-file tracking in the sidebar
 - **Compile Review Prompt** — export all comments as a structured LLM prompt

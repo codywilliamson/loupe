@@ -1,6 +1,6 @@
 # loupe
 
-Local git diff viewer with an Azure DevOps-style UI. Leave inline comments on any line, then export them all as a structured review prompt for any LLM.
+Local git diff viewer for focused code review. Leave inline comments on any line, then return structured feedback to an agent or copy it manually.
 
 **Site & docs: [codywilliamson.github.io/loupe](https://codywilliamson.github.io/loupe/)**
 
@@ -30,6 +30,7 @@ The whole loop — comment, drag a range, compile the prompt, side-by-side/theme
     bun src/index.ts <ref1>..<ref2>   # commit range
     bun src/index.ts browse           # review the whole codebase
     bun src/index.ts browse src/      # scope to a subtree
+    bun src/index.ts mcp serve        # local MCP server for agent integrations
 
 Flags: `--port <n>` fixed port, `--no-open` don't launch the browser, `--version`, `--help`.
 
@@ -52,7 +53,7 @@ Press `?` in the UI for this list at any time.
 | `?` | show the shortcut overlay |
 | `Esc` | close dialogs |
 
-To comment on a range, drag across the line numbers (or shift-click a second line), like Azure DevOps.
+To comment on a range, drag across the line numbers or shift-click a second line.
 
 ## Install as a `loupe` command
 
@@ -70,22 +71,26 @@ Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
 
 (swap `C:\path\to\loupe` for wherever you cloned the repo.)
 
-## Comments
+## Review records
 
-Saved to `.review` in the directory you run the command from — created on your first comment,
-then added to `.git/info/exclude` automatically. Just browsing or marking files viewed won't write anything.
+Reviews are stored outside the repository under `~/.loupe/reviews/<review-id>/review.json`. Each
+record keeps its Git comparison, comments, replies, addressed/resolved state, summary, and outcome.
+Approved and cancelled reviews remain local until explicitly deleted.
 
-loupe uses `.git/info/exclude` rather than `.gitignore` because `.gitignore` is tracked: editing it
-would show up as a repo change in the very review you're running. The exclude file is per-clone and
-never committed. loupe also leaves `.review` out of the file list it renders, so a `.review` that was
-committed before you ever ran loupe still stays out of the way. Flip **Review the `.review` file** in
-the settings menu (the gear in the top bar) to review it like any other file.
+Existing `.review` files are treated as legacy data. Loupe leaves them untouched and prompts you to
+import, remove with confirmation, or ignore them.
 
 **Resolve** a comment to keep it on the record but drop it from the compiled prompt and the open-comment counts — reopen it any time.
 
 When the code moves on and a comment's line or file leaves the current diff, it becomes **orphaned** — still saved, but no longer anchored anywhere in the view. The compile dialog gathers these under **From earlier reviews**, where you can resolve or delete each one, and keeps them out of the compiled prompt so old notes never leak into a fresh review.
 
 Markdown files open showing their diff; use the per-file **Preview** toggle to render them.
+
+## Agent integrations
+
+The Codex marketplace lives under `.agents/plugins/`; Claude Code packages live under
+`integrations/claude-code/`. They invoke the same six-tool local MCP server; explicit review is the
+default and completion hooks are separate opt-in packages. See `integrations/README.md` for local installation.
 
 ## Releases
 

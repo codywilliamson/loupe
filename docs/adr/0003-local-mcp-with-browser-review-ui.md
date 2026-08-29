@@ -1,0 +1,3 @@
+# Ship MCP locally and keep review in the browser
+
+Loupe's MCP port will run locally over stdio because it must inspect private repositories, worktrees, and local review state. Distribution will use a compiled Loupe executable, with MCPB packaging where supported and thin agent plugins pointing to the same server; the first version will not require a remote MCP service. We will use the pinned official TypeScript MCP SDK despite the current no-runtime-dependencies constraint, bundle it into release artifacts, and keep Loupe's browser as the full review UI rather than rebuilding the diff experience as an MCP App.

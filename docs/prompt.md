@@ -1,4 +1,4 @@
-# Build: `loupe` — Local ADO-Style Code Review Tool
+# Build: `loupe` — Local Code Review Tool
 
 ---
 
@@ -39,7 +39,7 @@ The main agent owns integration, all commits, and final verification: run the fu
 ```bash
 gh repo create loupe \
   --public \
-  --description "Local git diff viewer with ADO-style UI, inline comments, and LLM prompt export" \
+  --description "Local git diff viewer with inline comments and LLM prompt export" \
   --clone
 
 cd loupe
@@ -64,7 +64,7 @@ Concise. No fluff. Four sections only:
 ```markdown
 # loupe
 
-Local git diff viewer with an ADO-style UI. Leave inline comments, then export them as a structured prompt for any LLM.
+Local git diff viewer for focused code review. Leave inline comments, then export them as a structured prompt for any LLM.
 
 ## Install
 
@@ -338,9 +338,9 @@ Change types: `added`, `modified`, `deleted`, `renamed`. For renamed files, `old
 
 ---
 
-## UI Layout — ADO Faithful
+## UI Layout — Focused Review
 
-Closely replicate the Azure DevOps PR "Files" tab. Do not invent a new design language.
+Use a compact, professional review interface centered on the diff, file navigation, and comment threads.
 
 ### Colors
 
@@ -356,12 +356,12 @@ Closely replicate the Azure DevOps PR "Files" tab. Do not invent a new design la
 |File header bg|`#f4f4f4`|
 |Comment card left border|`#0078d4`|
 |Comment card bg|`#f8f8f8`|
-|ADO blue (primary action)|`#0078d4`|
+|Primary blue|`#0078d4`|
 
 ### Top Bar
 
 - Left: `loupe` wordmark, active ref string (e.g. `working tree`, `staged`, `feature/x → origin/main`)
-- Right: file count, `+N / -N` aggregate delta, **Compile Review Prompt** button (ADO blue)
+- Right: file count, `+N / -N` aggregate delta, **Compile Review Prompt** button (primary blue)
 
 ### Left Sidebar — File Tree
 
@@ -495,7 +495,7 @@ forEach with async callbacks won't await — use for...of instead.
 
 ## Non-Goals
 
-- No Azure DevOps API calls or remote interaction
+- No remote forge API calls or remote interaction
 - No authentication
 - No LLM calls — this tool feeds LLMs, it does not use them
 - No database
