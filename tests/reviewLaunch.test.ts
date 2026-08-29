@@ -21,6 +21,11 @@ beforeAll(() => {
 afterAll(() => { delete process.env.LOUPE_DATA_DIR; rmSync(repo, { recursive: true, force: true }); rmSync(data, { recursive: true, force: true }); });
 
 describe("review launch", () => {
+  it("rejects an empty required comparison before opening a review", () => {
+    expect(() => launchReview({ cwd: repo, loupeRoot: root, spec: "main", open: false, requireChanges: true }))
+      .toThrow('No changes found for "main → main"');
+  });
+
   it("launches a durable browser review without writing legacy .review", async () => {
     const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff" });
     try {

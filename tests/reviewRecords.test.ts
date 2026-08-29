@@ -73,9 +73,12 @@ describe("review records", () => {
 
   it("records lifecycle activity and rereview transitions", () => {
     const record = makeRecord();
-    expect(returnFeedback(record.id).status).toBe("feedback_ready");
-    expect(requestRereview(record.id).status).toBe("awaiting_human");
-    const types = readReviewRecord(record.id)!.activity.map((item) => item.type);
+    expect(returnFeedback(record.id, "reviewer note").status).toBe("feedback_ready");
+    const rereview = requestRereview(record.id, "agent update");
+    expect(rereview.status).toBe("awaiting_human");
+    expect(rereview.summary).toBe("reviewer note");
+    expect(rereview.activity.findLast((item) => item.type === "rereview_requested")?.summary).toBe("agent update");
+    const types = rereview.activity.map((item) => item.type);
     expect(types).toEqual(expect.arrayContaining(["review_started", "feedback_returned", "rereview_requested"]));
   });
 

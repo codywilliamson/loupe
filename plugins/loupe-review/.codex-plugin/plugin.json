@@ -1,6 +1,6 @@
 {
   "name": "loupe-review",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Review local Git changes in Loupe and return structured feedback to Codex.",
   "author": { "name": "Cody Williamson", "url": "https://github.com/codywilliamson" },
   "homepage": "https://codywilliamson.github.io/loupe/",

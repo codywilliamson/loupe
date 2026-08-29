@@ -108,7 +108,7 @@ From the Loupe repository root, install the explicit review integration for your
 
 ### Codex
 
-    codex plugin marketplace add .agents/plugins
+    codex plugin marketplace add .
     codex plugin add loupe-review@loupe-local
     codex plugin list
 

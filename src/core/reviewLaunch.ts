@@ -16,6 +16,7 @@ export interface ReviewLaunchInput {
   origin?: ReviewOrigin;
   port?: number;
   open?: boolean;
+  requireChanges?: boolean;
 }
 
 export interface ReviewLaunch {
@@ -31,6 +32,9 @@ export function launchReview(input: ReviewLaunchInput): ReviewLaunch {
   const cwd = resolve(existing?.target.cwd ?? input.cwd);
   const spec = existing?.target.spec ?? input.spec;
   const loaded = loadReviewTarget(cwd, spec, input.scope, false);
+  if (!existing && input.requireChanges && loaded.diff.files.length === 0) {
+    throw new Error(`No changes found for "${loaded.diff.ref}". Use ref "working" for current tracked and untracked changes, or verify the requested comparison.`);
+  }
   const review = existing ?? createReviewRecord({
     target: { cwd, ref: loaded.diff.ref, ...(spec ? { spec } : {}), ...(loaded.meta ? { meta: loaded.meta } : {}) },
     policy: input.policy ?? "handoff", ...(input.origin ? { origin: input.origin } : {}),

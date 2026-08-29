@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { launchReview } from "../core/reviewLaunch";
 import {
   cancelReview, markCommentAddressed, readReviewRecord, replyToComment,
-  requestRereview, updateReviewRecord,
+  requestRereview,
 } from "../core/reviewRecords";
 import type { ReviewOperationResult, ReviewOperations } from "./operations";
 
@@ -19,7 +19,8 @@ export function createReviewOperations(loupeRoot: string): ReviewOperations {
     async startReview(input) {
       const launch = launchReview({
         cwd: resolve(input.cwd), loupeRoot, spec: input.ref, policy: input.policy ?? "required",
-        open: process.env.LOUPE_NO_OPEN !== "1", ...(input.origin ? { origin: input.origin } : {}),
+        open: process.env.LOUPE_NO_OPEN !== "1", requireChanges: true,
+        ...(input.origin ? { origin: input.origin } : {}),
       });
       servers.set(launch.review.id, launch.server);
       return { review: launch.review, url: launch.url };
@@ -32,8 +33,7 @@ export function createReviewOperations(loupeRoot: string): ReviewOperations {
       return { review: markCommentAddressed(input.reviewId, input.commentId) };
     },
     async requestRereview(input) {
-      if (input.summary !== undefined) updateReviewRecord(input.reviewId, { summary: input.summary });
-      return { review: requestRereview(input.reviewId) };
+      return { review: requestRereview(input.reviewId, input.summary) };
     },
     async cancelReview(input) { return { review: cancelReview(input.reviewId, input.summary) }; },
   };

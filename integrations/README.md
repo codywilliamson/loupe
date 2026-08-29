@@ -17,7 +17,7 @@ active Review Record prevents duplicate launches.
 From the Loupe repository root:
 
 ```text
-codex plugin marketplace add .agents/plugins
+codex plugin marketplace add .
 codex plugin add loupe-review@loupe-local
 
 claude plugin marketplace add .

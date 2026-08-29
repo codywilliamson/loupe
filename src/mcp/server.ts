@@ -8,6 +8,8 @@ import { isAbsolute, relative, resolve } from "node:path";
 const policy = z.enum(["required", "handoff", "off"] satisfies [ReviewPolicy, ...ReviewPolicy[]]);
 const id = z.string().trim().min(1).max(200);
 const summary = z.string().trim().max(10_000).optional();
+const reviewRef = z.string().trim().min(1).max(500)
+  .describe('Use "working" for current tracked and untracked changes; otherwise pass the explicitly requested staged, branch, or range comparison.');
 
 function result(value: ReviewOperationResult) {
   return {
@@ -36,8 +38,8 @@ export function createMcpServer(operations: ReviewOperations, roots: McpRootProv
   };
 
   server.registerTool("start_review", {
-    title: "Start review", description: "Start a review for an explicit Git comparison.",
-    inputSchema: { cwd: z.string().trim().min(1), ref: z.string().trim().min(1).max(500), policy: policy.optional(), origin: z.object({ agent: z.enum(["codex", "claude-code"]).optional(), sessionId: id.optional(), taskId: id.optional(), originalRequest: z.string().max(10_000).optional(), summary }).optional() },
+    title: "Start review", description: 'Start a review. Use ref "working" for current changes; use another comparison only when explicitly requested.',
+    inputSchema: { cwd: z.string().trim().min(1), ref: reviewRef, policy: policy.optional(), origin: z.object({ agent: z.enum(["codex", "claude-code"]).optional(), sessionId: id.optional(), taskId: id.optional(), originalRequest: z.string().max(10_000).optional(), summary }).optional() },
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
   }, async (input) => { try { await guarded(input.cwd); return result(await operations.startReview(input)); } catch (e) { return failure(e); } });
 

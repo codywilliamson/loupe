@@ -121,6 +121,7 @@ export interface ReviewActivity {
   actor: "agent" | "reviewer" | "system";
   createdAt: string;
   commentId?: string;
+  summary?: string;
 }
 
 export interface ReviewRecord {

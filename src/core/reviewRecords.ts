@@ -36,8 +36,8 @@ const pathFor = (id: string) => {
 const now = () => new Date().toISOString();
 const clone = <T>(value: T): T => structuredClone(value);
 
-function activity(type: ReviewActivity["type"], actor: ReviewActivity["actor"], commentId?: string): ReviewActivity {
-  return { id: randomUUID(), type, actor, createdAt: now(), ...(commentId ? { commentId } : {}) };
+function activity(type: ReviewActivity["type"], actor: ReviewActivity["actor"], commentId?: string, summary?: string): ReviewActivity {
+  return { id: randomUUID(), type, actor, createdAt: now(), ...(commentId ? { commentId } : {}), ...(summary ? { summary } : {}) };
 }
 function readAt(path: string): ReviewRecord | null {
   if (!existsSync(path)) return null;
@@ -96,8 +96,8 @@ export function updateReviewRecord(id: string, updater: ReviewRecordUpdater): Re
 
 function transition(id: string, status: ReviewStatus, type: ReviewActivity["type"], actor: ReviewActivity["actor"], summary?: string): ReviewRecord {
   const record = requireRecord(id); assertActive(record);
-  record.status = status; if (summary !== undefined) record.summary = summary;
-  record.activity.push(activity(type, actor)); record.updatedAt = now(); save(record); return clone(record);
+  record.status = status; if (summary !== undefined && actor === "reviewer") record.summary = summary;
+  record.activity.push(activity(type, actor, undefined, summary)); record.updatedAt = now(); save(record); return clone(record);
 }
 export function returnFeedback(id: string, summary?: string): ReviewRecord {
   const record = requireRecord(id); assertActive(record);
@@ -106,10 +106,10 @@ export function returnFeedback(id: string, summary?: string): ReviewRecord {
   if (!unresolved) throw new Error("returning feedback requires an unresolved comment");
   return transition(id, "feedback_ready", "feedback_returned", "reviewer", summary);
 }
-export function requestRereview(id: string): ReviewRecord {
+export function requestRereview(id: string, summary?: string): ReviewRecord {
   const record = requireRecord(id); assertActive(record);
   if (record.status !== "feedback_ready") throw new Error("rereview requires returned feedback");
-  return transition(id, "awaiting_human", "rereview_requested", "agent");
+  return transition(id, "awaiting_human", "rereview_requested", "agent", summary);
 }
 export const cancelReview = (id: string, summary?: string) => transition(id, "cancelled", "review_cancelled", "reviewer", summary);
 

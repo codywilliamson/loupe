@@ -19,6 +19,11 @@ All notable changes to loupe are documented here. This project follows [semantic
 - **Responsive review workspace** — mobile uses the full viewport for the diff, moves controls into a two-row toolbar, and presents review actions in a fitted sheet.
 - **Legacy setting removed** — the obsolete `.review` visibility gear, persisted option, and supporting code are gone; legacy files stay hidden until explicitly imported.
 
+### Fixed
+- **Current-change agent reviews** — `HEAD` now resolves to the working tree, the MCP contract explicitly directs agents to `working`, and empty comparisons fail with an actionable error instead of opening a blank review.
+- **Rereview summary authorship** — agent updates are stored on the agent's activity entry and shown read-only, while each reviewer outcome starts with a blank reviewer-owned summary field.
+- **Codex plugin installation** — marketplace plugins now live at the repository root where Codex resolves them, and the documented repository-root install command works on a clean machine.
+
 ## [0.11.0] — 2026-08-17
 
 ### Added

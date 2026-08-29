@@ -109,7 +109,7 @@ function currentBranch(cwd: string): string {
 export function resolveRef(spec: string | undefined, cwd: string): DiffPlan {
   if (!isGitRepo(cwd)) throw new Error("not a git repository (run loupe inside one)");
 
-  if (!spec) {
+  if (!spec || spec === "HEAD") {
     const target = currentBranch(cwd);
     return { diffArgs: ["diff", "HEAD"], refLabel: "working tree", newRef: null, mode: "working tree", source: "working tree", target, includeUntracked: true };
   }

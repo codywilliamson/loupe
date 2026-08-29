@@ -113,6 +113,14 @@ describe("resolveRef meta", () => {
     expect(plan.includeUntracked).toBe(true);
   });
 
+  it("treats literal HEAD as the working tree comparison", () => {
+    const plan = resolveRef("HEAD", repo);
+    expect(plan.diffArgs).toEqual(["diff", "HEAD"]);
+    expect(plan.mode).toBe("working tree");
+    expect(plan.newRef).toBeNull();
+    expect(plan.includeUntracked).toBe(true);
+  });
+
   it("staged plan does not surface untracked files", () => {
     const plan = resolveRef("staged", repo);
     expect(plan.mode).toBe("staged");
