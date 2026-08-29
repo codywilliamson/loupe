@@ -73,11 +73,13 @@ export function SavedComment({ comment, onEdit, onDelete, onResolve }) {
       onCancel=${() => setEditing(false)}
     />`;
   }
-  const resolved = comment.resolved;
-  return html`<div class="comment-card ${resolved ? "resolved" : ""}">
+  const status = comment.status ?? (comment.resolved ? "resolved" : "open");
+  const resolved = status === "resolved";
+  return html`<div class="comment-card ${resolved ? "resolved" : ""} status-${status}">
     <div class="comment-meta">
       <span class="comment-time">
         ${resolved && html`<span class="resolved-badge">Resolved</span>`}
+        ${status === "addressed" && html`<span class="resolved-badge">Addressed</span>`}
         ${comment.tag && html`<span class="tag-pill tag-${comment.tag} on">${comment.tag}</span>`}
         ${relativeTime(comment.createdAt)}
       </span>
@@ -88,6 +90,11 @@ export function SavedComment({ comment, onEdit, onDelete, onResolve }) {
       </span>
     </div>
     <div class="comment-text">${comment.text}</div>
+    ${comment.replies?.length > 0 && html`<div class="comment-replies">
+      ${comment.replies.map((reply) => html`<div class="comment-reply" key=${reply.id}>
+        <span class="reply-author">${reply.author}</span><span>${reply.text}</span>
+      </div>`)}
+    </div>`}
   </div>`;
 }
 

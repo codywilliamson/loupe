@@ -15,6 +15,7 @@ import {
   notFound,
 } from "./handlers";
 import { handleGetState, handlePostState } from "./stateHandlers";
+import { handleGetLegacyReview, handleGetReview, handleLegacyReview, handleReviewOutcome, handleReviewReply, handleReviewStatus } from "./reviewHandlers";
 
 export type { ServerContext } from "./handlers";
 
@@ -29,6 +30,8 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
     if (pathname === "/api/update") return handleGetUpdate(ctx);
     if (pathname === "/api/state") return handleGetState();
     if (pathname === "/api/file") return handleGetFile(ctx, new URL(req.url));
+    if (pathname === "/api/review") return handleGetReview(new URL(req.url), ctx.reviewId);
+    if (pathname === "/api/review/legacy") return handleGetLegacyReview(ctx.cwd);
     if (!pathname.startsWith("/api/")) return serveStatic(ctx, pathname);
   }
 
@@ -36,6 +39,10 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
     if (pathname === "/api/comments") return handlePostComments(ctx, req);
     if (pathname === "/api/viewed") return handlePostViewed(ctx, req);
     if (pathname === "/api/state") return handlePostState(req);
+    if (pathname === "/api/review/outcome") return handleReviewOutcome(req);
+    if (pathname === "/api/review/reply") return handleReviewReply(req);
+    if (pathname === "/api/review/status") return handleReviewStatus(req);
+    if (pathname === "/api/review/legacy") return handleLegacyReview(req, ctx.cwd);
   }
 
   return notFound();

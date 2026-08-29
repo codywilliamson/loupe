@@ -1,7 +1,7 @@
 {
   "name": "loupe",
-  "version": "0.11.0",
-  "description": "Local git diff viewer with ADO-style UI, inline comments, and LLM prompt export",
+  "version": "0.12.0",
+  "description": "Local git diff viewer with inline comments and structured agent feedback",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
@@ -10,12 +10,22 @@
   },
   "scripts": {
     "start": "bun src/index.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "build:binary": "bun build src/index.ts --compile --outfile dist/loupe",
+    "mcp:serve": "bun src/mcp/index.ts",
+    "mcpb:stage": "bun run build:binary && bun scripts/stage-mcpb.ts",
+    "mcpb:validate": "bun run mcpb:stage && mcpb validate mcpb/manifest.json",
+    "mcpb:pack": "bun run mcpb:stage && mcpb pack mcpb dist/loupe.mcpb"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "4.5.2"
   }
 }

@@ -4,7 +4,7 @@ import { totalDelta } from "/util.js";
 import { Sun, Moon, Spark, Refresh, Columns, File, HelpCircle, Sparkles, WrapText } from "/icons.js";
 import { THEMES, THEME_LABELS } from "/theme.js";
 import { UpdateBadge } from "/update.js";
-import { SettingsMenu } from "/settingsMenu.js";
+import { ReviewPanel } from "/reviewPanel.js";
 
 // the icon shown for the current theme; claude variants share the starburst.
 const THEME_ICONS = { light: Sun, dark: Moon, claude: Spark, "claude-dark": Spark };
@@ -45,7 +45,9 @@ export function TopBar({
   onCompile,
   onHelp,
   onWhatsNew,
-  onSettingsChange,
+  reviewId,
+  comments,
+  onComments,
 }) {
   const { add, del } = totalDelta(files);
   const browse = meta?.mode === "browse";
@@ -68,18 +70,20 @@ export function TopBar({
         <span class="add">+${add}</span>
         <span class="del">-${del}</span>
       </span>`}
-      <button class="btn-icon icon-btn ${viewMode === "single" ? "on" : ""}" data-tip=${viewTip} aria-label=${viewTip} onClick=${onToggleView}>
+      <${ReviewPanel} reviewId=${reviewId} comments=${comments} onComments=${onComments} />
+      <button class="btn-compile" onClick=${onCompile}><span class="wide-label">Preview Feedback</span><span class="narrow-label">Feedback</span></button>
+      <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" data-tip="Re-run the diff" aria-label="Re-run the diff" onClick=${onRefresh}>
+        <${Refresh} />
+      </button>
+      <button class="btn-icon icon-btn view-toggle ${viewMode === "single" ? "on" : ""}" data-tip=${viewTip} aria-label=${viewTip} onClick=${onToggleView}>
         <${File} />
       </button>
       ${!browse &&
-      html`<button class="btn-icon icon-btn ${splitView ? "on" : ""}" data-tip=${splitTip} aria-label=${splitTip} onClick=${onToggleSplit}>
+      html`<button class="btn-icon icon-btn split-toggle ${splitView ? "on" : ""}" data-tip=${splitTip} aria-label=${splitTip} onClick=${onToggleSplit}>
         <${Columns} />
       </button>`}
       <button class="btn-icon icon-btn ${wrap ? "on" : ""}" data-tip=${wrapTip} aria-label=${wrapTip} onClick=${onToggleWrap}>
         <${WrapText} />
-      </button>
-      <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" data-tip="Re-run the diff" aria-label="Re-run the diff" onClick=${onRefresh}>
-        <${Refresh} />
       </button>
       <button class="btn-icon icon-btn" data-tip=${themeTip} aria-label=${themeTip} onClick=${onToggleTheme}>
         <${ThemeIcon} />
@@ -90,8 +94,6 @@ export function TopBar({
       <button class="btn-icon icon-btn" data-tip="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" onClick=${onHelp}>
         <${HelpCircle} />
       </button>
-      <${SettingsMenu} onChange=${onSettingsChange} />
-      <button class="btn-compile" onClick=${onCompile}>Compile Review Prompt</button>
     </div>
   </header>`;
 }

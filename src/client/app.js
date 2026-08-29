@@ -15,6 +15,7 @@ import { CompileModal } from "/compileModal.js";
 import { HelpOverlay } from "/helpOverlay.js";
 import { useWhatsNew, WhatsNewModal } from "/whatsNewModal.js";
 import { LoadingScreen } from "/loadingScreen.js";
+import { LegacyReviewPrompt } from "/legacyReviewPrompt.js";
 
 function App() {
   const [diff, setDiff] = useState(null);
@@ -32,7 +33,8 @@ function App() {
   const [activeFile, setActiveFile] = useState(null); // path shown in single-file view
   const [refreshing, setRefreshing] = useState(false);
   const update = useUpdateCheck();
-  const { comments, setComments, onAdd, onEdit, onDelete, onResolve } = useComments(setError);
+  const reviewId = new URLSearchParams(location.search).get("review");
+  const { comments, setComments, onAdd, onEdit, onDelete, onResolve } = useComments(setError, reviewId);
   const wn = useWhatsNew(update?.current);
 
   useEffect(() => {
@@ -136,8 +138,11 @@ function App() {
       onCompile=${() => setShowCompile(true)}
       onHelp=${() => setShowHelp(true)}
       onWhatsNew=${wn.reopen}
-      onSettingsChange=${onRefresh}
+      reviewId=${reviewId}
+      comments=${comments}
+      onComments=${setComments}
     />
+    <${LegacyReviewPrompt} reviewId=${reviewId} onImport=${(record) => { setComments(record.comments ?? []); setViewed(record.viewed ?? []); }} />
     <div class="body">
       <${FileTree}
         files=${diff.files}

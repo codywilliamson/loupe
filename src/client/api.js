@@ -12,7 +12,10 @@ async function postJson(url, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`POST ${url} failed: ${res.status}`);
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.error ?? `POST ${url} failed: ${res.status}`);
+  }
   return res.json();
 }
 
@@ -27,6 +30,19 @@ export async function getComments() {
   if (!data || !data.comments) return { viewed: [], comments: [] };
   return { viewed: data.viewed ?? [], comments: data.comments ?? [] };
 }
+
+// Durable Review Record actions. Browser-only actions use the reviewer endpoints;
+// agents use the MCP port for replies and addressed status.
+export function getReview(id) { return getJson(`/api/review?id=${encodeURIComponent(id)}`); }
+export function submitReviewOutcome(id, outcome, summary, acknowledgeUnresolved = false) {
+  return postJson("/api/review/outcome", { id, outcome, summary, acknowledgeUnresolved });
+}
+export function resolveReviewComment(id, commentId, status) {
+  return postJson("/api/review/status", { id, commentId, status });
+}
+export function importLegacyReview(id) { return postJson("/api/review/legacy", { action: "import", id }); }
+export function removeLegacyReview(confirm = false) { return postJson("/api/review/legacy", { action: "remove", confirm }); }
+export function detectLegacyReview() { return getJson("/api/review/legacy"); }
 
 // full replace of the comments array; returns updated ReviewFile.
 export function saveComments(comments) {

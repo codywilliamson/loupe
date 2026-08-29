@@ -125,11 +125,6 @@ describe("router", () => {
     expect(res.status).toBe(400);
   });
 
-  it("POST /api/state rejects a non-boolean showReviewFile", async () => {
-    const res = await fetch(`${base}/api/state`, { method: "POST", body: JSON.stringify({ showReviewFile: "yes" }) });
-    expect(res.status).toBe(400);
-  });
-
   it("GET /api/file returns new-side content (working tree reads disk)", async () => {
     const res = await fetch(`${base}/api/file?path=readme.md`);
     expect(res.status).toBe(200);

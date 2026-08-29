@@ -1,9 +1,9 @@
 // owns the review comments array + its mutations, persisting each change (full-replace
 // contract) then trusting local state. extracted from app.js to keep the orchestrator lean.
 import { useState, useCallback } from "/preact.js";
-import { saveComments } from "/api.js";
+import { saveComments, resolveReviewComment } from "/api.js";
 
-export function useComments(onError) {
+export function useComments(onError, reviewId = null) {
   const [comments, setComments] = useState([]);
 
   const persist = useCallback(
@@ -27,10 +27,15 @@ export function useComments(onError) {
   const onDelete = useCallback((id) => persist(comments.filter((c) => c.id !== id)), [comments, persist]);
 
   // resolve keeps the comment but drops it from the prompt + open counts; toggles back on reopen.
-  const onResolve = useCallback(
-    (id) => persist(comments.map((c) => (c.id === id ? { ...c, resolved: !c.resolved } : c))),
-    [comments, persist]
-  );
+  const onResolve = useCallback((id) => {
+    const comment = comments.find((c) => c.id === id);
+    if (!comment) return;
+    const status = (comment.status ?? (comment.resolved ? "resolved" : "open")) === "resolved" ? "open" : "resolved";
+    const next = comments.map((c) => (c.id === id ? { ...c, status, resolved: status === "resolved" } : c));
+    setComments(next);
+    const save = reviewId ? resolveReviewComment(reviewId, id, status) : saveComments(next);
+    save.catch((e) => onError(String(e)));
+  }, [comments, onError, reviewId]);
 
   return { comments, setComments, onAdd, onEdit, onDelete, onResolve };
 }

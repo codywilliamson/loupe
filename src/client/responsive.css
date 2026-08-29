@@ -1,0 +1,25 @@
+.narrow-label { display: none; }
+
+@media (max-width: 700px) {
+  .top-bar { height: auto; min-height: 82px; padding: 7px 10px; flex-wrap: wrap; align-content: center; gap: 5px; }
+  .top-left { width: 100%; flex: none; gap: 8px; }
+  .top-left .diff-info { flex: 1; }
+  .repo-name { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; }
+  .top-right { width: 100%; gap: 8px; overflow-x: auto; padding: 2px 0 3px; scrollbar-width: none; }
+  .top-right::-webkit-scrollbar { display: none; }
+  .wide-label { display: none; }
+  .narrow-label { display: inline; }
+  .body { min-width: 0; }
+  .file-tree, .resizer { display: none; }
+  .view-toggle, .split-toggle { display: none; }
+  .diff-pane { width: 100%; padding: 6px; }
+  .file-section { margin-bottom: 8px; }
+  .review-popover { position: fixed; top: 82px; left: 10px; right: 10px; width: auto; max-height: calc(100vh - 94px); overflow-y: auto; }
+  .review-actions { flex-wrap: wrap; }
+  .modal { width: 94vw; max-height: 88vh; }
+}
+
+@media (min-width: 701px) and (max-width: 980px) {
+  .file-tree { width: 220px !important; }
+  .top-right { gap: 10px; }
+}

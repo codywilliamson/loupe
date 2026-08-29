@@ -31,7 +31,7 @@
 .bubble-gutter { width: 22px; text-align: center; padding: 0; background: var(--surface-2); position: relative; }
 /* button is ALWAYS in the dom (hidden via opacity) so hovering never resizes the column. */
 .bubble-btn {
-  background: var(--ado-blue); color: #fff; border: none; border-radius: 3px; cursor: pointer;
+  background: var(--accent); color: #fff; border: none; border-radius: 3px; cursor: pointer;
   padding: 1px 3px; display: inline-flex; opacity: 0; transition: opacity .08s;
 }
 .diff-row:hover .bubble-btn, .bubble-btn:focus-visible { opacity: 1; }
@@ -39,7 +39,7 @@
   width: 44px; min-width: 44px; text-align: right; padding: 0 8px; color: var(--muted);
   user-select: none; background: var(--surface-2); border-right: 1px solid var(--border);
 }
-/* line numbers are a drag handle: drag or shift-click to select a comment range (ADO-style) */
+/* line numbers are a drag handle: drag or shift-click to select a comment range */
 .lineno.sel { cursor: ns-resize; }
 .lineno.sel:hover { color: var(--text); }
 .code { width: 100%; padding: 0 8px; white-space: pre; background: var(--ctx-line); }
@@ -90,14 +90,14 @@
   position: absolute; top: 0; bottom: 0; width: 7px; margin-left: -3px;
   cursor: col-resize; z-index: 3;
 }
-.split-resizer:hover { background: var(--ado-blue); opacity: .35; }
+.split-resizer:hover { background: var(--accent); opacity: .35; }
 
 /* ── range highlight (left accent on the bubble gutter) ── */
 /* saved multi-line comment range */
 .diff-row.in-range .bubble-gutter { box-shadow: inset 3px 0 0 var(--comment-border); }
 /* pending selection while composing a range — faint blue tint + accent */
-.diff-row.range-selected .bubble-gutter { box-shadow: inset 3px 0 0 var(--ado-blue); }
-.diff-row.range-selected .code { background: color-mix(in srgb, var(--ado-blue) 10%, transparent); }
+.diff-row.range-selected .bubble-gutter { box-shadow: inset 3px 0 0 var(--accent); }
+.diff-row.range-selected .code { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 /* while dragging a selection: kill text selection and signal vertical drag */
 body.selecting { user-select: none; cursor: ns-resize; }
 /* the sticky file header (z-index) otherwise intercepts elementFromPoint during a drag,
@@ -120,7 +120,7 @@ body.selecting .file-head { pointer-events: none; }
   border-left: 3px solid var(--comment-border); background: var(--comment-bg);
   border-radius: 2px; padding: 8px 10px; max-width: 720px; font-family: var(--font); font-size: 13px;
 }
-.comment-card.editing { border-left-color: var(--ado-blue); }
+.comment-card.editing { border-left-color: var(--accent); }
 /* resolved: kept for the record but visually muted */
 .comment-card.resolved { opacity: .6; border-left-color: var(--muted); }
 .comment-card.resolved .comment-text { color: var(--muted); }
@@ -136,5 +136,5 @@ body.selecting .file-head { pointer-events: none; }
   width: 100%; min-height: 54px; resize: none; overflow: hidden; font: inherit; font-family: var(--font);
   border: 1px solid var(--border); border-radius: 2px; padding: 6px 8px;
 }
-.comment-input:focus { outline: none; border-color: var(--ado-blue); }
+.comment-input:focus { outline: none; border-color: var(--accent); }
 .comment-actions { display: flex; gap: 8px; margin-top: 6px; }

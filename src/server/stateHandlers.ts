@@ -1,5 +1,5 @@
 // /api/state — user-level state in ~/.loupe/state.json. carries the dismissed what's-new
-// version and the settings menu across launches, since each launch's random port gives
+// version across launches, since each launch's random port gives
 // localStorage a fresh origin. these are the only handlers with no ServerContext to read.
 
 import type { StateUpdateRequest, UserState } from "../types";
@@ -17,12 +17,11 @@ export async function handlePostState(req: Request): Promise<Response> {
   } catch {
     return apiError("invalid json body", 400);
   }
-  const { seenVersion, showReviewFile } = body as StateUpdateRequest;
+  const { seenVersion } = body as StateUpdateRequest;
   const patch: UserState = {};
   if (typeof seenVersion === "string") patch.seenVersion = seenVersion;
-  if (typeof showReviewFile === "boolean") patch.showReviewFile = showReviewFile;
   if (Object.keys(patch).length === 0) {
-    return apiError("body must set seenVersion (string) or showReviewFile (boolean)", 400);
+    return apiError("body must set seenVersion (string)", 400);
   }
   return json(writeUserState(patch));
 }

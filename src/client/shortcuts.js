@@ -11,7 +11,7 @@ export const SHORTCUTS = [
   ["o", "Single-file ↔ all-files view"],
   ["t", "Cycle theme"],
   ["r", "Re-run the diff"],
-  ["c", "Compile review prompt"],
+  ["c", "Preview review feedback"],
   ["n", "What's new"],
   ["?", "Show this help"],
   ["Esc", "Close dialogs"],

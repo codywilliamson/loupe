@@ -3,7 +3,7 @@ import { parseCliArgs, USAGE } from "../src/utils/cli";
 
 describe("parseCliArgs", () => {
   test("defaults: working tree, random port, open browser", () => {
-    expect(parseCliArgs([])).toEqual({ spec: undefined, scope: undefined, port: 0, open: true, help: false, version: false });
+    expect(parseCliArgs([])).toEqual({ command: "review", agent: undefined, spec: undefined, scope: undefined, reviewId: undefined, port: 0, open: true, help: false, version: false });
   });
 
   test("first positional arg is the ref spec", () => {
@@ -29,7 +29,7 @@ describe("parseCliArgs", () => {
 
   test("flags combine with a ref spec in any order", () => {
     const opts = parseCliArgs(["--no-open", "origin/main", "-p", "4000"]);
-    expect(opts).toEqual({ spec: "origin/main", scope: undefined, port: 4000, open: false, help: false, version: false });
+    expect(opts).toEqual({ command: "review", agent: undefined, spec: "origin/main", scope: undefined, reviewId: undefined, port: 4000, open: false, help: false, version: false });
   });
 
   test("rejects a bad port", () => {
@@ -64,8 +64,19 @@ describe("parseCliArgs", () => {
   });
 
   test("usage covers every option", () => {
-    for (const flag of ["--port", "--no-open", "--version", "--help"]) {
+    for (const flag of ["--port", "--no-open", "--review-id", "--version", "--help"]) {
       expect(USAGE).toContain(flag);
     }
+  });
+
+  test("parses the MCP server command and durable review id", () => {
+    expect(parseCliArgs(["mcp", "serve"]).command).toBe("mcp");
+    expect(parseCliArgs(["--review-id", "r1"]).reviewId).toBe("r1");
+    expect(() => parseCliArgs(["mcp", "nope"])).toThrow("mcp requires the serve command");
+  });
+
+  test("parses optional completion hooks", () => {
+    expect(parseCliArgs(["hook", "stop", "--agent", "claude-code"]).agent).toBe("claude-code");
+    expect(() => parseCliArgs(["hook", "stop", "--agent", "other"])).toThrow("--agent must be");
   });
 });

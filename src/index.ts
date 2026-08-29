@@ -1,16 +1,13 @@
 #!/usr/bin/env bun
-// loupe cli entry point: parse args, resolve the ref, run + parse the diff, serve, open the browser.
+// loupe cli entry point: launch a browser review or run the local MCP server.
 
 import { join } from "node:path";
-import { resolveRef, collectDiff, repoName } from "./utils/git";
 import { parseCliArgs, USAGE } from "./utils/cli";
-import { parseDiff } from "./core/diffParser";
-import { scanProject } from "./core/projectScan";
-import { excludeReviewFile } from "./core/reviewFilter";
-import { readUserState } from "./core/userState";
+import { launchReview } from "./core/reviewLaunch";
 import { currentVersion } from "./core/updateCheck";
-import { createServer } from "./server/router";
-import type { DiffMeta } from "./types";
+import { runMcpServer } from "./mcp";
+import { installationRoot } from "./utils/installRoot";
+import { runCompletionHook } from "./core/completionHook";
 
 // ansi styling, skipped when stdout isn't a terminal.
 const tty = process.stdout.isTTY === true;
@@ -19,29 +16,14 @@ const accent = paint("38;5;173"); // claude terracotta
 const bold = paint("1");
 const dim = paint("2");
 
-// opens the default browser at url, best-effort per platform.
-function openBrowser(url: string): void {
-  const cmd =
-    process.platform === "win32"
-      ? ["cmd", "/c", "start", "", url]
-      : process.platform === "darwin"
-        ? ["open", url]
-        : ["xdg-open", url];
-  try {
-    Bun.spawn(cmd, { stdout: "ignore", stderr: "ignore" });
-  } catch {
-    // opening the browser is best-effort; the url is printed regardless.
-  }
-}
-
 function fail(message: string): never {
   console.error(`${accent("✻ loupe")} ${message}`);
   process.exit(1);
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const cwd = process.cwd();
-  const loupeRoot = join(import.meta.dir, ".."); // src/ → repo root
+  const loupeRoot = installationRoot(join(import.meta.dir, ".."));
 
   let opts;
   try {
@@ -51,46 +33,24 @@ function main(): void {
   }
   if (opts.help) return console.log(USAGE);
   if (opts.version) return console.log(`loupe v${currentVersion(loupeRoot)}`);
-
-  let diff;
-  let newRef: string | null = null;
-  let diffArgs: string[] = [];
-  let includeUntracked = false;
-  let meta: DiffMeta | undefined;
-  const mode: "diff" | "browse" = opts.spec === "browse" ? "browse" : "diff";
-  const showReview = readUserState().showReviewFile === true;
+  if (opts.command === "mcp") return runMcpServer(cwd);
+  if (opts.command === "hook") {
+    if (!opts.agent) fail("hook stop requires --agent codex or claude-code");
+    return runCompletionHook(opts.agent, loupeRoot);
+  }
+  let launch;
   try {
-    if (mode === "browse") {
-      diff = excludeReviewFile(scanProject(cwd, opts.scope), showReview);
-      meta = diff.meta;
-    } else {
-      const plan = resolveRef(opts.spec, cwd);
-      newRef = plan.newRef;
-      diffArgs = plan.diffArgs;
-      includeUntracked = plan.includeUntracked;
-      meta = { repo: repoName(cwd), mode: plan.mode, source: plan.source, target: plan.target };
-      const raw = collectDiff(plan.diffArgs, cwd, includeUntracked, showReview);
-      diff = excludeReviewFile({ ...parseDiff(raw, plan.refLabel), meta }, showReview);
-    }
+    launch = launchReview({
+      cwd, loupeRoot, spec: opts.spec, scope: opts.scope, reviewId: opts.reviewId,
+      policy: "handoff", port: opts.port, open: opts.open,
+    });
   } catch (err) {
-    fail(err instanceof Error ? err.message : String(err));
+    fail(err instanceof Error ? err.message : `port ${opts.port} is already in use`);
   }
-
-  const clientDir = join(import.meta.dir, "client");
-  const ctx = { diff, cwd, clientDir, loupeRoot, newRef, diffArgs, includeUntracked, meta, mode, scope: opts.scope, served: false };
-  let server;
-  try {
-    server = createServer(ctx, opts.port);
-  } catch {
-    fail(`port ${opts.port} is already in use (pick another with --port)`);
-  }
-  const url = `http://localhost:${server.port}`;
-
-  if (opts.open) openBrowser(url);
-  const files = diff.files.length;
-  const changed = mode === "browse" ? "" : " changed";
-  console.log(`${accent("✻ loupe")} ${dim(`v${currentVersion(loupeRoot)}`)} — reviewing ${bold(diff.ref)} (${files} file${files === 1 ? "" : "s"}${changed})`);
-  console.log(`  ${bold(url)}  ${dim("(ctrl+c to stop)")}`);
+  const files = launch.diff.files.length;
+  const changed = launch.diff.meta?.mode === "browse" ? "" : " changed";
+  console.log(`${accent("✻ loupe")} ${dim(`v${currentVersion(loupeRoot)}`)} — reviewing ${bold(launch.diff.ref)} (${files} file${files === 1 ? "" : "s"}${changed})`);
+  console.log(`  ${bold(launch.url)}  ${dim("(ctrl+c to stop)")}`);
 }
 
-main();
+await main();

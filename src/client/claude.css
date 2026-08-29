@@ -12,8 +12,8 @@
   --file-head: #f0eee6;
   --comment-border: #c96442;
   --comment-bg: #f5f1e8;
-  --ado-blue: #c96442;
-  --ado-blue-dark: #a84b2f;
+  --accent: #c96442;
+  --accent-hover: #a84b2f;
   --border: #e3e0d5;
   --text: #3d3929;
   --muted: #87867f;
@@ -37,8 +37,8 @@
   --file-head: #30302e;
   --comment-border: #d97757;
   --comment-bg: #2e2c28;
-  --ado-blue: #d97757;
-  --ado-blue-dark: #e08a6d;
+  --accent: #d97757;
+  --accent-hover: #e08a6d;
   --border: #3f3d38;
   --text: #eceae2;
   --muted: #a6a39a;

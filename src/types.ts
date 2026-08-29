@@ -45,12 +45,20 @@ export interface DiffResult {
 
 // ── review / comments ────────────────────────────────────────────────────────
 
-// loupe's own comment file, written in the directory being reviewed. kept out of the review
-// (and out of git) unless UserState.showReviewFile opts in.
+// legacy comment file; current Review Records live under the user's Loupe data directory.
 export const REVIEW_FILE = ".review";
 
 // optional severity/intent label; the compiled prompt prefixes the text with [tag]
 export type CommentTag = "nit" | "issue" | "question" | "praise";
+
+export type ReviewCommentStatus = "open" | "addressed" | "resolved";
+
+export interface CommentReply {
+  id: string;
+  author: "agent" | "reviewer";
+  text: string;
+  createdAt: string;
+}
 
 export interface Comment {
   id: string;
@@ -61,6 +69,8 @@ export interface Comment {
   lineContent: string | null; // raw diff line (with marker) the comment targets, null when file-level
   text: string;
   tag?: CommentTag; // absent = untagged
+  status?: ReviewCommentStatus;
+  replies?: CommentReply[];
   resolved?: boolean; // true = kept for the record but excluded from the compiled prompt + open counts
   createdAt: string; // ISO 8601
 }
@@ -70,36 +80,107 @@ export interface ReviewMeta {
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601
 }
-
 export interface ReviewFile {
   meta: ReviewMeta;
   viewed: string[]; // file paths marked viewed
   comments: Comment[];
 }
 
-// ── api bodies ───────────────────────────────────────────────────────────────
+export const REVIEW_SCHEMA_VERSION = 1;
+export type ReviewStatus = "awaiting_human" | "feedback_ready" | "approved" | "cancelled";
+export type ReviewPolicy = "required" | "handoff" | "off";
+export type ReviewActivityType =
+  | "review_started"
+  | "feedback_returned"
+  | "rereview_requested"
+  | "comment_replied"
+  | "comment_addressed"
+  | "comment_resolved"
+  | "comment_reopened"
+  | "review_approved"
+  | "review_cancelled";
+
+export interface ReviewTarget {
+  cwd: string;
+  ref: string;
+  spec?: string;
+  meta?: DiffMeta;
+}
+
+export interface ReviewOrigin {
+  agent?: "codex" | "claude-code";
+  sessionId?: string;
+  taskId?: string;
+  originalRequest?: string;
+  summary?: string;
+}
+
+export interface ReviewActivity {
+  id: string;
+  type: ReviewActivityType;
+  actor: "agent" | "reviewer" | "system";
+  createdAt: string;
+  commentId?: string;
+}
+
+export interface ReviewRecord {
+  schemaVersion: typeof REVIEW_SCHEMA_VERSION;
+  id: string;
+  target: ReviewTarget;
+  origin?: ReviewOrigin;
+  policy: ReviewPolicy;
+  status: ReviewStatus;
+  summary?: string;
+  createdAt: string;
+  updatedAt: string;
+  viewed: string[];
+  comments: Comment[];
+  activity: ReviewActivity[];
+}
+
+export interface FeedbackBundle {
+  reviewId: string;
+  target: ReviewTarget;
+  summary?: string;
+  comments: Comment[];
+}
 
 // POST /api/comments — full replace of the comments array
 export interface CommentsUpdateRequest {
   comments: Comment[];
 }
 
-// POST /api/viewed — full replace of the viewed array
 export interface ViewedUpdateRequest {
   viewed: string[];
 }
 
-// user-level state, persisted in ~/.loupe/state.json so it survives across loupe
-// launches (each picks a random port, so port-scoped localStorage can't be trusted).
-export interface UserState {
-  seenVersion?: string; // loupe version whose what's-new highlights the user has dismissed
-  showReviewFile?: boolean; // true = review REVIEW_FILE like any other file instead of hiding it
+export interface ReviewOutcomeRequest {
+  outcome: "feedback" | "approved" | "cancelled";
+  summary?: string;
+  acknowledgeUnresolved?: boolean;
 }
 
-// POST /api/state — patch user-level state. every field optional; only the ones present change.
+export interface CommentReplyRequest {
+  commentId: string;
+  text: string;
+  author: "agent" | "reviewer";
+}
+
+export interface CommentStatusRequest {
+  commentId: string;
+  status: ReviewCommentStatus;
+}
+
+export interface LegacyReviewRequest {
+  action: "import" | "remove" | "ignore";
+}
+
+export interface UserState {
+  seenVersion?: string; // loupe version whose what's-new highlights the user has dismissed
+}
+
 export interface StateUpdateRequest {
   seenVersion?: string;
-  showReviewFile?: boolean;
 }
 
 // GET /api/update — loupe's own release status vs its git origin

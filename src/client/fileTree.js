@@ -16,7 +16,7 @@ function TreeHead({ filter, onFilter, files, viewedSet }) {
       onInput=${(e) => onFilter(e.target.value)}
     />
     <div class="tree-progress" title=${`${done} of ${files.length} files viewed`}>
-      <div class="tree-progress-bar"><div class="tree-progress-fill" style=${`width:${pct}%`}></div></div>
+      <div class="tree-progress-bar"><div class="tree-progress-fill" style=${`transform:scaleX(${pct / 100})`}></div></div>
       <span class="tree-progress-label">${done}/${files.length} viewed</span>
     </div>
   </div>`;

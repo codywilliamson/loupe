@@ -2,6 +2,11 @@ import { describe, it, expect } from "bun:test";
 import { WHATS_NEW, whatsNewFor, shouldAutoShow } from "../src/client/whatsNew.js";
 
 describe("whatsNewFor", () => {
+  it("leads with the current 0.12.0 release", () => {
+    expect(WHATS_NEW[0]?.version).toBe("0.12.0");
+    expect(whatsNewFor("0.12.0")?.items).toHaveLength(3);
+  });
+
   it("returns the entry for a known version", () => {
     const entry = whatsNewFor("0.9.0");
     expect(entry?.version).toBe("0.9.0");

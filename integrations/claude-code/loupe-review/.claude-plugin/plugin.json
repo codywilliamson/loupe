@@ -1,0 +1,10 @@
+{
+  "name": "loupe-review",
+  "version": "0.1.0",
+  "description": "Review local Git changes in Loupe and return structured feedback to Claude Code.",
+  "author": {
+    "name": "Cody Williamson"
+  },
+  "homepage": "https://codywilliamson.github.io/loupe/",
+  "repository": "https://github.com/codywilliamson/loupe"
+}

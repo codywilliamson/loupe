@@ -7,6 +7,10 @@ node_modules
 # output
 out
 dist
+mcpb/server/
+mcpb/src/
+mcpb/package.json
+mcpb/manifest.json
 *.tgz
 
 # code coverage

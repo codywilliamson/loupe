@@ -5,13 +5,13 @@ import { join, extname, resolve } from "node:path";
 import type { DiffResult, DiffMeta, ReviewFile, Comment } from "../types";
 import { readReview, writeReview } from "../core/reviewStore";
 import { excludeReviewFile } from "../core/reviewFilter";
-import { readUserState } from "../core/userState";
 import { compileReviewPrompt } from "../core/promptCompiler";
 import { parseDiff } from "../core/diffParser";
 import { checkForUpdate } from "../core/updateCheck";
 import { scanProject } from "../core/projectScan";
 import { collectDiff, runGit } from "../utils/git";
 import { apiError, json } from "./respond";
+import { readReviewRecord, updateReviewRecord } from "../core/reviewRecords";
 
 export interface ServerContext {
   diff: DiffResult; // seeded at launch, re-run on each GET /api/diff for live review
@@ -25,17 +25,13 @@ export interface ServerContext {
   mode?: "diff" | "browse"; // browse re-scans the codebase on refresh instead of re-diffing
   scope?: string; // browse path scope, reused on refresh
   served: boolean; // true once the launch-computed diff has been handed to the client
+  reviewId?: string; // durable Review Record selected by the MCP/CLI integration
 }
 
-// read fresh per request — the settings menu can flip it between calls.
-function showReviewFile(): boolean {
-  return readUserState().showReviewFile === true;
-}
-
-// stamps the review and persists it, mirroring the current setting into git's local excludes.
+// stamps a legacy review and persists it outside the rendered diff.
 function saveReview(ctx: ServerContext, review: ReviewFile): void {
   review.meta.updatedAt = new Date().toISOString();
-  writeReview(ctx.cwd, review, !showReviewFile());
+  writeReview(ctx.cwd, review, true);
 }
 
 // load the current .review, or build a fresh empty one. used by both posts + compile.
@@ -58,13 +54,12 @@ export function handleGetDiff(ctx: ServerContext): Response {
     ctx.served = true;
     return json(ctx.diff);
   }
-  const show = showReviewFile();
   try {
     const fresh =
       ctx.mode === "browse"
         ? scanProject(ctx.cwd, ctx.scope)
-        : { ...parseDiff(collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked, show), ctx.diff.ref), meta: ctx.meta };
-    ctx.diff = excludeReviewFile(fresh, show);
+        : { ...parseDiff(collectDiff(ctx.diffArgs, ctx.cwd, ctx.includeUntracked, false), ctx.diff.ref), meta: ctx.meta };
+    ctx.diff = excludeReviewFile(fresh, false);
   } catch {
     // keep the previous diff
   }
@@ -72,7 +67,19 @@ export function handleGetDiff(ctx: ServerContext): Response {
 }
 
 export function handleGetComments(ctx: ServerContext): Response {
+  if (ctx.reviewId) return json(readReviewRecord(ctx.reviewId) ?? {});
   return json(readReview(ctx.cwd) ?? {});
+}
+
+function currentReview(ctx: ServerContext): ReviewFile {
+  if (!ctx.reviewId) return loadOrInit(ctx);
+  const record = readReviewRecord(ctx.reviewId);
+  if (!record) return loadOrInit(ctx);
+  return {
+    meta: { ref: record.target.ref, createdAt: record.createdAt, updatedAt: record.updatedAt },
+    viewed: record.viewed,
+    comments: record.comments,
+  };
 }
 
 export async function handlePostComments(ctx: ServerContext, req: Request): Promise<Response> {
@@ -86,8 +93,9 @@ export async function handlePostComments(ctx: ServerContext, req: Request): Prom
   if (!Array.isArray(comments)) {
     return apiError("comments must be an array", 400);
   }
-  const review = loadOrInit(ctx);
+  const review = currentReview(ctx);
   review.comments = comments as Comment[];
+  if (ctx.reviewId) return json(updateReviewRecord(ctx.reviewId, { comments: review.comments }));
   saveReview(ctx, review);
   return json(review);
 }
@@ -103,14 +111,15 @@ export async function handlePostViewed(ctx: ServerContext, req: Request): Promis
   if (!Array.isArray(viewed)) {
     return apiError("viewed must be an array", 400);
   }
-  const review = loadOrInit(ctx);
+  const review = currentReview(ctx);
   review.viewed = viewed as string[];
+  if (ctx.reviewId) return json(updateReviewRecord(ctx.reviewId, { viewed: review.viewed }));
   saveReview(ctx, review);
   return json(review);
 }
 
 export function handleGetCompile(ctx: ServerContext): Response {
-  const review = loadOrInit(ctx);
+  const review = currentReview(ctx);
   return json({ prompt: compileReviewPrompt(ctx.diff, review) });
 }
 

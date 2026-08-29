@@ -1,0 +1,28 @@
+/* secondary modal, stale-comment, and markdown content styling */
+.whatsnew-modal { width: min(460px, 92vw); }
+.whatsnew-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px 14px; border-bottom: 1px solid var(--border); }
+.whatsnew-spark { display: flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; border-radius: 8px; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-hover)); }
+.whatsnew-titles { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.whatsnew-titles h2 { margin: 0; font-size: 16px; }
+.whatsnew-sub { color: var(--muted); font-size: 12px; }
+.whatsnew-list { list-style: none; margin: 0; padding: 16px 18px; overflow: auto; display: flex; flex-direction: column; gap: 14px; }
+.whatsnew-item { display: flex; flex-direction: column; gap: 3px; padding-left: 12px; border-left: 2px solid var(--accent); }
+.whatsnew-item-title { font-weight: 600; font-size: 14px; }
+.whatsnew-item-body { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.whatsnew-modal .modal-foot { justify-content: flex-end; }
+.stale-comments { margin: 12px 16px 0; padding: 10px 12px; max-height: 30vh; overflow: auto; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-2); }
+.stale-title { font-weight: 600; font-size: 13px; color: var(--text); }
+.stale-note { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stale-item { margin-top: 8px; }
+.stale-loc { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+.markdown-body { font-family: var(--font); font-size: 13px; line-height: 1.55; color: var(--text); }
+.markdown-body h1, .markdown-body h2, .markdown-body h3 { margin: 16px 0 8px; line-height: 1.25; }
+.markdown-body h1 { font-size: 18px; }
+.markdown-body h2 { font-size: 15px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.markdown-body h3 { font-size: 13px; }
+.markdown-body p, .markdown-body ul, .markdown-body ol { margin: 8px 0; }
+.markdown-body code { font-family: var(--mono); font-size: 12px; background: var(--surface-2); padding: 1px 4px; border-radius: 3px; }
+.markdown-body pre { background: var(--surface-2); padding: 10px 12px; border-radius: 4px; overflow: auto; }
+.markdown-body pre code { background: none; padding: 0; }
+.markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.markdown-body blockquote { margin: 8px 0; padding-left: 12px; border-left: 3px solid var(--border); color: var(--muted); }

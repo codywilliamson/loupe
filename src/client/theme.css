@@ -20,8 +20,8 @@
   --hunk-bg: #20242b;
   --pill-bg: #2a313c;
   --pill-text: #aab4c0;
-  --ado-blue: #4ca3ff;
-  --ado-blue-dark: #6cb6ff;
+  --accent: #4ca3ff;
+  --accent-hover: #6cb6ff;
 }
 
 textarea { background: var(--surface); color: var(--text); }
@@ -34,7 +34,7 @@ textarea { background: var(--surface); color: var(--text); }
 .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 { margin: 1em 0 .5em; line-height: 1.25; }
 .markdown-body h1, .markdown-body h2 { border-bottom: 1px solid var(--border); padding-bottom: .3em; }
 .markdown-body p, .markdown-body ul, .markdown-body ol, .markdown-body blockquote { margin: 0 0 1em; }
-.markdown-body a { color: var(--ado-blue); }
+.markdown-body a { color: var(--accent); }
 .markdown-body code {
   font-family: var(--mono); font-size: 90%; background: var(--surface-2); padding: .15em .4em; border-radius: 3px;
 }
