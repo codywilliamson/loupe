@@ -6,9 +6,9 @@ Local git diff viewer for focused code review. Leave inline comments on any line
 
 ## Demo
 
-![comment a line and tag it](docs/screenshots/demo-comment.gif)
+![Review an agent change with Loupe](docs/screenshots/agent-review-walkthrough.gif)
 
-The whole loop — comment, drag a range, compile the prompt, side-by-side/themes/browse — is in the [hero video](docs/screenshots/demo-hero.mp4) and on the [site](https://codywilliamson.github.io/loupe/#demo).
+The walkthrough uses a real Claude Code edit: comment, return feedback, let the agent fix and reply, refresh the diff, resolve, and approve. [Watch the MP4](docs/screenshots/agent-review-walkthrough.mp4), read the [step-by-step tutorial](docs/agent-review-walkthrough.md), or open the [site](https://codywilliamson.github.io/loupe/#demo).
 
 ## Screenshots
 
@@ -55,6 +55,16 @@ Press `?` in the UI for this list at any time.
 
 To comment on a range, drag across the line numbers or shift-click a second line.
 
+## Review with an agent
+
+1. Ask Codex or Claude Code: `Review my current changes with Loupe.`
+2. Leave line- or file-level comments in Loupe and choose **Return Feedback**.
+3. Return to the agent and say `continue`.
+4. When the agent requests rereview, choose **Re-run the diff** in Loupe.
+5. Verify the changes, resolve or reopen each thread, then approve or return more feedback.
+
+Install the agent integration first using the commands under [Agent integrations](#agent-integrations).
+
 ## Install as a `loupe` command
 
 Run loupe from any repo without typing the full path. Register it globally with bun — works on macOS, Linux, and Windows:
@@ -80,9 +90,9 @@ Approved and cancelled reviews remain local until explicitly deleted.
 Existing `.review` files are treated as legacy data. Loupe leaves them untouched and prompts you to
 import, remove with confirmation, or ignore them.
 
-**Resolve** a comment to keep it on the record but drop it from the compiled prompt and the open-comment counts — reopen it any time.
+**Resolve** a comment to keep it on the record but drop it from returned feedback and open-comment counts — reopen it any time.
 
-When the code moves on and a comment's line or file leaves the current diff, it becomes **orphaned** — still saved, but no longer anchored anywhere in the view. The compile dialog gathers these under **From earlier reviews**, where you can resolve or delete each one, and keeps them out of the compiled prompt so old notes never leak into a fresh review.
+When the code moves on and a comment's line or file leaves the current diff, it becomes **orphaned** — still saved, but no longer anchored anywhere in the view. **Preview Feedback** gathers these under **From earlier reviews**, where you can resolve or delete each one, and keeps them out of current feedback.
 
 Markdown files open showing their diff; use the per-file **Preview** toggle to render them.
 

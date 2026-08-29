@@ -10,6 +10,7 @@ All notable changes to loupe are documented here. This project follows [semantic
 - **Native and MCPB packaging** — Loupe compiles to a local executable and stages a validated platform bundle with its browser assets.
 - **Manual feedback formats** — copy unresolved feedback as structured JSON or context-rich Markdown.
 - **0.12 What's New** — the in-app release summary now introduces the agent loop, durable history, and optional completion hooks.
+- **Agent walkthrough** — a reproducible Playwright capture uses a real Claude Code edit to demonstrate comment, feedback return, agent reply, rereview, resolution, and approval in WebM, MP4, and GIF formats.
 
 ### Changed
 - **Loupe-native product language** — refreshed product copy and internal design tokens around Loupe's own review model.
