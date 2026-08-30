@@ -1,57 +1,58 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>loupe — review diffs, brief your agent</title>
-  <meta name="description" content="loupe is a local git diff viewer with inline comments, durable review state, and structured agent feedback." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>loupe — review the change, return the note</title>
+  <meta name="description" content="loupe is a local git diff viewer for anchoring review notes and returning structured feedback to coding agents." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400..600&display=swap" rel="stylesheet" />
-  <link rel="icon" href="loupe-mark.svg" type="image/svg+xml" /><link rel="stylesheet" href="style.css" /><script src="theme.js"></script>
+  <link rel="icon" href="loupe-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
 </head>
 <body>
   <!--
-    THESIS: loupe makes local review feel like proofing a change; it refuses the generic SaaS toolbar-and-card dashboard.
-    OWN-WORLD: bone or charcoal paper, carbon or warm ink, vermilion anchors, proof-blue focus, moss and oxide diff washes, fine registration rules, and a split-aperture mark.
-    STORY: understand the local review loop, see exact anchored feedback in action, then install loupe or continue into the docs.
-    FIRST VIEWPORT: a large editorial claim sits beside a working diff proof, with the install action inside the same review narrative rather than a detached hero card.
-    FORM: proof desk / redline galley, ranked 1, seed 000dc35e; the signature interaction is a proof-cursor anchor pulse.
+    THESIS: loupe turns a local diff into a review loop an agent can act on.
+    OWN-WORLD: bone or charcoal paper, warm ink, vermilion anchors, proof-blue focus, and the split-aperture mark.
+    STORY: inspect a changed line, mark it, return structured feedback, then rereview the agent's response.
+    FIRST VIEWPORT: the working review artifact owns the viewport; the four states are the explanation.
+    FORM: proof desk / redline galley, ranked 1, seed 000dc35e; the signature interaction is the stateful review transformation.
     FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
   -->
   <header class="bar"><div class="wrap bar-in">
     <a class="brand" href="./" aria-label="loupe overview"><svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5v13M4 5.5h5M4 18.5h5M20 5.5v13M20 5.5h-5M20 18.5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12 4v16" stroke="currentColor" stroke-width="1.1" opacity=".6"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/></svg>loupe</a>
-    <span class="mode-pill">overview</span><span class="refpair"><b>your-workflow</b> → <b>loupe</b></span>
-    <nav class="links" aria-label="Primary"><a class="here" href="./">overview</a><a href="docs.html">docs</a><a href="https://github.com/codywilliamson/loupe">github</a><button class="theme-btn" type="button">mode</button></nav>
+    <nav class="links" aria-label="Primary"><a href="docs.html">docs</a><button class="theme-btn" type="button">mode</button></nav>
   </div></header>
-  <h1 class="sr">loupe — a local git diff viewer that returns structured review feedback to coding agents</h1>
-  <main class="wrap">
-    <section class="hero registration" aria-labelledby="claim">
-      <div class="hero-copy"><h1 id="claim">Read the diff <em>closely.</em></h1><p class="lede">Then make the next edit someone else's job. loupe is the local review desk for agent-generated changes: inspect, annotate, return, refresh, resolve, approve.</p><div class="actions"><a class="btn solid" href="docs.html#install">Get started →</a><a class="btn" href="https://github.com/codywilliamson/loupe">GitHub ↗</a></div><p class="install-line">Fast lane: <code>bun install && bun link</code>, then run <code>loupe</code> in any git repository.</p></div>
-      <div class="proof rise" aria-label="Example Loupe diff with an anchored comment"><div class="fhead"><span class="badge">M</span><span class="fname">how-you-review-changes.md</span><span class="fdelta"><span class="plus">+3</span><span class="minus">−2</span></span></div><div class="hunk-row">@@ -1,3 +1,4 @@ the moment after the agent writes the code</div><div class="drow"><span class="no">1</span><span class="no">1</span><b class="sg"> </b><span class="tx">a change lands: fifteen files, four hundred lines.</span></div><div class="drow del"><span class="no">2</span><span class="no"></span><b class="sg">-</b><span class="tx">scroll the raw diff in a terminal. squint. scroll back up.</span></div><div class="drow del"><span class="no">3</span><span class="no"></span><b class="sg">-</b><span class="tx">paste it all into a chat window and <mark>hope it reads closely</mark>.</span></div><div class="drow add"><span class="no"></span><span class="no">2</span><b class="sg">+</b><span class="tx">open it in a real review ui on localhost — <mark>loupe</mark>.</span></div><div class="drow add"><span class="no"></span><span class="no">3</span><b class="sg">+</b><span class="tx">read line by line. comment. tag. mark files viewed.</span></div><div class="drow add"><span class="no"></span><span class="no">4</span><b class="sg">+</b><span class="tx">return structured feedback, refresh the fix, resolve, approve.</span></div><div class="comment"><div class="comment-meta"><span class="tag">praise</span><span>you · just now</span></div><h2>Proof, not vibes.</h2><p>Leave a note on the exact line, with the surrounding context your coding agent needs.</p></div></div>
+  <main class="wrap home-main">
+    <section class="review-hero" aria-labelledby="claim">
+      <div class="review-stage" data-state="inspect">
+        <div class="stage-top"><span class="stage-file">src/server/router.ts</span><span class="stage-context">working tree · example review</span></div>
+        <div class="stage-shell">
+          <div class="stage-rail"><h1 id="claim">Review the change.<br /><em>Return the note.</em></h1><p>loupe keeps an agent's work local, readable, and attached to the exact line that needs attention.</p><div class="state-tabs" role="tablist" aria-label="Review states"><button id="state-inspect" type="button" role="tab" aria-selected="true" aria-controls="review-panel" data-state="inspect">1 <span>inspect</span></button><button id="state-mark" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="review-panel" data-state="mark">2 <span>mark</span></button><button id="state-return" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="review-panel" data-state="return">3 <span>return</span></button><button id="state-resolve" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="review-panel" data-state="resolve">4 <span>rereview</span></button></div><span class="stage-status" id="stage-status">1 of 4 · inspect</span></div>
+          <div class="stage-body" id="review-panel" role="tabpanel" tabindex="0" aria-labelledby="state-inspect" aria-live="polite" aria-atomic="true">
+            <div class="stage-heading"><h2>Find the line that changed.</h2><p>Start with the live diff, not a pasted excerpt.</p></div>
+            <div class="code-proof" aria-label="Changed code line"><span class="line-no">41</span><span class="line-sign">+</span><code>const port = Number(process.env.PORT) || 3000;</code></div>
+            <p class="stage-hint">The line stays in its file and surrounding context.</p>
+          </div>
+        </div>
+      </div>
     </section>
-    <section id="demo"><div class="section-head"><h2>Watch the loop work</h2><span>@@ observe @@</span></div><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><video poster="shots/agent-review-walkthrough.png" autoplay muted loop playsinline controls preload="metadata" aria-label="Loupe review walkthrough with Claude Code applying feedback and requesting rereview"><source src="shots/agent-review-walkthrough.webm" type="video/webm" /><source src="shots/agent-review-walkthrough.mp4" type="video/mp4" /></video></div><figcaption>comment · return feedback · Claude applies the fix · refresh · resolve · approve</figcaption></figure></section>
-    <section id="install"><div class="section-head"><h2>Start at the desk</h2><span>@@ install @@</span></div><div class="term"><span class="ps1">$</span> git clone https://github.com/codywilliamson/loupe && cd loupe
-<span class="ps1">$</span> bun install && bun link
-<span class="ps1">$</span> cd ~/any/repo && loupe
-<span class="ok">[loupe] v0.12.0 — reviewing working tree (12 files changed)</span>
-<span class="ok">  http://localhost:49507</span>  <span class="dim">(ctrl+c to stop)</span>
-
-<span class="dim"># also: loupe staged · loupe origin/main · loupe v1..v2 · --port · --no-open</span></div></section>
-    <section id="features"><div class="section-head"><h2>Everything stays anchored</h2><span>@@ what you get @@</span></div><div class="ledger"><div class="ledger-item"><strong>comments with code context</strong><p>Single lines, drag-selected ranges, removed lines, both sides of a split, whole files. One click turns them into ordered markdown with ±2 lines of diff context.</p></div><div class="ledger-item"><strong>word-level diff marks</strong><p>See exactly <em>what</em> changed inside a modified line — not just that it changed.</p></div><div class="ledger-item"><strong>tags with intent</strong><p>Label a comment <code>nit</code>, <code>issue</code>, <code>question</code>, or <code>praise</code>. The export prefixes it <code>**[tag]**</code> so the model knows severity from tone.</p></div><div class="ledger-item"><strong>keyboard-first review</strong><p><code>j</code>/<code>k</code> walk files, <code>v</code> marks them viewed, <code>s</code> splits, <code>c</code> previews feedback. Press <code>?</code> in the app for the full map.</p></div><div class="ledger-item"><strong>live against the worktree</strong><p>Refresh re-runs <code>git diff</code> in place, untracked files appear as additions, and a progress bar tracks how much you've actually read — built for reviewing while an agent keeps editing.</p></div><div class="ledger-item"><strong>light and dark modes</strong><p>A focused paper-and-charcoal palette follows your OS preference and remembers your choice across reviews.</p></div></div></section>
-    <section id="export"><div class="section-head"><h2>The export is the point</h2><span>@@ return @@</span></div><div class="proof"><div class="fhead"><span class="badge">M</span><span class="fname">what-you-paste-into-the-agent.md</span><span class="fdelta"><span class="plus">+14</span><span class="minus">−1</span></span></div><div class="comment"><div class="comment-meta"><span class="tag">issue</span><span>you · 2m ago</span></div><p>Loupe keeps every open comment attached to the code the agent needs to change:</p></div><div class="term">## Code Review — working tree — 2026-06-10
-
-### src/server/router.ts — Lines 41–42
-
-      39 | export function createServer(ctx) {
-      40 |   return Bun.serve({
-  <span class="ps1">&gt;</span> 41 | +    port,
-  <span class="ps1">&gt;</span> 42 |      fetch: (req) =&gt; route(ctx, req),
-
-<span class="ok">**[issue]** validate the port before binding —
-a clear error beats a stack trace.</span>
-
-## Summary: 1 comment(s) across 1 file(s)</div></div></section>
-    <section id="stills"><div class="section-head"><h2>Keep the proof close</h2><span>@@ screenshots @@</span></div><div class="ledger"><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/01-overview.png" alt="loupe reviewing a diff: file tree, unified diff, inline comments" loading="lazy" /></div><figcaption>unified view, inline comments</figcaption></figure><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/02-dark.png" alt="loupe in dark mode" loading="lazy" /></div><figcaption>dark mode</figcaption></figure><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/04-side-by-side.png" alt="side-by-side diff in loupe with word-level marks" loading="lazy" /></div><figcaption>side-by-side, word-level marks</figcaption></figure></div></section>
+    <section class="loop-caption" aria-label="How Loupe works"><p><strong>One review, four useful states.</strong> Loupe turns a human observation into feedback your coding agent can use, then gives you the changed line back to verify.</p><a class="text-link" href="docs.html#reviewing">Read the review workflow →</a></section>
+    <section class="local-scene" id="install">
+      <div><h2>Keep the proof on your machine.</h2><p>Run loupe from a Git repository on Windows, macOS, or Linux. There is no account, hosted review service, or build step in the loop.</p></div>
+      <div class="install-box">
+        <code id="install-command">bun install
+bun link</code>
+        <button class="copy-btn" type="button" data-copy="install-command">copy commands</button><span class="copy-status" aria-live="polite"></span>
+        <p>Run each command from the Loupe repository, then use <code>loupe</code> in the repository you want to inspect.</p>
+      </div>
+    </section>
+    <section class="close-scene"><h2>Look once.<br /><em>Know what to send back.</em></h2><div class="close-actions"><a class="btn solid" href="docs.html#install">Install Loupe</a><a class="text-link" href="https://github.com/codywilliamson/loupe">Read the source ↗</a></div></section>
   </main>
-  <footer><div class="wrap foot"><p class="no-newline"><b>\</b> No newline at end of file</p><div class="foot-row"><span>loupe · built with bun + preact · no build step · no runtime deps</span><span class="links"><a href="docs.html">docs</a><a href="https://github.com/codywilliamson/loupe/blob/main/CHANGELOG.md">changelog</a><a href="https://github.com/codywilliamson/loupe/releases">releases</a></span></div></div></footer>
-  <script src="lightbox.js" defer></script>
-</body></html>
+  <footer><div class="wrap foot"><div class="foot-row"><span>loupe · local review for agent-generated changes</span><span class="links"><a href="docs.html">docs</a><a href="https://github.com/codywilliamson/loupe">github</a></span></div></div></footer>
+  <a class="mobile-install" href="docs.html#install">Install Loupe</a>
+  <script src="review-demo.js" defer></script>
+</body>
+</html>

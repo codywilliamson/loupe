@@ -29,13 +29,13 @@ colors:
 typography:
   display:
     fontFamily: "Source Serif 4, Georgia, serif"
-    fontSize: "clamp(48px, 7vw, 82px)"
+    fontSize: "clamp(38px, 4.2vw, 54px)"
     fontWeight: 500
     lineHeight: ".98"
     letterSpacing: "-.035em"
   headline:
     fontFamily: "Source Serif 4, Georgia, serif"
-    fontSize: "clamp(45px, 6vw, 70px)"
+    fontSize: "clamp(28px, 4vw, 46px)"
     fontWeight: 500
     lineHeight: "1"
     letterSpacing: "-.035em"
@@ -98,10 +98,10 @@ components:
 
 Loupe makes local review feel like proofing a change. Code is the proof, comments are anchored editorial judgment, and the feedback bundle is the marked-up return. The system is compact and code-first: warm paper or charcoal surfaces, restrained ink, vermilion anchors, proof-blue focus, and quiet diff washes keep the brand present without competing with the lines under review.
 
-The app, overview page, and docs share one language but use different composition. The app gives the diff the largest uninterrupted field; the site gives the editorial claim room to breathe before showing the proof. Fine registration rules, mono labels, and the split-aperture mark connect the surfaces. Complete light and dark modes are semantic twins, not novelty themes.
+The app, overview page, and docs share one language but use different composition. The homepage makes an artifact-first full review frame the first viewport: a file context bar, integrated stage rail, four accessible states, and one changing proof surface. Fine registration rules, mono labels, and the split-aperture mark connect the surfaces. Complete light and dark modes are semantic twins, not novelty themes.
 
 **Key Characteristics:**
-- Proof-first hierarchy: the diff remains the dominant object.
+- Artifact-first hierarchy: the review frame is the explanation, not a mockup beside it.
 - Border-defined depth with paper/charcoal tonal layering.
 - Warm serif reading voice paired with utilitarian sans and mono labels.
 - Vermilion anchors and blue focus marks signal action and attention.
@@ -125,19 +125,17 @@ The palette is warm, quiet, and legible: bone paper and warm ink in light mode b
 - **Oxide Deletion** (`#F1DDD7` / `#8A3F31`; dark `#402722` / `#F0A38F`): removed lines and destructive status.
 - **Muted Gold Modified** (`#E8D7A8` / `#725216`; dark `#4A3A20` / `#E5C982`): modified-file badges and warnings.
 - **Slate Rename** (`#D8D9E8` / `#4B557A`; dark `#33384B` / `#BAC1E0`): renamed-file badges.
-
 **The Two-Mode Rule.** Use the same semantic role in both modes; switch only to the documented dark value. Never introduce a third theme.
 ## Typography
 
 **Display Font:** Source Serif 4 (with Georgia)
 **Body Font:** DM Sans (with system-ui)
 **Label/Mono Font:** IBM Plex Mono (with Cascadia Code and Consolas)
-
 **Character:** Source Serif 4 supplies the editorial reading voice; DM Sans keeps controls and dense UI clear; IBM Plex Mono makes paths, shortcuts, counts, hunks, and labels feel like working evidence.
 
 ### Hierarchy
-- **Display** (500, `clamp(48px, 7vw, 82px)`, `.98`): site claim and major editorial statement.
-- **Headline** (500, `clamp(45px, 6vw, 70px)`, `1`): documentation title.
+- **Display** (500, `clamp(38px, 4.2vw, 54px)`, `.98`): homepage stage rail claim and major review statement.
+- **Headline** (500, `clamp(28px, 4vw, 46px)`, `1.04`): homepage proof-state title; docs use the larger page-specific title scale.
 - **Title** (500, `31px`, `1.1`): site section headings and app reading moments.
 - **Body** (400, `13px`, `1.55`): app UI, controls, metadata, and compact status copy.
 - **Reading** (400, `17px`, `1.65`): docs prose and explanatory site copy; keep paragraphs near 70ch.
@@ -145,9 +143,9 @@ The palette is warm, quiet, and legible: bone paper and warm ink in light mode b
 **The Evidence Type Rule.** Serif explains the review; mono identifies its coordinates; sans carries the controls.
 ## Layout
 
-The app is a full-height two-column desk: a persistent 280px file index beside a padded, scrollable diff pane, with a 58px context bar above it. The diff uses 16px breathing room, 16px file separation, sticky file heads, and compact 12px mono rows. At 701–980px the index contracts to 220px. At 700px and below the index becomes a drawer, the bar becomes a 92px two-row action strip, and the diff uses 6px horizontal / 8px vertical padding. Mobile controls, file selectors, and viewed targets are at least 44px.
+The app is a full-height two-column desk: a persistent 280px file index beside a padded, scrollable diff pane, with a 58px context bar above it. The homepage is a full review artifact with a file context bar, 38% stage rail, centered proof body, and integrated inspect/mark/return/rereview rail; it is the explanation, not a detached hero, ledger, or screenshot gallery. The diff uses 16px breathing room, 16px file separation, sticky file heads, and compact 12px mono rows. At 701–980px the index contracts to 220px. At 700px and below the index becomes a drawer, the app bar becomes a 92px two-row action strip, and the homepage stage stacks rail over proof body with a 44px tab grid.
 
-The site uses a centered container capped at 1180px with responsive inline padding (`18px` to `54px`). Overview uses a two-column hero and two-column ledger above 700px; docs uses a 220px sticky table of contents beside a 730px reading column. Below 700px, both collapse to one column and the docs index becomes a horizontally scrollable sticky strip.
+The site uses a centered container capped at 1180px with responsive inline padding (`18px` to `54px`). The homepage's install scene follows the artifact and keeps shell-neutral two-line commands in a bordered box; on mobile, a 58px sticky Install Loupe action remains available above the safe bottom edge. Docs uses a 220px sticky table of contents beside a 730px reading column; below 700px the docs index becomes a horizontally scrollable sticky strip. **The Artifact-First Rule.** The homepage review frame is the explanation: show the changing proof in context instead of a detached hero, ledger, or screenshot gallery. **The State Continuity Rule.** Keep inspect, mark, return, and rereview in one accessible document; animate with View Transitions when available and update immediately when reduced motion is requested.
 ## Elevation & Depth
 
 Loupe is flat-by-default. Borders, tonal surfaces, sticky headers, and diff washes do the structural work; cards do not float on decorative shadows. Shadows are reserved for transient overlays: the mobile file drawer, review popover, update popover, and modal. The static site uses the same rule, with one restrained lightbox shadow for media focus.
@@ -181,8 +179,10 @@ Inputs and controls use a one-pixel registration border. Focus is always a 2px P
 ### Diff proof
 - **Style:** Border-framed file sections with sticky heads, hunk pills, 12px IBM Plex Mono rows, line-number gutters, and moss/oxide washes. Unified is the default; side-by-side keeps equal panes with independent horizontal strips.
 - **Marking:** Bubble actions appear on row hover/focus; range anchors add a 3px Proof Blue gutter rule; word-level additions/deletions use inline moss/oxide marks.
-### Split-aperture mark
-- **Style:** Custom 24px open-corner aperture with a central registration stroke and dot. Vermilion in the app/site brand lockup, it is the persistent signature for close looking rather than decoration.
+### Homepage review frame
+- **Style:** The full review artifact owns the viewport: a file context bar, integrated 38% stage rail, centered proof body, and a single-document state transformation. The rail carries the claim, context, and status; the body carries the changed line, anchored note, return bundle, or resolved response.
+- **State rail:** Four accessible tabs are always present in order—inspect, mark, return, rereview—with `aria-selected`, roving tab focus, keyboard arrows/Home/End, and a live `1 of 4` status. Same-document View Transitions animate state changes when available; `prefers-reduced-motion` falls back to an immediate update.
+- **Mobile:** Stack the rail above the proof, give each tab at least 44px, let code wrap, and keep the full-width sticky Install Loupe action at 58px. The split-aperture mark remains the 24px vermilion signature in the shell.
 ## Do's and Don'ts
 
 ### Do:

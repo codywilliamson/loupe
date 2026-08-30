@@ -12,6 +12,7 @@ All notable changes to loupe are documented here. This project follows [semantic
 - **Two complete appearance modes** — the old four-theme cycle is replaced by focused light-paper and dark-charcoal modes with OS fallback, persisted preference, accessible diff semantics, and legacy-setting migration.
 - **Review workspace hierarchy** — repository context, view tools, feedback actions, inline comments, dialogs, focus states, and responsive behavior now use the proof-desk component language.
 - **Overview and documentation site** — both static pages now demonstrate the real review loop in the same brand system, with refreshed screenshots, walkthrough media, and keyboard-accessible image inspection.
+- **Interactive homepage review** — the homepage now demonstrates inspect, mark, return, and rereview as one accessible stateful artifact, with a dedicated mobile composition and shell-neutral installation copy.
 
 ### Fixed
 - **Walkthrough capture selector** — the reproducible media script follows the current reviewer-summary field again.
