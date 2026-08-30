@@ -2,11 +2,11 @@
 
 /* ── file section ── */
 /* no overflow:hidden — it would trap the sticky header inside the section instead of the scroll pane. */
-.file-section { border: 1px solid var(--border); border-radius: 3px; margin-bottom: 16px; }
+.file-section { border: 1px solid var(--border); border-radius: 7px; margin-bottom: 16px; }
 .file-head {
   position: sticky; top: 0; z-index: 4; /* stays visible while scrolling the file body */
   display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-  background: var(--file-head); border-bottom: 1px solid var(--border); border-radius: 3px 3px 0 0;
+  background: var(--file-head); border-bottom: 1px solid var(--border); border-radius: 7px 7px 0 0;
 }
 .file-collapse, .btn-icon { background: none; border: none; cursor: pointer; padding: 0; color: var(--muted); display: flex; }
 .file-path { flex: 1; font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -17,7 +17,7 @@
 
 /* lazy body placeholders keep layout stable while offscreen */
 .lazy-body:empty {
-  background: repeating-linear-gradient(transparent 0 17px, var(--border) 17px 18px);
+  background: var(--surface-2);
   opacity: 0.35;
 }
 .giant-note {
@@ -31,7 +31,7 @@
 .bubble-gutter { width: 22px; text-align: center; padding: 0; background: var(--surface-2); position: relative; }
 /* button is ALWAYS in the dom (hidden via opacity) so hovering never resizes the column. */
 .bubble-btn {
-  background: var(--accent); color: #fff; border: none; border-radius: 3px; cursor: pointer;
+  background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer;
   padding: 1px 3px; display: inline-flex; opacity: 0; transition: opacity .08s;
 }
 .diff-row:hover .bubble-btn, .bubble-btn:focus-visible { opacity: 1; }
@@ -108,7 +108,7 @@ body.selecting .file-head { pointer-events: none; }
 .hunk-header td { padding: 2px 8px; background: var(--hunk-bg); }
 .hunk-pill {
   display: inline-block; font-family: var(--mono); font-size: 11px; color: var(--pill-text);
-  background: var(--pill-bg); border-radius: 10px; padding: 1px 10px;
+  background: var(--pill-bg); border-radius: 7px; padding: 1px 10px;
 }
 
 /* ── inline comments ── */
@@ -117,12 +117,12 @@ body.selecting .file-head { pointer-events: none; }
 .file-comments { padding: 8px 12px; background: var(--surface-3); border-bottom: 1px solid var(--border); }
 .comment-thread { display: flex; flex-direction: column; gap: 6px; }
 .comment-card {
-  border-left: 3px solid var(--comment-border); background: var(--comment-bg);
-  border-radius: 2px; padding: 8px 10px; max-width: 720px; font-family: var(--font); font-size: 13px;
+  border: 1px solid var(--comment-border); background: var(--comment-bg);
+  border-radius: 7px; padding: 8px 10px; max-width: 720px; font-family: var(--font); font-size: 13px;
 }
-.comment-card.editing { border-left-color: var(--accent); }
+.comment-card.editing { border-color: var(--accent); }
 /* resolved: kept for the record but visually muted */
-.comment-card.resolved { opacity: .6; border-left-color: var(--muted); }
+.comment-card.resolved { opacity: .6; border-color: var(--muted); }
 .comment-card.resolved .comment-text { color: var(--muted); }
 .resolved-badge {
   font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);

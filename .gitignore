@@ -45,5 +45,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .superpowers/
 .playwright-mcp/
 
+# local design prototypes and review evidence
+.impeccable/mocks/
+.impeccable/review/
+
 # local site preview assets (pages workflow copies from docs/screenshots)
 site/shots/

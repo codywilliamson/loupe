@@ -9,7 +9,7 @@ export const SHORTCUTS = [
   ["s", "Unified ↔ side-by-side"],
   ["w", "Wrap lines"],
   ["o", "Single-file ↔ all-files view"],
-  ["t", "Cycle theme"],
+  ["t", "Toggle light / dark mode"],
   ["r", "Re-run the diff"],
   ["c", "Preview review feedback"],
   ["n", "What's new"],

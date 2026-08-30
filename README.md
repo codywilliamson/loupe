@@ -47,7 +47,7 @@ Press `?` in the UI for this list at any time.
 | `v` | toggle viewed on the current file |
 | `s` | unified ↔ side-by-side |
 | `o` | single-file ↔ all-files view |
-| `t` | cycle theme (light → dark → claude → claude dark) |
+| `t` | toggle light / dark mode |
 | `r` | re-run the diff |
 | `c` | preview review feedback |
 | `?` | show the shortcut overlay |

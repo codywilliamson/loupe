@@ -12,12 +12,12 @@ import { runCompletionHook } from "./core/completionHook";
 // ansi styling, skipped when stdout isn't a terminal.
 const tty = process.stdout.isTTY === true;
 const paint = (code: string) => (s: string) => (tty ? `\x1b[${code}m${s}\x1b[0m` : s);
-const accent = paint("38;5;173"); // claude terracotta
+const accent = paint("38;5;167"); // loupe vermilion
 const bold = paint("1");
 const dim = paint("2");
 
 function fail(message: string): never {
-  console.error(`${accent("✻ loupe")} ${message}`);
+  console.error(`${accent("[loupe]")} ${message}`);
   process.exit(1);
 }
 
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
   }
   const files = launch.diff.files.length;
   const changed = launch.diff.meta?.mode === "browse" ? "" : " changed";
-  console.log(`${accent("✻ loupe")} ${dim(`v${currentVersion(loupeRoot)}`)} — reviewing ${bold(launch.diff.ref)} (${files} file${files === 1 ? "" : "s"}${changed})`);
+  console.log(`${accent("[loupe]")} ${dim(`v${currentVersion(loupeRoot)}`)} — reviewing ${bold(launch.diff.ref)} (${files} file${files === 1 ? "" : "s"}${changed})`);
   console.log(`  ${bold(launch.url)}  ${dim("(ctrl+c to stop)")}`);
 }
 

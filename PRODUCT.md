@@ -1,0 +1,59 @@
+# Product
+
+<!-- impeccable:product-schema 1 -->
+
+## Platform
+
+web
+
+## Users
+
+Loupe is primarily for developers reviewing agent-generated changes locally. It should also feel polished and trustworthy enough for broader team adoption.
+
+## Product Purpose
+
+Loupe makes focused code review practical inside a local agent workflow: inspect a live Git comparison, attach comments to exact code, return structured feedback to the agent, refresh the resulting edit, resolve threads, and approve the review.
+
+## Positioning
+
+Loupe turns a local Git diff into a durable human review loop with agent-ready feedback. It stays local, anchors comments to code context, and supports repeated feedback and rereview without requiring a forge, account, database, or hosted AI service.
+
+## Operating Context
+
+Users launch Loupe from a Git repository, review in a browser on localhost, and hand feedback to Codex, Claude Code, or another coding agent. The core ritual is inspect, comment, return feedback, refresh, resolve, and approve.
+
+## Capabilities and Constraints
+
+- Preserve the current review workflow, keyboard shortcuts, review states, browse mode, durable Review Records, agent handoff, unified and side-by-side diffs, line wrapping, inline and file comments, and live refresh.
+- Bun remains the runtime, server, test runner, and TypeScript executor.
+- The Preact and htm frontend remains buildless, with no JSX, bundler, or transpilation step.
+- The product and documentation site must share one brand and design system while remaining independently deployable static surfaces.
+- Existing contracts in `src/types.ts` remain the single source of truth.
+
+## Brand Commitments
+
+- Keep the lowercase name `loupe`.
+- Replace the inherited ADO and Claude-inspired visual themes with a distinct Loupe identity.
+- Use the proof desk / redline galley direction: code is the proof, comments are anchored editorial judgment, and the feedback bundle is the marked-up return.
+- Ship complete light and dark modes rather than multiple novelty themes.
+- Keep the app compact and code-first; brand expression must not compete with the diff.
+
+## Evidence on Hand
+
+- Product behavior and constraints: `CONTEXT.md`, `docs/prompt.md`, and `AGENTS.md`.
+- Existing application implementation: `src/client/`.
+- Existing marketing and documentation surfaces: `site/`.
+- Existing screenshots and walkthrough media: `docs/screenshots/` and locally generated `site/shots/`.
+- No external testimonials, customer logos, or performance claims are available and none should be fabricated.
+
+## Product Principles
+
+1. Keep the diff central and the interface subordinate to close reading.
+2. Make review progress, comment status, and the next action immediately legible.
+3. Treat keyboard, pointer, and narrow-screen workflows as complete experiences.
+4. Preserve local-first trust: clear state, durable records, and no hidden external dependency.
+5. Use one coherent visual language across the app, marketing page, and docs.
+
+## Accessibility & Inclusion
+
+Keyboard navigation, visible focus, reduced motion, non-color state cues, and accessible contrast are required for the redesigned interface. A formal conformance target remains an open decision.

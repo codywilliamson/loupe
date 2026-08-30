@@ -5,10 +5,10 @@ import { X } from "/icons.js";
 
 export function HelpOverlay({ onClose }) {
   return html`<div class="modal-backdrop" onClick=${onClose}>
-    <div class="modal help-modal" onClick=${(e) => e.stopPropagation()}>
+    <div class="modal help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick=${(e) => e.stopPropagation()}>
       <header class="modal-head">
-        <h2>Keyboard shortcuts</h2>
-        <button class="btn-icon" title="Close" onClick=${onClose}><${X} /></button>
+        <h2 id="help-title">Keyboard shortcuts</h2>
+        <button class="btn-icon" aria-label="Close keyboard shortcuts" onClick=${onClose}><${X} /></button>
       </header>
       <div class="help-grid">
         ${SHORTCUTS.map(

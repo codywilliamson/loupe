@@ -31,6 +31,7 @@ function App() {
   const [wrap, setWrap] = usePersistedState("loupe-wrap", false, (v) => v === "true");
   const [viewMode, setViewMode] = usePersistedState("loupe-view", "all"); // "all" | "single"
   const [activeFile, setActiveFile] = useState(null); // path shown in single-file view
+  const [filesOpen, setFilesOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const update = useUpdateCheck();
   const reviewId = new URLSearchParams(location.search).get("review");
@@ -60,6 +61,7 @@ function App() {
   const onSelectFile = useCallback(
     (path) => {
       setActiveFile(path);
+      setFilesOpen(false);
       if (viewMode !== "single")
         document.getElementById(fileAnchorId(path))?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
@@ -141,6 +143,7 @@ function App() {
       reviewId=${reviewId}
       comments=${comments}
       onComments=${setComments}
+      onToggleFiles=${() => setFilesOpen((open) => !open)}
     />
     <${LegacyReviewPrompt} reviewId=${reviewId} onImport=${(record) => { setComments(record.comments ?? []); setViewed(record.viewed ?? []); }} />
     <div class="body">
@@ -153,6 +156,8 @@ function App() {
         onToggleViewed=${onToggleViewed}
         width=${sidebarWidth}
         browse=${browse}
+        mobileOpen=${filesOpen}
+        onClose=${() => setFilesOpen(false)}
       />
       <${Resizer} onResize=${onResize} />
       <${DiffView}

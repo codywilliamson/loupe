@@ -1,140 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>loupe — review diffs, brief your agent</title>
   <meta name="description" content="loupe is a local git diff viewer with inline comments, durable review state, and structured agent feedback." />
-  <meta name="theme-color" content="#1f1e1b" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%231f1e1b'/%3E%3Ctext x='3' y='19' font-size='17' fill='%23d97757'%3E✻%3C/text%3E%3C/svg%3E" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400..600&display=swap" rel="stylesheet" />
+  <link rel="icon" href="loupe-mark.svg" type="image/svg+xml" /><link rel="stylesheet" href="style.css" /><script src="theme.js"></script>
 </head>
 <body>
-  <header class="bar">
-    <div class="wrap bar-in">
-      <a class="brand" href="./"><span class="spark">✻</span>loupe</a>
-      <span class="mode-pill">reviewing</span>
-      <span class="refpair"><b>your-workflow</b> → <b>loupe</b></span>
-      <nav class="links">
-        <a class="here" href="./">overview</a>
-        <a href="docs.html">docs</a>
-        <a href="https://github.com/codywilliamson/loupe">github</a>
-      </nav>
-    </div>
-  </header>
-
+  <!--
+    THESIS: loupe makes local review feel like proofing a change; it refuses the generic SaaS toolbar-and-card dashboard.
+    OWN-WORLD: bone or charcoal paper, carbon or warm ink, vermilion anchors, proof-blue focus, moss and oxide diff washes, fine registration rules, and a split-aperture mark.
+    STORY: understand the local review loop, see exact anchored feedback in action, then install loupe or continue into the docs.
+    FIRST VIEWPORT: a large editorial claim sits beside a working diff proof, with the install action inside the same review narrative rather than a detached hero card.
+    FORM: proof desk / redline galley, ranked 1, seed 000dc35e; the signature interaction is a proof-cursor anchor pulse.
+    FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+  -->
+  <header class="bar"><div class="wrap bar-in">
+    <a class="brand" href="./" aria-label="loupe overview"><svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5.5v13M4 5.5h5M4 18.5h5M20 5.5v13M20 5.5h-5M20 18.5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12 4v16" stroke="currentColor" stroke-width="1.1" opacity=".6"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/></svg>loupe</a>
+    <span class="mode-pill">overview</span><span class="refpair"><b>your-workflow</b> → <b>loupe</b></span>
+    <nav class="links" aria-label="Primary"><a class="here" href="./">overview</a><a href="docs.html">docs</a><a href="https://github.com/codywilliamson/loupe">github</a><button class="theme-btn" type="button">mode</button></nav>
+  </div></header>
   <h1 class="sr">loupe — a local git diff viewer that returns structured review feedback to coding agents</h1>
-
   <main class="wrap">
-    <!-- hero: the pitch, rendered as a diff under review -->
-    <div class="fsect" style="margin-top:34px">
-      <div class="fhead rise">
-        <span class="badge m">M</span>
-        <span class="fname">how-you-review-changes.md</span>
-        <span class="fdelta"><span class="plus">+3</span><span class="minus">−2</span></span>
-        <span class="fchip">Unified</span>
-      </div>
-      <div class="hunk-row rise d1"><span class="hunk">@@ -1,3 +1,4 @@ the moment after the agent writes the code</span></div>
-      <div class="drow ctx rise d1"><span class="no">1</span><span class="no">1</span><b class="sg"> </b><span class="tx">a change lands: fifteen files, four hundred lines.</span></div>
-      <div class="drow del rise d2"><span class="no">2</span><span class="no"></span><b class="sg">-</b><span class="tx">scroll the raw diff in a terminal. squint. scroll back up.</span></div>
-      <div class="drow del rise d2"><span class="no">3</span><span class="no"></span><b class="sg">-</b><span class="tx">paste it all into a chat window and <mark>hope it reads closely</mark>.</span></div>
-      <div class="drow add rise d3"><span class="no"></span><span class="no">2</span><b class="sg">+</b><span class="tx">open it in a real review ui on localhost — <mark>loupe</mark>.</span></div>
-      <div class="drow add rise d3"><span class="no"></span><span class="no">3</span><b class="sg">+</b><span class="tx">read line by line. comment. tag. mark files viewed.</span></div>
-      <div class="drow add rise d3"><span class="no"></span><span class="no">4</span><b class="sg">+</b><span class="tx">return structured feedback, refresh the fix, resolve, approve.</span></div>
-      <div class="ccard rise d4">
-        <div class="ccard-meta"><span class="tag-pill tag-praise">praise</span><span>you · just now</span></div>
-        <h2>Read the diff closely.<br />Then make it someone else's job.</h2>
-        <p>
-          <strong>loupe</strong> is a local git diff viewer built for focused code review
-          and a local-first agent workflow. Leave inline comments on any line, then return
-          them — with surrounding code context — as structured feedback for Claude, Codex, or any
-          coding agent.
-        </p>
-        <div class="btn-row">
-          <a class="btn solid" href="docs.html">Get started →</a>
-          <a class="btn" href="https://github.com/codywilliamson/loupe">★ GitHub</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- hero demo video -->
-    <section id="demo">
-      <div class="sect-label"><span class="hunk">@@ watch it work @@</span></div>
-      <div class="demo">
-        <figure>
-          <div class="frame">
-            <div class="chrome"><i></i><i></i><i></i></div>
-            <video poster="shots/agent-review-walkthrough.png" autoplay muted loop playsinline controls preload="metadata" aria-label="Loupe review walkthrough with Claude Code applying feedback and requesting rereview">
-              <source src="shots/agent-review-walkthrough.webm" type="video/webm" />
-              <source src="shots/agent-review-walkthrough.mp4" type="video/mp4" />
-            </video>
-          </div>
-          <figcaption>comment · return feedback · Claude applies the fix · refresh · resolve · approve</figcaption>
-        </figure>
-      </div>
+    <section class="hero registration" aria-labelledby="claim">
+      <div class="hero-copy"><h1 id="claim">Read the diff <em>closely.</em></h1><p class="lede">Then make the next edit someone else's job. loupe is the local review desk for agent-generated changes: inspect, annotate, return, refresh, resolve, approve.</p><div class="actions"><a class="btn solid" href="docs.html#install">Get started →</a><a class="btn" href="https://github.com/codywilliamson/loupe">GitHub ↗</a></div><p class="install-line">Fast lane: <code>bun install && bun link</code>, then run <code>loupe</code> in any git repository.</p></div>
+      <div class="proof rise" aria-label="Example Loupe diff with an anchored comment"><div class="fhead"><span class="badge">M</span><span class="fname">how-you-review-changes.md</span><span class="fdelta"><span class="plus">+3</span><span class="minus">−2</span></span></div><div class="hunk-row">@@ -1,3 +1,4 @@ the moment after the agent writes the code</div><div class="drow"><span class="no">1</span><span class="no">1</span><b class="sg"> </b><span class="tx">a change lands: fifteen files, four hundred lines.</span></div><div class="drow del"><span class="no">2</span><span class="no"></span><b class="sg">-</b><span class="tx">scroll the raw diff in a terminal. squint. scroll back up.</span></div><div class="drow del"><span class="no">3</span><span class="no"></span><b class="sg">-</b><span class="tx">paste it all into a chat window and <mark>hope it reads closely</mark>.</span></div><div class="drow add"><span class="no"></span><span class="no">2</span><b class="sg">+</b><span class="tx">open it in a real review ui on localhost — <mark>loupe</mark>.</span></div><div class="drow add"><span class="no"></span><span class="no">3</span><b class="sg">+</b><span class="tx">read line by line. comment. tag. mark files viewed.</span></div><div class="drow add"><span class="no"></span><span class="no">4</span><b class="sg">+</b><span class="tx">return structured feedback, refresh the fix, resolve, approve.</span></div><div class="comment"><div class="comment-meta"><span class="tag">praise</span><span>you · just now</span></div><h2>Proof, not vibes.</h2><p>Leave a note on the exact line, with the surrounding context your coding agent needs.</p></div></div>
     </section>
-
-    <!-- install -->
-    <section id="install">
-      <div class="sect-label"><span class="hunk">@@ install @@</span></div>
-      <div class="term"><span class="ps1">$</span> <span class="cmd">git clone https://github.com/codywilliamson/loupe && cd loupe</span>
-<span class="ps1">$</span> <span class="cmd">bun install && bun link</span>
-<span class="ps1">$</span> <span class="cmd">cd ~/any/repo && loupe</span>
-<span class="ok">✻ loupe v0.12.0 — reviewing working tree (12 files changed)</span>
+    <section id="demo"><div class="section-head"><h2>Watch the loop work</h2><span>@@ observe @@</span></div><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><video poster="shots/agent-review-walkthrough.png" autoplay muted loop playsinline controls preload="metadata" aria-label="Loupe review walkthrough with Claude Code applying feedback and requesting rereview"><source src="shots/agent-review-walkthrough.webm" type="video/webm" /><source src="shots/agent-review-walkthrough.mp4" type="video/mp4" /></video></div><figcaption>comment · return feedback · Claude applies the fix · refresh · resolve · approve</figcaption></figure></section>
+    <section id="install"><div class="section-head"><h2>Start at the desk</h2><span>@@ install @@</span></div><div class="term"><span class="ps1">$</span> git clone https://github.com/codywilliamson/loupe && cd loupe
+<span class="ps1">$</span> bun install && bun link
+<span class="ps1">$</span> cd ~/any/repo && loupe
+<span class="ok">[loupe] v0.12.0 — reviewing working tree (12 files changed)</span>
 <span class="ok">  http://localhost:49507</span>  <span class="dim">(ctrl+c to stop)</span>
 
-<span class="dim"># also: loupe staged · loupe origin/main · loupe v1..v2 · --port · --no-open</span></div>
-    </section>
-
-    <!-- features -->
-    <section id="features">
-      <div class="sect-label"><span class="hunk">@@ what you get @@</span></div>
-      <div class="feats">
-        <div class="feat">
-          <div class="feat-line"><b>+</b>comments with code context</div>
-          <p>Single lines, drag-selected ranges, removed lines, both sides of a split, whole files. One click turns them into ordered markdown with ±2 lines of diff context.</p>
-        </div>
-        <div class="feat">
-          <div class="feat-line"><b>+</b>word-level diff marks</div>
-          <p>See exactly <em>what</em> changed inside a modified line — not just that it changed.</p>
-        </div>
-        <div class="feat">
-          <div class="feat-line"><b>+</b>tags with intent</div>
-          <p>Label a comment <code>nit</code>, <code>issue</code>, <code>question</code>, or <code>praise</code>. The export prefixes it <code>**[tag]**</code> so the model knows severity from tone.</p>
-        </div>
-        <div class="feat">
-          <div class="feat-line"><b>+</b>keyboard-first review</div>
-          <p><code>j</code>/<code>k</code> walk files, <code>v</code> marks them viewed, <code>s</code> splits, <code>c</code> previews feedback. Press <code>?</code> in the app for the full map.</p>
-        </div>
-        <div class="feat">
-          <div class="feat-line"><b>+</b>live against the worktree</div>
-          <p>Refresh re-runs <code>git diff</code> in place, untracked files appear as additions, and a progress bar tracks how much you've actually read — built for reviewing while an agent keeps editing.</p>
-        </div>
-        <div class="feat">
-          <div class="feat-line"><b>+</b>four themes, zero deps</div>
-          <p>Light, dark, and two Claude-inspired warm variants. Bun + Preact, buildless, nothing to install but the repo itself.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- the export -->
-    <section id="export">
-      <div class="sect-label"><span class="hunk">@@ the export is the point @@</span></div>
-      <div class="fsect">
-        <div class="fhead">
-          <span class="badge m">M</span>
-          <span class="fname">what-you-paste-into-the-agent.md</span>
-          <span class="fdelta"><span class="plus">+14</span><span class="minus">−1</span></span>
-        </div>
-        <div class="drow del"><span class="no">1</span><span class="no"></span><b class="sg">-</b><span class="tx">"hey, fix the issues we discussed"</span></div>
-        <div class="ccard">
-          <div class="ccard-meta"><span class="tag-pill tag-issue">issue</span><span>you · 2m ago</span></div>
-          <p>Loupe keeps every open comment attached to the code the agent needs to change:</p>
-        </div>
-        <div class="term" style="border:none;border-top:1px solid var(--line);border-radius:0">## Code Review — working tree — 2026-06-10
+<span class="dim"># also: loupe staged · loupe origin/main · loupe v1..v2 · --port · --no-open</span></div></section>
+    <section id="features"><div class="section-head"><h2>Everything stays anchored</h2><span>@@ what you get @@</span></div><div class="ledger"><div class="ledger-item"><strong>comments with code context</strong><p>Single lines, drag-selected ranges, removed lines, both sides of a split, whole files. One click turns them into ordered markdown with ±2 lines of diff context.</p></div><div class="ledger-item"><strong>word-level diff marks</strong><p>See exactly <em>what</em> changed inside a modified line — not just that it changed.</p></div><div class="ledger-item"><strong>tags with intent</strong><p>Label a comment <code>nit</code>, <code>issue</code>, <code>question</code>, or <code>praise</code>. The export prefixes it <code>**[tag]**</code> so the model knows severity from tone.</p></div><div class="ledger-item"><strong>keyboard-first review</strong><p><code>j</code>/<code>k</code> walk files, <code>v</code> marks them viewed, <code>s</code> splits, <code>c</code> previews feedback. Press <code>?</code> in the app for the full map.</p></div><div class="ledger-item"><strong>live against the worktree</strong><p>Refresh re-runs <code>git diff</code> in place, untracked files appear as additions, and a progress bar tracks how much you've actually read — built for reviewing while an agent keeps editing.</p></div><div class="ledger-item"><strong>light and dark modes</strong><p>A focused paper-and-charcoal palette follows your OS preference and remembers your choice across reviews.</p></div></div></section>
+    <section id="export"><div class="section-head"><h2>The export is the point</h2><span>@@ return @@</span></div><div class="proof"><div class="fhead"><span class="badge">M</span><span class="fname">what-you-paste-into-the-agent.md</span><span class="fdelta"><span class="plus">+14</span><span class="minus">−1</span></span></div><div class="comment"><div class="comment-meta"><span class="tag">issue</span><span>you · 2m ago</span></div><p>Loupe keeps every open comment attached to the code the agent needs to change:</p></div><div class="term">## Code Review — working tree — 2026-06-10
 
 ### src/server/router.ts — Lines 41–42
 
@@ -146,67 +49,9 @@
 <span class="ok">**[issue]** validate the port before binding —
 a clear error beats a stack trace.</span>
 
-## Summary: 1 comment(s) across 1 file(s)</div>
-      </div>
-    </section>
-
-    <!-- in motion -->
-    <section id="shots">
-      <div class="sect-label"><span class="hunk">@@ in motion @@</span> <span class="zoom-tip">— click any clip to enlarge</span></div>
-      <div class="strip m2">
-        <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-comment.gif" alt="hovering the gutter to leave an inline comment and tag it" loading="lazy" /></div>
-          <figcaption>comment a line, tag the intent</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-range.gif" alt="dragging across the line numbers to select a range, then commenting" loading="lazy" /></div>
-          <figcaption>drag the gutter for a range</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-compile.gif" alt="previewing open comments as agent-ready markdown" loading="lazy" /></div>
-          <figcaption>preview feedback for a manual handoff</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/demo-breadth.gif" alt="toggling side-by-side, cycling four themes, and switching to browse mode" loading="lazy" /></div>
-          <figcaption>side-by-side · four themes · browse</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <!-- stills -->
-    <section id="stills">
-      <div class="sect-label"><span class="hunk">@@ in the wild @@</span></div>
-      <div class="strip">
-        <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/01-overview.png" alt="loupe reviewing a diff: file tree, unified diff, inline comments" loading="lazy" /></div>
-          <figcaption>unified view, inline comments</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/02-dark.png" alt="loupe in dark mode" loading="lazy" /></div>
-          <figcaption>dark mode</figcaption>
-        </figure>
-        <figure>
-          <div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/04-side-by-side.png" alt="side-by-side diff in loupe with word-level marks" loading="lazy" /></div>
-          <figcaption>side-by-side, word-level marks</figcaption>
-        </figure>
-      </div>
-    </section>
+## Summary: 1 comment(s) across 1 file(s)</div></div></section>
+    <section id="stills"><div class="section-head"><h2>Keep the proof close</h2><span>@@ screenshots @@</span></div><div class="ledger"><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/01-overview.png" alt="loupe reviewing a diff: file tree, unified diff, inline comments" loading="lazy" /></div><figcaption>unified view, inline comments</figcaption></figure><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/02-dark.png" alt="loupe in dark mode" loading="lazy" /></div><figcaption>dark mode</figcaption></figure><figure class="media"><div class="frame"><div class="chrome"><i></i><i></i><i></i></div><img src="shots/04-side-by-side.png" alt="side-by-side diff in loupe with word-level marks" loading="lazy" /></div><figcaption>side-by-side, word-level marks</figcaption></figure></div></section>
   </main>
-
-  <footer>
-    <div class="wrap foot">
-      <p class="no-newline"><b>\</b> No newline at end of file</p>
-      <div class="foot-row">
-        <span><span class="spark">✻</span> built with bun + preact · no build step · no runtime deps</span>
-        <span class="links">
-          <a href="docs.html">docs</a>
-          <a href="https://github.com/codywilliamson/loupe/blob/main/CHANGELOG.md">changelog</a>
-          <a href="https://github.com/codywilliamson/loupe/releases">releases</a>
-        </span>
-      </div>
-    </div>
-  </footer>
-
+  <footer><div class="wrap foot"><p class="no-newline"><b>\</b> No newline at end of file</p><div class="foot-row"><span>loupe · built with bun + preact · no build step · no runtime deps</span><span class="links"><a href="docs.html">docs</a><a href="https://github.com/codywilliamson/loupe/blob/main/CHANGELOG.md">changelog</a><a href="https://github.com/codywilliamson/loupe/releases">releases</a></span></div></div></footer>
   <script src="lightbox.js" defer></script>
-</body>
-</html>
+</body></html>

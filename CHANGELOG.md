@@ -4,6 +4,18 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Added
+- **Loupe proof-desk identity** — a custom split-aperture mark, editorial site typography, and one shared paper-and-ink design system now span the review app, overview, docs, and favicon.
+- **Mobile file drawer** — narrow screens keep file filtering, viewed progress, directory navigation, and 44px touch targets instead of dropping the navigator.
+
+### Changed
+- **Two complete appearance modes** — the old four-theme cycle is replaced by focused light-paper and dark-charcoal modes with OS fallback, persisted preference, accessible diff semantics, and legacy-setting migration.
+- **Review workspace hierarchy** — repository context, view tools, feedback actions, inline comments, dialogs, focus states, and responsive behavior now use the proof-desk component language.
+- **Overview and documentation site** — both static pages now demonstrate the real review loop in the same brand system, with refreshed screenshots, walkthrough media, and keyboard-accessible image inspection.
+
+### Fixed
+- **Walkthrough capture selector** — the reproducible media script follows the current reviewer-summary field again.
+
 ## [0.12.0] — 2026-08-29
 
 ### Added

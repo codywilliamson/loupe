@@ -38,13 +38,7 @@ export const Sun = () =>
 export const Moon = () =>
   svg(html`<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />`);
 
-// four-point starburst — the claude theme variants
-export const Spark = () =>
-  svg(html`<path
-    d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
-  />`);
-
-// sparkles — the "what's new" highlights button (distinct from the claude Spark starburst)
+// sparkles — the "what's new" highlights button
 export const Sparkles = () =>
   svg(html`<path
     d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275z"
@@ -69,3 +63,10 @@ export const Columns = () =>
 // single document — single-file view toggle
 export const File = () =>
   svg(html`<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v5h5" />`);
+
+// Loupe's split-aperture mark: opposing proof brackets, center seam, anchor dot.
+export const ApertureMark = ({ size = 22 } = {}) => html`<svg class="aperture-mark" width=${size} height=${size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M4 5.5v13M4 5.5h5M4 18.5h5M20 5.5v13M20 5.5h-5M20 18.5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+  <path d="M12 4v16" stroke="currentColor" stroke-width="1.1" opacity=".6" />
+  <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+</svg>`;

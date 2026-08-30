@@ -1,12 +1,12 @@
 /* secondary modal, stale-comment, and markdown content styling */
 .whatsnew-modal { width: min(460px, 92vw); }
 .whatsnew-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px 14px; border-bottom: 1px solid var(--border); }
-.whatsnew-spark { display: flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; border-radius: 8px; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-hover)); }
+.whatsnew-spark { display: flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; border-radius: 8px; color: var(--accent-ink); background: var(--accent); }
 .whatsnew-titles { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .whatsnew-titles h2 { margin: 0; font-size: 16px; }
 .whatsnew-sub { color: var(--muted); font-size: 12px; }
 .whatsnew-list { list-style: none; margin: 0; padding: 16px 18px; overflow: auto; display: flex; flex-direction: column; gap: 14px; }
-.whatsnew-item { display: flex; flex-direction: column; gap: 3px; padding-left: 12px; border-left: 2px solid var(--accent); }
+.whatsnew-item { display: flex; flex-direction: column; gap: 3px; padding-left: 12px; border-left: 1px solid var(--accent); }
 .whatsnew-item-title { font-weight: 600; font-size: 14px; }
 .whatsnew-item-body { color: var(--muted); font-size: 13px; line-height: 1.5; }
 .whatsnew-modal .modal-foot { justify-content: flex-end; }
@@ -25,4 +25,9 @@
 .markdown-body pre { background: var(--surface-2); padding: 10px 12px; border-radius: 4px; overflow: auto; }
 .markdown-body pre code { background: none; padding: 0; }
 .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-.markdown-body blockquote { margin: 8px 0; padding-left: 12px; border-left: 3px solid var(--border); color: var(--muted); }
+.markdown-body blockquote { margin: 8px 0; padding-left: 12px; border-left: 1px solid var(--border); color: var(--muted); }
+.markdown-body a { color: var(--accent); }
+.markdown-body table { border-collapse: collapse; }
+.markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: 4px 9px; }
+.markdown-body img { max-width: 100%; }
+.md-note { padding: 16px 20px; color: var(--muted); }

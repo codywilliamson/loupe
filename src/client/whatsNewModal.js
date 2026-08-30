@@ -35,14 +35,14 @@ export function useWhatsNew(current) {
 export function WhatsNewModal({ entry, onClose }) {
   if (!entry) return null;
   return html`<div class="modal-backdrop" onClick=${onClose}>
-    <div class="modal whatsnew-modal" onClick=${(e) => e.stopPropagation()}>
+    <div class="modal whatsnew-modal" role="dialog" aria-modal="true" aria-labelledby="whatsnew-title" onClick=${(e) => e.stopPropagation()}>
       <header class="whatsnew-head">
         <span class="whatsnew-spark"><${Sparkles} /></span>
         <div class="whatsnew-titles">
-          <h2>What's new</h2>
+          <h2 id="whatsnew-title">What's new</h2>
           <span class="whatsnew-sub">loupe ${entry.version}${entry.date ? ` · ${entry.date}` : ""}</span>
         </div>
-        <button class="btn-icon" title="Close" onClick=${onClose}><${X} /></button>
+        <button class="btn-icon" aria-label="Close what's new" onClick=${onClose}><${X} /></button>
       </header>
       <ul class="whatsnew-list">
         ${entry.items.map(
