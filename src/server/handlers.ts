@@ -12,6 +12,7 @@ import { scanProject } from "../core/projectScan";
 import { collectDiff, runGit } from "../utils/git";
 import { apiError, json } from "./respond";
 import { readReviewRecord, updateReviewRecord } from "../core/reviewRecords";
+import { mergeReviewerComments } from "../core/commentMerge";
 
 export interface ServerContext {
   diff: DiffResult; // seeded at launch, re-run on each GET /api/diff for live review
@@ -93,9 +94,14 @@ export async function handlePostComments(ctx: ServerContext, req: Request): Prom
   if (!Array.isArray(comments)) {
     return apiError("comments must be an array", 400);
   }
+  if (ctx.reviewId) {
+    const incoming = comments as Comment[];
+    return json(
+      updateReviewRecord(ctx.reviewId, (record) => ({ comments: mergeReviewerComments(record.comments, incoming) }))
+    );
+  }
   const review = currentReview(ctx);
   review.comments = comments as Comment[];
-  if (ctx.reviewId) return json(updateReviewRecord(ctx.reviewId, { comments: review.comments }));
   saveReview(ctx, review);
   return json(review);
 }
