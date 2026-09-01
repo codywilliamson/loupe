@@ -2,11 +2,13 @@
 import { html, render, useState, useEffect, useMemo, useCallback } from "/preact.js";
 import { getDiff, getComments, saveViewed } from "/api.js";
 import { useComments } from "/useComments.js";
+import { useReviewSync } from "/reviewSync.js";
+import { SyncNotice } from "/syncNotice.js";
 import { fileAnchorId, clamp } from "/util.js";
 import { initTheme, nextTheme } from "/theme.js";
 import { usePersistedState } from "/prefs.js";
 import { useUpdateCheck } from "/update.js";
-import { useShortcuts } from "/shortcuts.js";
+import { useAppShortcuts } from "/appShortcuts.js";
 import { TopBar } from "/topBar.js";
 import { FileTree } from "/fileTree.js";
 import { Resizer } from "/resizer.js";
@@ -35,7 +37,8 @@ function App() {
   const [refreshing, setRefreshing] = useState(false);
   const update = useUpdateCheck();
   const reviewId = new URLSearchParams(location.search).get("review");
-  const { comments, setComments, onAdd, onEdit, onDelete, onResolve } = useComments(setError, reviewId);
+  const { record, refreshRecord, notice, dismissNotice } = useReviewSync(reviewId);
+  const { comments, setComments, onAdd, onEdit, onDelete, onResolve } = useComments(setError, reviewId, refreshRecord);
   const wn = useWhatsNew(update?.current);
 
   useEffect(() => {
@@ -47,6 +50,11 @@ function App() {
       })
       .catch((e) => setError(String(e)));
   }, []);
+
+  // replies, addressed marks, and rereview requests all live on the record's comments.
+  useEffect(() => {
+    if (record) setComments(record.comments ?? []);
+  }, [record]);
 
   const onToggleViewed = useCallback(
     (path) => {
@@ -76,6 +84,7 @@ function App() {
   // re-fetch the (server-recomputed) diff in place, preserving comments + open files.
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    dismissNotice();
     try {
       setDiff(await getDiff());
     } catch (e) {
@@ -83,7 +92,7 @@ function App() {
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [dismissNotice]);
 
   const onResize = useCallback((x) => setSidebarWidth(clamp(x, 180, 640)), [setSidebarWidth]);
 
@@ -95,25 +104,9 @@ function App() {
   }, [comments]);
   const countFor = useCallback((path) => countsByFile.get(path) ?? 0, [countsByFile]);
 
-  useShortcuts({
-    files: diff?.files ?? [],
-    activeFile,
-    selectFile: onSelectFile,
-    toggleViewed: onToggleViewed,
-    toggleSplit: onToggleSplit,
-    toggleWrap: onToggleWrap,
-    toggleView: onToggleView,
-    cycleTheme: onToggleTheme,
-    refresh: onRefresh,
-    compile: () => setShowCompile(true),
-    whatsNew: wn.reopen,
-    toggleHelp: () => setShowHelp((v) => !v),
-    closeOverlays: () => {
-      setShowHelp(false);
-      setShowCompile(false);
-      setAdding(null);
-      wn.close();
-    },
+  useAppShortcuts({
+    diff, activeFile, onSelectFile, onToggleViewed, onToggleSplit, onToggleWrap, onToggleView,
+    onToggleTheme, onRefresh, wn, setShowCompile, setShowHelp, setAdding,
   });
 
   if (error) return html`<div class="fatal">${error}</div>`;
@@ -141,11 +134,13 @@ function App() {
       onHelp=${() => setShowHelp(true)}
       onWhatsNew=${wn.reopen}
       reviewId=${reviewId}
+      record=${record}
+      refreshRecord=${refreshRecord}
       comments=${comments}
-      onComments=${setComments}
       onToggleFiles=${() => setFilesOpen((open) => !open)}
     />
-    <${LegacyReviewPrompt} reviewId=${reviewId} onImport=${(record) => { setComments(record.comments ?? []); setViewed(record.viewed ?? []); }} />
+    <${LegacyReviewPrompt} reviewId=${reviewId} onImport=${(imported) => { setComments(imported.comments ?? []); setViewed(imported.viewed ?? []); }} />
+    <${SyncNotice} notice=${notice} onRefresh=${onRefresh} onDismiss=${dismissNotice} />
     <div class="body">
       <${FileTree}
         files=${diff.files}

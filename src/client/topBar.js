@@ -45,8 +45,9 @@ export function TopBar({
   onHelp,
   onWhatsNew,
   reviewId,
+  record,
+  refreshRecord,
   comments,
-  onComments,
   onToggleFiles,
 }) {
   const { add, del } = totalDelta(files);
@@ -70,7 +71,7 @@ export function TopBar({
         <span class="add">+${add}</span>
         <span class="del">-${del}</span>
       </span>`}
-      <${ReviewPanel} reviewId=${reviewId} comments=${comments} onComments=${onComments} />
+      <${ReviewPanel} reviewId=${reviewId} record=${record} refreshRecord=${refreshRecord} comments=${comments} />
       <button class="btn-icon icon-btn files-toggle" data-tip="Browse files" aria-label="Browse files" onClick=${onToggleFiles}>
         <${File} /><span class="mobile-action-label">Files</span>
       </button>

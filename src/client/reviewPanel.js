@@ -1,5 +1,5 @@
-import { html, useEffect, useState } from "/preact.js";
-import { compile, getReview, submitReviewOutcome } from "/api.js";
+import { html, useState } from "/preact.js";
+import { compile, submitReviewOutcome } from "/api.js";
 
 function unresolved(record) { return (record?.comments ?? []).filter((c) => (c.status ?? (c.resolved ? "resolved" : "open")) !== "resolved"); }
 function latestAgentUpdate(record) { return record?.activity?.findLast((item) => item.type === "rereview_requested" && item.actor === "agent" && item.summary)?.summary ?? ""; }
@@ -18,16 +18,14 @@ function guidance(record, open) {
     ? `${open} unresolved comment${open === 1 ? "" : "s"}. Return Feedback makes them available to the connected agent.`
     : `${open} unresolved comment${open === 1 ? "" : "s"}. Copy for a manual workflow, or record the outcome with Return Feedback.`;
 }
-export function ReviewPanel({ reviewId, comments, onComments }) {
-  const [record, setRecord] = useState(null); const [summary, setSummary] = useState("");
+export function ReviewPanel({ reviewId, record, refreshRecord, comments }) {
+  const [summary, setSummary] = useState("");
   const [error, setError] = useState(""); const [copied, setCopied] = useState("");
-  const refresh = () => reviewId && getReview(reviewId).then((next) => { setRecord(next); onComments(next.comments ?? []); }).catch((e) => setError(String(e)));
-  useEffect(refresh, [reviewId]);
   if (!reviewId || !record) return null;
   const live = { ...record, comments }; const open = unresolved(live).length;
   const terminal = record.status === "approved" || record.status === "cancelled"; const agentUpdate = latestAgentUpdate(record);
   const awaiting = record.status === "awaiting_human";
-  const act = async (outcome) => { if (outcome === "approved" && open && !window.confirm(`There are ${open} unresolved comments. Approve anyway?`)) return; try { await submitReviewOutcome(reviewId, outcome, summary, outcome === "approved" && open > 0); setSummary(""); refresh(); } catch (e) { setError(String(e)); } };
+  const act = async (outcome) => { if (outcome === "approved" && open && !window.confirm(`There are ${open} unresolved comments. Approve anyway?`)) return; try { await submitReviewOutcome(reviewId, outcome, summary, outcome === "approved" && open > 0); setSummary(""); refreshRecord(); } catch (e) { setError(String(e)); } };
   const copyFeedback = async (format) => { try { const value = format === "json" ? JSON.stringify({ reviewId, target: record.target, summary, comments: unresolved(live) }, null, 2) : (await compile()).prompt; await copy(value); setCopied(format); setTimeout(() => setCopied(""), 1500); } catch (e) { setError(String(e)); } };
   return html`<details class="review-panel">
     <summary>Review <span class="review-status status-${record.status}">${STATUS_LABELS[record.status]}</span></summary>

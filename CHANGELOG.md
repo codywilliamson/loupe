@@ -7,6 +7,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 ### Added
 - **Loupe proof-desk identity** — a custom split-aperture mark, editorial site typography, and one shared paper-and-ink design system now span the review app, overview, docs, and favicon.
 - **Mobile file drawer** — narrow screens keep file filtering, viewed progress, directory navigation, and 44px touch targets instead of dropping the navigator.
+- **Live review sync** — the review page polls its Review Record while visible, so agent replies, addressed marks, and rereview requests appear without a reload, with a quiet notice bar and a one-click diff refresh.
+- **Reopen after approval** — an agent calling `request_rereview` on an approved review reopens it for another pass instead of failing, keeping the full activity trail in one record.
 
 ### Changed
 - **Two complete appearance modes** — the old four-theme cycle is replaced by focused light-paper and dark-charcoal modes with OS fallback, persisted preference, accessible diff semantics, and legacy-setting migration.
@@ -17,6 +19,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 ### Fixed
 - **Walkthrough capture selector** — the reproducible media script follows the current reviewer-summary field again.
 - **Single-sided files stay unified** — added and deleted files never render side-by-side and hide the per-file split toggle, since only one side has content.
+- **Approving with unresolved comments** — the acknowledgement flag is now sent as a boolean, so approving over open comments no longer fails.
+- **Comment saves keep agent replies** — saving reviewer comments merges by id and preserves replies and addressed marks the agent wrote in the meantime.
 
 ## [0.12.0] — 2026-08-29
 

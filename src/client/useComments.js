@@ -3,15 +3,15 @@
 import { useState, useCallback } from "/preact.js";
 import { saveComments, resolveReviewComment } from "/api.js";
 
-export function useComments(onError, reviewId = null) {
+export function useComments(onError, reviewId = null, onSaved) {
   const [comments, setComments] = useState([]);
 
   const persist = useCallback(
     (next) => {
       setComments(next);
-      saveComments(next).catch((e) => onError(String(e)));
+      saveComments(next).then(onSaved).catch((e) => onError(String(e)));
     },
-    [onError]
+    [onError, onSaved]
   );
 
   const onAdd = useCallback(
@@ -34,8 +34,8 @@ export function useComments(onError, reviewId = null) {
     const next = comments.map((c) => (c.id === id ? { ...c, status, resolved: status === "resolved" } : c));
     setComments(next);
     const save = reviewId ? resolveReviewComment(reviewId, id, status) : saveComments(next);
-    save.catch((e) => onError(String(e)));
-  }, [comments, onError, reviewId]);
+    save.then(onSaved).catch((e) => onError(String(e)));
+  }, [comments, onError, reviewId, onSaved]);
 
   return { comments, setComments, onAdd, onEdit, onDelete, onResolve };
 }
