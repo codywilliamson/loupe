@@ -74,8 +74,8 @@ To comment on a range, drag across the line numbers or shift-click a second line
 1. Ask Codex or Claude Code: `Review my current changes with Loupe.`
 2. Leave line- or file-level comments in Loupe and choose **Return Feedback**.
 3. Return to the agent and say `continue`.
-4. When the agent requests rereview, choose **Re-run the diff** in Loupe.
-5. Verify the changes, resolve or reopen each thread, then approve or return more feedback.
+4. Agent replies and rereview requests appear in Loupe as they happen; choose **Refresh diff** from the notice to load the new changes.
+5. Verify the changes, reply in a thread or resolve it, then approve or return more feedback. Asking the agent for more after approval reopens the same review.
 
 Install the agent integration first — see [Agent integrations](#agent-integrations).
 

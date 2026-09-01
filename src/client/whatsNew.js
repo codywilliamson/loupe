@@ -3,6 +3,24 @@
 
 export const WHATS_NEW = [
   {
+    version: "0.13.0",
+    date: "2026-09-01",
+    items: [
+      {
+        title: "Agent activity shows up live",
+        body: "Loupe now watches the Review Record while the tab is open. Replies, addressed marks, and rereview requests appear without a reload, with a quiet notice and a one-click diff refresh when the agent has new changes.",
+      },
+      {
+        title: "Reply in the thread, reopen after approval",
+        body: "Answer the agent directly under a comment. Both sides render as one thread and flow into the compiled feedback. If you approve and then ask for one more change, the agent's rereview reopens the same review instead of failing.",
+      },
+      {
+        title: "A clearer review menu",
+        body: "The outcome menu is a real popover that closes on Escape, on click-outside, and after an action. The review state and open-comment count now read at a glance from the top bar, and single-sided files always stay unified.",
+      },
+    ],
+  },
+  {
     version: "0.12.0",
     date: "2026-08-29",
     items: [
