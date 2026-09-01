@@ -285,4 +285,49 @@ describe("compileReviewPrompt", () => {
     expect(out).toContain("plain note");
     expect(out).not.toContain("**[nit]** plain note");
   });
+
+  it("appends a reply thread under its comment as an indented author: text list", () => {
+    const out = run([
+      comment({
+        line: 5,
+        text: "please explain",
+        replies: [
+          { id: "r1", author: "agent", text: "done, see the helper below", createdAt: "2026-06-01T00:01:00Z" },
+          { id: "r2", author: "reviewer", text: "looks good now", createdAt: "2026-06-01T00:02:00Z" },
+        ],
+      }),
+    ]);
+    expect(out).toContain("please explain\n  - agent: done, see the helper below\n  - reviewer: looks good now");
+  });
+
+  it("omits the reply thread entirely when a comment has no replies", () => {
+    const out = run([comment({ line: 5, text: "no replies here" })]);
+    expect(out).not.toContain("  - agent:");
+    expect(out).not.toContain("  - reviewer:");
+  });
+
+  it("indents continuation lines of a multiline reply under its bullet", () => {
+    const out = run([
+      comment({
+        line: 5,
+        text: "please explain",
+        replies: [{ id: "r1", author: "reviewer", text: "first line\nsecond line", createdAt: "2026-06-01T00:01:00Z" }],
+      }),
+    ]);
+    expect(out).toContain("  - reviewer: first line\n    second line");
+  });
+
+  it("excludes a status-only resolved comment and its replies from the prompt", () => {
+    const out = run([
+      comment({
+        line: 5,
+        status: "resolved",
+        text: "fixed already",
+        replies: [{ id: "r1", author: "agent", text: "done", createdAt: "2026-06-01T00:01:00Z" }],
+      }),
+    ]);
+    expect(out).not.toContain("fixed already");
+    expect(out).not.toContain("  - agent: done");
+    expect(out).toContain("## Summary: 0 comment(s) across 0 file(s)");
+  });
 });

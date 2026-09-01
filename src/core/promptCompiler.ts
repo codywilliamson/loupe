@@ -42,10 +42,19 @@ function buildContextBlock(file: DiffFile, side: Side, start: number, end: numbe
     .join("\n");
 }
 
+// a comment's reply thread as an indented "author: text" list, in stored order.
+// empty when there are no replies, so untouched comments render exactly as before.
+// continuation lines of a multiline reply are indented under the bullet so the nested list survives.
+function replyThread(comment: Comment): string {
+  if (!comment.replies?.length) return "";
+  const lines = comment.replies.map((r) => `  - ${r.author}: ${r.text.replace(/\n/g, "\n    ")}`).join("\n");
+  return `\n${lines}`;
+}
+
 // joins multiple comment texts on one target with a blank line between them;
 // tagged comments get a bold [tag] prefix so the llm sees the reviewer's intent.
 function joinTexts(comments: Comment[]): string {
-  return comments.map((c) => (c.tag ? `**[${c.tag}]** ${c.text}` : c.text)).join("\n\n");
+  return comments.map((c) => `${c.tag ? `**[${c.tag}]** ${c.text}` : c.text}${replyThread(c)}`).join("\n\n");
 }
 
 function fileLevelSection(file: string, comments: Comment[]): string {
@@ -99,8 +108,11 @@ export function compileReviewPrompt(diff: DiffResult, review: ReviewFile): strin
   const title = `## Code Review — ${ref} — ${date}`;
 
   // resolved comments stay in the file for the record; orphaned comments (anchor no longer
-  // in the diff) are managed in the ui. both are left out of the prompt.
-  const open = review.comments.filter((c) => !c.resolved && isAnchored(c, diff));
+  // in the diff) are managed in the ui. both are left out of the prompt. status is the source
+  // of truth, falling back to the legacy `resolved` flag for records that predate it.
+  const open = review.comments.filter(
+    (c) => (c.status ?? (c.resolved ? "resolved" : "open")) !== "resolved" && isAnchored(c, diff)
+  );
 
   const byFile = new Map<string, Comment[]>();
   for (const c of open) {
