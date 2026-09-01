@@ -14,13 +14,13 @@ active Review Record prevents duplicate launches.
 
 ## Local installation
 
-From the Loupe repository root:
+Register the marketplace, then install the explicit review plugin:
 
 ```text
-codex plugin marketplace add .
+codex plugin marketplace add codywilliamson/loupe
 codex plugin add loupe-review@loupe-local
 
-claude plugin marketplace add .
+claude plugin marketplace add codywilliamson/loupe
 claude plugin install loupe-review@loupe-local --scope user
 ```
 

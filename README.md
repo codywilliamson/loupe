@@ -20,17 +20,31 @@ The walkthrough uses a real Claude Code edit: comment, return feedback, let the 
 
 ## Install
 
+Loupe runs on [Bun](https://bun.sh). Clone the repo and register the `loupe` command globally — works on macOS, Linux, and Windows:
+
+    git clone https://github.com/codywilliamson/loupe
+    cd loupe
     bun install
+    bun link          # puts `loupe` on your PATH
+
+Then run `loupe` from any git repo.
+
+**Windows fallback** — if `loupe` isn't found after `bun link` (depends how Bun was installed), add a function to your PowerShell profile instead:
+
+    'function loupe { bun "C:\path\to\loupe\src\index.ts" @args }' | Add-Content $PROFILE
+    . $PROFILE   # load it into the current session
+
+(swap `C:\path\to\loupe` for wherever you cloned the repo.)
 
 ## Usage
 
-    bun src/index.ts                  # working tree vs HEAD (untracked included)
-    bun src/index.ts staged           # staged changes only
-    bun src/index.ts <branch>         # current branch vs named branch
-    bun src/index.ts <ref1>..<ref2>   # commit range
-    bun src/index.ts browse           # review the whole codebase
-    bun src/index.ts browse src/      # scope to a subtree
-    bun src/index.ts mcp serve        # local MCP server for agent integrations
+    loupe                  # working tree vs HEAD (untracked included)
+    loupe staged           # staged changes only
+    loupe <branch>         # current branch vs named branch
+    loupe <ref1>..<ref2>   # commit range
+    loupe browse           # review the whole codebase
+    loupe browse src/      # scope to a subtree
+    loupe mcp serve        # local MCP server for agent integrations
 
 Flags: `--port <n>` fixed port, `--no-open` don't launch the browser, `--version`, `--help`.
 
@@ -63,23 +77,7 @@ To comment on a range, drag across the line numbers or shift-click a second line
 4. When the agent requests rereview, choose **Re-run the diff** in Loupe.
 5. Verify the changes, resolve or reopen each thread, then approve or return more feedback.
 
-Install the agent integration first using the commands under [Agent integrations](#agent-integrations).
-
-## Install as a `loupe` command
-
-Run loupe from any repo without typing the full path. Register it globally with bun — works on macOS, Linux, and Windows:
-
-    bun install
-    bun link          # puts `loupe` on your PATH
-
-Then, in any git repo: `loupe`, `loupe staged`, `loupe origin/main`.
-
-**Windows fallback** — if `loupe` isn't found after `bun link` (depends how Bun was installed), add a function to your PowerShell profile instead:
-
-    'function loupe { bun "C:\path\to\loupe\src\index.ts" @args }' | Add-Content $PROFILE
-    . $PROFILE   # load it into the current session
-
-(swap `C:\path\to\loupe` for wherever you cloned the repo.)
+Install the agent integration first — see [Agent integrations](#agent-integrations).
 
 ## Review records
 
@@ -98,37 +96,23 @@ Markdown files open showing their diff; use the per-file **Preview** toggle to r
 
 ## Agent integrations
 
-First make the `loupe` command available:
-
-    bun install
-    bun link
-    loupe --version
-
-From the Loupe repository root, install the explicit review integration for your agent.
+Loupe ships explicit review skills for Codex and Claude Code that drive a review through the local MCP server. Both need the `loupe` command from [Install](#install) on your PATH.
 
 ### Codex
 
-    codex plugin marketplace add .
+    codex plugin marketplace add codywilliamson/loupe
     codex plugin add loupe-review@loupe-local
-    codex plugin list
 
-Start a new Codex task after installation. Existing tasks do not reload newly installed skills and
-MCP servers. In the new task, ask: `Review my current changes with Loupe.`
+Start a new Codex task after installation — existing tasks do not reload newly installed skills and
+MCP servers. Then ask: `Review my current changes with Loupe.`
 
 ### Claude Code
 
-    claude plugin marketplace add .
+    claude plugin marketplace add codywilliamson/loupe
     claude plugin install loupe-review@loupe-local --scope user
-    claude plugin list
 
 Start a new Claude Code session, or run `/reload-plugins` in an existing one. Then ask:
 `Review my current changes with Loupe.`
-
-Automatic completion review is optional. Install the companion only when you want every completed
-turn to open Loupe:
-
-    codex plugin add loupe-review-hook@loupe-local
-    claude plugin install loupe-review-hook@loupe-local --scope user
 
 If an agent reports that it cannot start the Loupe MCP server, run `loupe --version` in the same
 shell. If the command is missing, rerun `bun link`, restart that shell, and start a fresh agent session.
@@ -137,4 +121,4 @@ The package sources and maintenance notes live in [`integrations/`](integrations
 
 ## Releases
 
-See [CHANGELOG.md](CHANGELOG.md). Current: **v0.12.0**.
+See [CHANGELOG.md](CHANGELOG.md).
