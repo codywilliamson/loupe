@@ -10,13 +10,26 @@
 .comment-card.status-addressed { border-color: var(--comment-border); }
 .comment-card.status-addressed .comment-text { color: var(--muted); }
 .review-panel { position: relative; }
-.review-panel summary { cursor: pointer; white-space: nowrap; color: var(--text); }
-.review-status { margin-left: 4px; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
-.review-status.status-approved { color: var(--success); }
-.review-status.status-feedback_ready { color: var(--warning); }
-.review-heading { font-size: 13px; font-weight: 600; color: var(--text); }
-.review-guidance { margin: 4px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.review-trigger {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font: inherit;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 6px 9px; cursor: pointer;
+}
+.review-trigger:hover { background: var(--hover); }
+.review-trigger .icon { color: var(--muted); transition: transform .15s ease; }
+.review-trigger[aria-expanded="true"] { border-color: var(--accent); background: var(--surface-2); }
+.review-trigger[aria-expanded="true"] .icon { transform: rotate(180deg); }
+.review-status {
+  display: inline-flex; align-items: center; font-family: var(--mono); font-size: 10px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 10px; border: 1px solid transparent;
+}
+.review-status.status-awaiting_human { color: var(--focus); border-color: var(--focus); background: color-mix(in srgb, var(--focus) 16%, var(--surface)); }
+.review-status.status-feedback_ready { color: var(--warning); border-color: var(--warning); background: var(--mod-bg); }
+.review-status.status-approved { color: var(--success); border-color: var(--success); background: var(--add-line); }
+.review-status.status-cancelled { color: var(--del-text); border-color: var(--del-text); background: var(--del-line); }
+.review-status-lg { font-size: 11px; padding: 3px 10px; }
+.review-guidance { margin: 6px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .review-popover { position: absolute; z-index: 30; top: calc(100% + 9px); right: 0; width: min(430px, 82vw); padding: 12px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); box-shadow: 0 12px 30px rgba(0,0,0,.24); }
+.review-popover:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .review-actions, .review-exports { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .review-exports { justify-content: flex-end; }
 .review-summary { width: 100%; min-height: 72px; resize: vertical; padding: 8px; border: 1px solid var(--border); border-radius: 4px; font: inherit; }

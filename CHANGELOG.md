@@ -16,6 +16,7 @@ All notable changes to loupe are documented here. This project follows [semantic
 - **Review workspace hierarchy** — repository context, view tools, feedback actions, inline comments, dialogs, focus states, and responsive behavior now use the proof-desk component language.
 - **Overview and documentation site** — both static pages now demonstrate the real review loop in the same brand system, with refreshed screenshots, walkthrough media, and keyboard-accessible image inspection.
 - **Interactive homepage review** — the homepage now demonstrates inspect, mark, return, and rereview as one accessible stateful artifact, with a dedicated mobile composition and shell-neutral installation copy.
+- **Review outcome menu** — the review panel is a real popover that closes on Escape, click-outside, and after an action, returns focus to its trigger, and shows the review state and open-comment count as legible pills in the top bar.
 
 ### Fixed
 - **Walkthrough capture selector** — the reproducible media script follows the current reviewer-summary field again.

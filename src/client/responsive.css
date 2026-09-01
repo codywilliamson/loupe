@@ -11,7 +11,8 @@
   .narrow-label { display: inline; }
   .files-toggle { display: flex; }
   .mobile-action-label { display: inline; margin-left: 2px; }
-  .icon-btn, .btn-compile, .viewed-target { min-width: 44px; min-height: 44px; justify-content: center; }
+  .icon-btn, .btn-compile, .viewed-target, .review-trigger { min-width: 44px; min-height: 44px; justify-content: center; }
+  .review-trigger-label, .review-trigger .icon { display: none; }
   .tree-file-select, .tree-folder-head { min-height: 44px; }
   .body { min-width: 0; position: relative; }
   .file-tree { display: none; }

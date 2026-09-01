@@ -73,12 +73,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus
 .badge-modified { color: var(--mod-text); background: var(--mod-bg); }
 .badge-deleted { color: var(--del-text); background: var(--del-gutter); }
 .badge-renamed { color: var(--rename-text); background: var(--rename-bg); }
+.badge-open { color: var(--accent-ink); background: var(--accent); min-width: 17px; width: auto; padding: 0 4px; }
 /* controls, tooltips and modal */
 .icon { display: block; }
 .btn-primary, .btn-plain, .btn-toggle { display: inline-flex; align-items: center; gap: 6px; border-radius: 7px; padding: 6px 11px; cursor: pointer; }
 .btn-primary { background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); }
 .btn-primary:hover { background: var(--accent-hover); }
-.btn-primary:disabled { opacity: .5; cursor: default; }
+.btn-primary:disabled, .btn-plain:disabled { opacity: .5; cursor: default; }
 .btn-plain, .btn-toggle { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
 .btn-plain:hover, .btn-toggle:hover { background: var(--hover); }
 .btn-toggle.on, .icon-btn.on { border-color: var(--accent); color: var(--accent); background: var(--surface-2); }
