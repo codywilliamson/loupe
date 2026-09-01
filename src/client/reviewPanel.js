@@ -27,7 +27,7 @@ export function ReviewPanel({ reviewId, comments, onComments }) {
   const live = { ...record, comments }; const open = unresolved(live).length;
   const terminal = record.status === "approved" || record.status === "cancelled"; const agentUpdate = latestAgentUpdate(record);
   const awaiting = record.status === "awaiting_human";
-  const act = async (outcome) => { if (outcome === "approved" && open && !window.confirm(`There are ${open} unresolved comments. Approve anyway?`)) return; try { await submitReviewOutcome(reviewId, outcome, summary, outcome === "approved" && open); setSummary(""); refresh(); } catch (e) { setError(String(e)); } };
+  const act = async (outcome) => { if (outcome === "approved" && open && !window.confirm(`There are ${open} unresolved comments. Approve anyway?`)) return; try { await submitReviewOutcome(reviewId, outcome, summary, outcome === "approved" && open > 0); setSummary(""); refresh(); } catch (e) { setError(String(e)); } };
   const copyFeedback = async (format) => { try { const value = format === "json" ? JSON.stringify({ reviewId, target: record.target, summary, comments: unresolved(live) }, null, 2) : (await compile()).prompt; await copy(value); setCopied(format); setTimeout(() => setCopied(""), 1500); } catch (e) { setError(String(e)); } };
   return html`<details class="review-panel">
     <summary>Review <span class="review-status status-${record.status}">${STATUS_LABELS[record.status]}</span></summary>
