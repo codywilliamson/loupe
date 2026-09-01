@@ -4,6 +4,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.13.0] — 2026-09-01
+
 ### Added
 - **Loupe proof-desk identity** — a custom split-aperture mark, editorial site typography, and one shared paper-and-ink design system now span the review app, overview, docs, and favicon.
 - **Mobile file drawer** — narrow screens keep file filtering, viewed progress, directory navigation, and 44px touch targets instead of dropping the navigator.
@@ -23,6 +25,7 @@ All notable changes to loupe are documented here. This project follows [semantic
 - **Single-sided files stay unified** — added and deleted files never render side-by-side and hide the per-file split toggle, since only one side has content.
 - **Approving with unresolved comments** — the acknowledgement flag is now sent as a boolean, so approving over open comments no longer fails.
 - **Comment saves keep agent replies** — saving reviewer comments merges by id and preserves replies and addressed marks the agent wrote in the meantime.
+- **Narrow top bar** — action buttons no longer shrink below their labels on phones; the strip scrolls instead.
 
 ## [0.12.0] — 2026-08-29
 
