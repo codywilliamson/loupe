@@ -16,6 +16,7 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ### Fixed
 - **Walkthrough capture selector** — the reproducible media script follows the current reviewer-summary field again.
+- **Single-sided files stay unified** — added and deleted files never render side-by-side and hide the per-file split toggle, since only one side has content.
 
 ## [0.12.0] — 2026-08-29
 

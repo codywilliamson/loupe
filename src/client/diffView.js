@@ -12,6 +12,11 @@ import { makeThreads } from "/threads.js";
 
 const GIANT_FILE_LINES = 2000; // above this the body is hidden behind a load-diff button
 
+// added/deleted files only ever have content on one side — split view would show a blank column.
+function isSingleSided(file) {
+  return file.changeType === "added" || file.changeType === "deleted";
+}
+
 function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onToggleSplit, onTogglePreview, onAddFileComment }) {
   const title = file.oldPath ? `${file.oldPath} → ${file.path}` : file.path;
   return html`<div class="file-head">
@@ -26,7 +31,7 @@ function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onTo
       <button class="btn-plain" title="Add file comment" onClick=${onAddFileComment}><${MessageSquare} /></button>
       ${md &&
       html`<button class="btn-toggle ${preview ? "on" : ""}" onClick=${onTogglePreview}>${preview ? "Preview" : "Diff"}</button>`}
-      ${(!md || !preview) && !browse &&
+      ${(!md || !preview) && !browse && !isSingleSided(file) &&
       html`<button class="btn-toggle ${split ? "on" : ""}" onClick=${onToggleSplit}>${split ? "Side-by-side" : "Unified"}</button>`}
     </span>
   </div>`;
@@ -51,7 +56,7 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
     lastGlobal.current = splitView;
     if (override !== null) setOverride(null);
   }
-  const split = globalFlipped ? splitView : override ?? splitView;
+  const split = isSingleSided(file) ? false : globalFlipped ? splitView : override ?? splitView;
   const [preview, setPreview] = useState(false); // show the diff first; the Preview toggle renders markdown
   const [ratio, setRatio] = useState(0.5); // side-by-side pane split (left pane's share)
   const fileLevelComments = threads.commentsForFile();
