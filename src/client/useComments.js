@@ -1,7 +1,7 @@
 // owns the review comments array + its mutations, persisting each change (full-replace
 // contract) then trusting local state. extracted from app.js to keep the orchestrator lean.
 import { useState, useCallback } from "/preact.js";
-import { saveComments, resolveReviewComment } from "/api.js";
+import { saveComments, resolveReviewComment, replyToReviewComment } from "/api.js";
 
 export function useComments(onError, reviewId = null, onSaved) {
   const [comments, setComments] = useState([]);
@@ -37,5 +37,13 @@ export function useComments(onError, reviewId = null, onSaved) {
     save.then(onSaved).catch((e) => onError(String(e)));
   }, [comments, onError, reviewId, onSaved]);
 
-  return { comments, setComments, onAdd, onEdit, onDelete, onResolve };
+  // reviewer replies only exist against a durable Review Record — legacy `.review` mode has no thread.
+  // no setComments here: onSaved refreshes the record, and the record -> comments sync applies it.
+  // errors are left uncaught so the composer can await this promise and show them inline.
+  const onReply = useCallback(
+    (id, text) => replyToReviewComment(reviewId, id, text).then((record) => onSaved?.(record)),
+    [reviewId, onSaved]
+  );
+
+  return { comments, setComments, onAdd, onEdit, onDelete, onResolve, onReply: reviewId ? onReply : null };
 }

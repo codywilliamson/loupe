@@ -49,7 +49,8 @@ export async function handleReviewReply(req: Request): Promise<Response> {
   const id = idOf(body); if (id instanceof Response) return id;
   const commentId = replyId(body); if (commentId instanceof Response) return commentId;
   const message = text(body.text, "text"); if (message instanceof Response || message === undefined) return message ?? bodyError("text is required");
-  try { return json(replyToComment(id, commentId, message, "agent")); }
+  // the http api is the browser's port — the reviewer replies here; agents reply via mcp.
+  try { return json(replyToComment(id, commentId, message, "reviewer")); }
   catch (error) { return apiError(error instanceof Error ? error.message : "reply failed", 409); }
 }
 

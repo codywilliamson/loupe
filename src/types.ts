@@ -162,9 +162,9 @@ export interface ReviewOutcomeRequest {
 }
 
 export interface CommentReplyRequest {
+  id: string;
   commentId: string;
-  text: string;
-  author: "agent" | "reviewer";
+  text: string; // author is not sent — the server always authors this reply as the reviewer
 }
 
 export interface CommentStatusRequest {

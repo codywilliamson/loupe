@@ -37,8 +37,8 @@ function FileHeader({ file, open, split, md, preview, browse, onToggleOpen, onTo
   </div>`;
 }
 
-function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, selecting, setAdding, setSelecting, onAdd, onEdit, onDelete, onResolve }) {
-  const threads = makeThreads(file, { fileComments, adding, selecting, setAdding, setSelecting, onAdd, onEdit, onDelete, onResolve });
+function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, selecting, setAdding, setSelecting, onAdd, onEdit, onDelete, onResolve, onReply }) {
+  const threads = makeThreads(file, { fileComments, adding, selecting, setAdding, setSelecting, onAdd, onEdit, onDelete, onResolve, onReply });
   const md = isMarkdown(file.path) && file.changeType !== "deleted";
   const [open, setOpen] = useState(true);
   const tableRef = useRef(null);
@@ -80,7 +80,7 @@ function FileSectionImpl({ file, splitView, browse, wrap, fileComments, adding, 
     html`<div class="file-body${split ? " split-body" : ""}">
       ${(fileLevelComments.length > 0 || threads.addingFile) &&
       html`<div class="file-comments">
-        <${CommentThread} comments=${fileLevelComments} onEdit=${threads.onEdit} onDelete=${threads.onDelete} onResolve=${threads.onResolve} />
+        <${CommentThread} comments=${fileLevelComments} onEdit=${threads.onEdit} onDelete=${threads.onDelete} onResolve=${threads.onResolve} onReply=${threads.onReply} />
         ${threads.addingFile &&
         html`<${CommentEditor} onSave=${(t, tag) => threads.onAddFile(t, tag)} onCancel=${threads.onCancelAdd} />`}
       </div>`}
@@ -132,7 +132,7 @@ const FileSection = memo(FileSectionImpl);
 
 const EMPTY = [];
 
-export function DiffView({ files, viewMode, activeFile, splitView, browse, wrap, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve }) {
+export function DiffView({ files, viewMode, activeFile, splitView, browse, wrap, comments, adding, setAdding, selecting, setSelecting, onAdd, onEdit, onDelete, onResolve, onReply }) {
   // group once per comments change so untouched files keep an identical array prop.
   const byFile = useMemo(() => {
     const m = new Map();
@@ -161,6 +161,7 @@ export function DiffView({ files, viewMode, activeFile, splitView, browse, wrap,
         onEdit=${onEdit}
         onDelete=${onDelete}
         onResolve=${onResolve}
+        onReply=${onReply}
       />`
     )}
   </main>`;

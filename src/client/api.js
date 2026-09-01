@@ -40,6 +40,9 @@ export function submitReviewOutcome(id, outcome, summary, acknowledgeUnresolved 
 export function resolveReviewComment(id, commentId, status) {
   return postJson("/api/review/status", { id, commentId, status });
 }
+export function replyToReviewComment(id, commentId, text) {
+  return postJson("/api/review/reply", { id, commentId, text });
+}
 export function importLegacyReview(id) { return postJson("/api/review/legacy", { action: "import", id }); }
 export function removeLegacyReview(confirm = false) { return postJson("/api/review/legacy", { action: "remove", confirm }); }
 export function detectLegacyReview() { return getJson("/api/review/legacy"); }

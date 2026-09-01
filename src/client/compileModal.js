@@ -5,7 +5,7 @@ import { compile } from "/api.js";
 import { X, Copy } from "/icons.js";
 import { StaleComments } from "/staleComments.js";
 
-export function CompileModal({ onClose, comments, diff, onEdit, onDelete, onResolve }) {
+export function CompileModal({ onClose, comments, diff, onEdit, onDelete, onResolve, onReply }) {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -52,7 +52,7 @@ export function CompileModal({ onClose, comments, diff, onEdit, onDelete, onReso
           <button class="btn-icon" aria-label="Close review feedback" onClick=${onClose}><${X} /></button>
         </div>
       </header>
-      <${StaleComments} comments=${comments} diff=${diff} onEdit=${onEdit} onDelete=${onDelete} onResolve=${onResolve} />
+      <${StaleComments} comments=${comments} diff=${diff} onEdit=${onEdit} onDelete=${onDelete} onResolve=${onResolve} onReply=${onReply} />
       ${raw
         ? html`<textarea ref=${taRef} class="modal-textarea" readonly value=${loading ? "Compiling…" : prompt}></textarea>`
         : html`<div class="markdown-body modal-rendered">

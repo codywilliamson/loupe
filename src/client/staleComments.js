@@ -13,7 +13,7 @@ function locationLabel(c) {
   return `${c.file} — ${kind} ${range}`;
 }
 
-export function StaleComments({ comments, diff, onEdit, onDelete, onResolve }) {
+export function StaleComments({ comments, diff, onEdit, onDelete, onResolve, onReply }) {
   const { stale } = partitionComments(comments, diff);
   if (stale.length === 0) return null;
   return html`<section class="stale-comments">
@@ -24,7 +24,7 @@ export function StaleComments({ comments, diff, onEdit, onDelete, onResolve }) {
     ${stale.map(
       (c) => html`<div class="stale-item" key=${c.id}>
         <div class="stale-loc">${locationLabel(c)}</div>
-        <${SavedComment} comment=${c} onEdit=${onEdit} onDelete=${onDelete} onResolve=${onResolve} />
+        <${SavedComment} comment=${c} onEdit=${onEdit} onDelete=${onDelete} onResolve=${onResolve} onReply=${onReply} />
       </div>`
     )}
   </section>`;

@@ -38,7 +38,7 @@ function App() {
   const update = useUpdateCheck();
   const reviewId = new URLSearchParams(location.search).get("review");
   const { record, refreshRecord, notice, dismissNotice } = useReviewSync(reviewId);
-  const { comments, setComments, onAdd, onEdit, onDelete, onResolve } = useComments(setError, reviewId, refreshRecord);
+  const { comments, setComments, onAdd, onEdit, onDelete, onResolve, onReply } = useComments(setError, reviewId, refreshRecord);
   const wn = useWhatsNew(update?.current);
 
   useEffect(() => {
@@ -171,6 +171,7 @@ function App() {
         onEdit=${onEdit}
         onDelete=${onDelete}
         onResolve=${onResolve}
+        onReply=${onReply}
       />
     </div>
     ${showCompile &&
@@ -181,6 +182,7 @@ function App() {
       onEdit=${onEdit}
       onDelete=${onDelete}
       onResolve=${onResolve}
+      onReply=${onReply}
     />`}
     ${showHelp && html`<${HelpOverlay} onClose=${() => setShowHelp(false)} />`}
     ${wn.open && html`<${WhatsNewModal} entry=${wn.entry} onClose=${wn.close} />`}

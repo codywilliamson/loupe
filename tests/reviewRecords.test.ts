@@ -111,6 +111,17 @@ describe("review records", () => {
     expect(types).toEqual(expect.arrayContaining(["review_started", "feedback_returned", "rereview_requested"]));
   });
 
+  it("stores a reviewer reply and logs comment_replied with actor reviewer", () => {
+    const record = makeRecord();
+    const replied = replyToComment(record.id, "c1", "thanks, looks good", "reviewer");
+    const reply = replied.comments[0]!.replies?.[0]!;
+    expect(reply.author).toBe("reviewer");
+    expect(reply.text).toBe("thanks, looks good");
+    const logged = replied.activity.findLast((item) => item.type === "comment_replied");
+    expect(logged?.actor).toBe("reviewer");
+    expect(logged?.commentId).toBe("c1");
+  });
+
   it("requires unresolved feedback and a feedback-ready rereview", () => {
     const empty = createReviewRecord({ target: { cwd: tempDir(), ref: "main" } });
     expect(() => returnFeedback(empty.id)).toThrow("requires an unresolved comment");

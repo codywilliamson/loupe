@@ -9,6 +9,7 @@ All notable changes to loupe are documented here. This project follows [semantic
 - **Mobile file drawer** — narrow screens keep file filtering, viewed progress, directory navigation, and 44px touch targets instead of dropping the navigator.
 - **Live review sync** — the review page polls its Review Record while visible, so agent replies, addressed marks, and rereview requests appear without a reload, with a quiet notice bar and a one-click diff refresh.
 - **Reopen after approval** — an agent calling `request_rereview` on an approved review reopens it for another pass instead of failing, keeping the full activity trail in one record.
+- **Threaded replies** — reviewers can answer directly under a comment; agent and reviewer replies render as one authored, timestamped thread and flow into the compiled Markdown feedback.
 
 ### Changed
 - **Two complete appearance modes** — the old four-theme cycle is replaced by focused light-paper and dark-charcoal modes with OS fallback, persisted preference, accessible diff semantics, and legacy-setting migration.

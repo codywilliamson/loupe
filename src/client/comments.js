@@ -1,6 +1,10 @@
 // inline comment cards + the editor. file-level and line-level share the same ui.
 import { html, useState, useRef, useEffect } from "/preact.js";
 import { relativeTime } from "/util.js";
+import { ReplyComposer } from "/replyComposer.js";
+
+// stored author -> reader-facing label.
+const replyAuthorLabel = (author) => (author === "agent" ? "Agent" : "You");
 
 // auto-resizing textarea that grows with its content.
 function AutoTextarea({ value, onInput, onKeyDown }) {
@@ -59,9 +63,15 @@ export function CommentEditor({ initial = "", initialTag, onSave, onCancel }) {
   </div>`;
 }
 
-// a single saved comment, with inline edit, resolve/reopen, and delete.
-export function SavedComment({ comment, onEdit, onDelete, onResolve }) {
+// a single saved comment, with inline edit, resolve/reopen, delete, and reviewer replies.
+export function SavedComment({ comment, onEdit, onDelete, onResolve, onReply }) {
   const [editing, setEditing] = useState(false);
+  const [replying, setReplying] = useState(false);
+  const replyButtonRef = useRef(null);
+  const closeReplying = () => {
+    setReplying(false);
+    replyButtonRef.current?.focus();
+  };
   if (editing) {
     return html`<${CommentEditor}
       initial=${comment.text}
@@ -86,20 +96,30 @@ export function SavedComment({ comment, onEdit, onDelete, onResolve }) {
       <span class="comment-tools">
         <button class="btn-link" onClick=${() => onResolve(comment.id)}>${resolved ? "Reopen" : "Resolve"}</button>
         ${!resolved && html`<button class="btn-link" onClick=${() => setEditing(true)}>Edit</button>`}
+        ${onReply && !resolved && html`<button class="btn-link" ref=${replyButtonRef} onClick=${() => setReplying(true)}>Reply</button>`}
         <button class="btn-link" onClick=${() => onDelete(comment.id)}>Delete</button>
       </span>
     </div>
     <div class="comment-text">${comment.text}</div>
     ${comment.replies?.length > 0 && html`<div class="comment-replies">
-      ${comment.replies.map((reply) => html`<div class="comment-reply" key=${reply.id}>
-        <span class="reply-author">${reply.author}</span><span>${reply.text}</span>
+      ${comment.replies.map((reply) => html`<div class="comment-reply reply-${reply.author}" key=${reply.id}>
+        <span class="reply-meta">
+          <span class="reply-author">${replyAuthorLabel(reply.author)}</span>
+          <span class="reply-time">${relativeTime(reply.createdAt)}</span>
+        </span>
+        <span class="reply-text">${reply.text}</span>
       </div>`)}
     </div>`}
+    ${replying && !resolved &&
+    html`<${ReplyComposer}
+      onSend=${(text) => onReply(comment.id, text).then(closeReplying)}
+      onCancel=${closeReplying}
+    />`}
   </div>`;
 }
 
 // a stack of comments for one anchor (a line or a file). threads stack vertically.
-export function CommentThread({ comments, onEdit, onDelete, onResolve }) {
+export function CommentThread({ comments, onEdit, onDelete, onResolve, onReply }) {
   return html`<div class="comment-thread">
     ${comments.map(
       (c) => html`<${SavedComment}
@@ -108,6 +128,7 @@ export function CommentThread({ comments, onEdit, onDelete, onResolve }) {
         onEdit=${onEdit}
         onDelete=${onDelete}
         onResolve=${onResolve}
+        onReply=${onReply}
       />`
     )}
   </div>`;

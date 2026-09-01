@@ -40,4 +40,24 @@ describe("review launch", () => {
       expect(compiled.prompt).toContain("why?");
     } finally { launch.server.stop(true); }
   });
+
+  it("POST /api/review/reply stores the reply authored by the reviewer", async () => {
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff" });
+    try {
+      const base = launch.url.split("/?")[0];
+      const comment: Comment = { id: "c1", file: "a.ts", line: 1, lineContent: "+const a = 2;", text: "why?", createdAt: new Date().toISOString() };
+      await fetch(`${base}/api/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ comments: [comment] }) });
+
+      const res = await fetch(`${base}/api/review/reply`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: launch.review.id, commentId: "c1", text: "because reasons" }),
+      });
+      expect(res.status).toBe(200);
+      const record = readReviewRecord(launch.review.id);
+      const reply = record?.comments[0]?.replies?.[0];
+      expect(reply?.author).toBe("reviewer");
+      expect(reply?.text).toBe("because reasons");
+      expect(record?.activity.findLast((item) => item.type === "comment_replied")?.actor).toBe("reviewer");
+    } finally { launch.server.stop(true); }
+  });
 });

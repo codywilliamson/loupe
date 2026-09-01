@@ -12,7 +12,7 @@ function endOf(c) {
 const sideOf = (c) => c.side ?? "new";
 
 export function makeThreads(file, ctx) {
-  const { fileComments, adding, selecting, setAdding, setSelecting, onAdd, onEdit, onDelete, onResolve } = ctx;
+  const { fileComments, adding, selecting, setAdding, setSelecting, onAdd, onEdit, onDelete, onResolve, onReply } = ctx;
   const isThisFile = adding != null;
   const lineComments = fileComments.filter((c) => c.line != null);
   // pending range (the open editor's target) on its side, normalized to [start, end].
@@ -63,6 +63,7 @@ export function makeThreads(file, ctx) {
     onEdit,
     onDelete,
     onResolve,
+    onReply,
   };
 }
 

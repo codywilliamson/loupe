@@ -49,7 +49,7 @@ function LineComments({ anchors, threads, variant = "unified" }) {
       ${lead > 0 && html`<td class="gutter" colspan=${lead}></td>`}
       <td class="comment-cell" colspan=${cell}>
         ${list.length > 0 &&
-        html`<${CommentThread} comments=${list} onEdit=${threads.onEdit} onDelete=${threads.onDelete} onResolve=${threads.onResolve} />`}
+        html`<${CommentThread} comments=${list} onEdit=${threads.onEdit} onDelete=${threads.onDelete} onResolve=${threads.onResolve} onReply=${threads.onReply} />`}
         ${adding &&
         html`<${CommentEditor}
           onSave=${(text, tag) => threads.onAdd(a.side, a.lineObj, text, tag)}
