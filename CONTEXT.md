@@ -17,7 +17,7 @@ A pause in agent work while human review is pending. The agent yields control an
 _Avoid_: Blocking request, waiting task
 
 **Review Outcome**:
-The reviewer's explicit conclusion: approve the work, return feedback to the agent, or cancel the Review Session without implying approval. An active Review Session is either awaiting human review or has feedback ready for the agent; approved and cancelled sessions are terminal. A reviewer may approve despite unresolved comments after acknowledging them.
+The reviewer's explicit conclusion: approve the work, return feedback to the agent, or cancel the Review Session without implying approval. An active Review Session is either awaiting human review or has feedback ready for the agent; a cancelled session is terminal, while an approved session returns to awaiting review when the agent requests a rereview. A reviewer may approve despite unresolved comments after acknowledging them.
 _Avoid_: Finish status, completion state
 
 **Feedback Bundle**:

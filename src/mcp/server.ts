@@ -60,7 +60,7 @@ export function createMcpServer(operations: ReviewOperations, roots: McpRootProv
   }, async (input) => { try { return result(await operations.markCommentAddressed(input)); } catch (e) { return failure(e); } });
 
   server.registerTool("request_rereview", {
-    title: "Request rereview", description: "Tell the reviewer that changes are ready for another review.",
+    title: "Request rereview", description: "Tell the reviewer that changes are ready for another review. Reopens an already-approved review instead of failing.",
     inputSchema: { reviewId: id, summary }, annotations: { title: "Request rereview", readOnlyHint: false, destructiveHint: false, idempotentHint: false },
   }, async (input) => { try { return result(await operations.requestRereview(input)); } catch (e) { return failure(e); } });
 

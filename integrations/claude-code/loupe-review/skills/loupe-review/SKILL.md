@@ -9,4 +9,6 @@ Use Loupe when the user explicitly asks to review a Git comparison. For current 
 
 Apply each returned Review Comment, reply with what changed, mark it addressed, and call `request_rereview`. The reviewer alone approves, resolves, or reopens comments. A direct user instruction to continue without waiting overrides only the Review Hold; it does not change the Review Outcome.
 
+If the user asks for further changes after approval, make them and call `request_rereview` on the same review to reopen it rather than starting a new review.
+
 The optional completion hook beside this skill is documentation only and is not enabled by default.

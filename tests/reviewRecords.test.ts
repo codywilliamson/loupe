@@ -53,6 +53,35 @@ describe("review records", () => {
     expect(() => requestRereview(cancelled.id)).toThrow("terminal");
   });
 
+  it("reopens an approved review when the agent requests rereview", () => {
+    const record = makeRecord();
+    const approved = approveReview(record.id, true);
+    expect(approved.status).toBe("approved");
+    const reopened = requestRereview(approved.id, "one more pass");
+    expect(reopened.status).toBe("awaiting_human");
+    expect(reopened.activity.some((item) => item.type === "review_approved")).toBe(true);
+    expect(reopened.activity.findLast((item) => item.type === "rereview_requested")?.summary).toBe("one more pass");
+  });
+
+  it("completes a second full review cycle after being reopened", () => {
+    const record = makeRecord();
+    approveReview(record.id, true);
+    requestRereview(record.id, "one more pass");
+    const feedbackReady = returnFeedback(record.id, "still needs work");
+    expect(feedbackReady.status).toBe("feedback_ready");
+    const rereviewed = requestRereview(feedbackReady.id, "fixed it");
+    expect(rereviewed.status).toBe("awaiting_human");
+    const approvedAgain = approveReview(rereviewed.id, true);
+    expect(approvedAgain.status).toBe("approved");
+  });
+
+  it("keeps updatedAt strictly increasing across back-to-back mutations", () => {
+    const record = makeRecord();
+    const first = replyToComment(record.id, "c1", "first", "agent");
+    const second = replyToComment(record.id, "c1", "second", "agent");
+    expect(second.updatedAt > first.updatedAt).toBe(true);
+  });
+
   it("requires acknowledgement when approving unresolved comments", () => {
     const record = makeRecord();
     expect(() => approveReview(record.id)).toThrow("acknowledging unresolved");

@@ -35,6 +35,12 @@ const pathFor = (id: string) => {
 };
 const now = () => new Date().toISOString();
 const clone = <T>(value: T): T => structuredClone(value);
+// keeps updatedAt strictly increasing even when two mutations land in the same millisecond,
+// so clients that skip on `updatedAt <=` never get stuck missing the second one.
+function touch(record: ReviewRecord): void {
+  const next = now();
+  record.updatedAt = next > record.updatedAt ? next : new Date(new Date(record.updatedAt).getTime() + 1).toISOString();
+}
 
 function activity(type: ReviewActivity["type"], actor: ReviewActivity["actor"], commentId?: string, summary?: string): ReviewActivity {
   return { id: randomUUID(), type, actor, createdAt: now(), ...(commentId ? { commentId } : {}), ...(summary ? { summary } : {}) };
@@ -59,7 +65,8 @@ function requireRecord(id: string): ReviewRecord {
   if (!record) throw new Error("review record not found");
   return record;
 }
-function assertActive(record: ReviewRecord): void {
+function assertActive(record: ReviewRecord, allowApproved = false): void {
+  if (allowApproved && record.status === "approved") return;
   if (record.status === "approved" || record.status === "cancelled") throw new Error("review record is terminal");
 }
 
@@ -90,14 +97,14 @@ export function findActiveReview(cwd: string): ReviewRecord | null {
 export function updateReviewRecord(id: string, updater: ReviewRecordUpdater): ReviewRecord {
   const record = requireRecord(id); assertActive(record);
   const patch = typeof updater === "function" ? updater(clone(record)) : updater;
-  Object.assign(record, clone(patch), { updatedAt: now() });
+  Object.assign(record, clone(patch)); touch(record);
   save(record); return clone(record);
 }
 
-function transition(id: string, status: ReviewStatus, type: ReviewActivity["type"], actor: ReviewActivity["actor"], summary?: string): ReviewRecord {
-  const record = requireRecord(id); assertActive(record);
+function transition(id: string, status: ReviewStatus, type: ReviewActivity["type"], actor: ReviewActivity["actor"], summary?: string, allowApproved?: boolean): ReviewRecord {
+  const record = requireRecord(id); assertActive(record, allowApproved);
   record.status = status; if (summary !== undefined && actor === "reviewer") record.summary = summary;
-  record.activity.push(activity(type, actor, undefined, summary)); record.updatedAt = now(); save(record); return clone(record);
+  record.activity.push(activity(type, actor, undefined, summary)); touch(record); save(record); return clone(record);
 }
 export function returnFeedback(id: string, summary?: string): ReviewRecord {
   const record = requireRecord(id); assertActive(record);
@@ -107,9 +114,12 @@ export function returnFeedback(id: string, summary?: string): ReviewRecord {
   return transition(id, "feedback_ready", "feedback_returned", "reviewer", summary);
 }
 export function requestRereview(id: string, summary?: string): ReviewRecord {
-  const record = requireRecord(id); assertActive(record);
-  if (record.status !== "feedback_ready") throw new Error("rereview requires returned feedback");
-  return transition(id, "awaiting_human", "rereview_requested", "agent", summary);
+  const record = requireRecord(id);
+  if (record.status !== "feedback_ready" && record.status !== "approved") {
+    assertActive(record); // cancelled -> "review record is terminal"
+    throw new Error("rereview requires returned feedback");
+  }
+  return transition(id, "awaiting_human", "rereview_requested", "agent", summary, record.status === "approved");
 }
 export const cancelReview = (id: string, summary?: string) => transition(id, "cancelled", "review_cancelled", "reviewer", summary);
 
@@ -118,7 +128,7 @@ export function approveReview(id: string, acknowledgeUnresolved = false): Review
   if (record.status !== "awaiting_human") throw new Error("approval requires a review awaiting the reviewer");
   const unresolved = record.comments.some((comment) => (comment.status ?? (comment.resolved ? "resolved" : "open")) !== "resolved");
   if (unresolved && !acknowledgeUnresolved) throw new Error("approval requires acknowledging unresolved comments");
-  record.status = "approved"; record.activity.push(activity("review_approved", "reviewer")); record.updatedAt = now(); save(record); return clone(record);
+  record.status = "approved"; record.activity.push(activity("review_approved", "reviewer")); touch(record); save(record); return clone(record);
 }
 
 export function replyToComment(id: string, commentId: string, text: string, author: "agent" | "reviewer"): ReviewRecord {
@@ -126,21 +136,21 @@ export function replyToComment(id: string, commentId: string, text: string, auth
   const comment = record.comments.find((item) => item.id === commentId); if (!comment) throw new Error("comment not found");
   const reply: CommentReply = { id: randomUUID(), author, text, createdAt: now() };
   comment.replies = [...(comment.replies ?? []), reply]; record.activity.push(activity("comment_replied", author, commentId));
-  record.updatedAt = now(); save(record); return clone(record);
+  touch(record); save(record); return clone(record);
 }
 export function markCommentAddressed(id: string, commentId: string): ReviewRecord {
   const record = requireRecord(id); assertActive(record); const comment = record.comments.find((item) => item.id === commentId);
   if (!comment) throw new Error("comment not found");
   if ((comment.status ?? (comment.resolved ? "resolved" : "open")) === "resolved") throw new Error("resolved comments must be reopened by the reviewer");
   comment.status = "addressed"; comment.resolved = false;
-  record.activity.push(activity("comment_addressed", "agent", commentId)); record.updatedAt = now(); save(record); return clone(record);
+  record.activity.push(activity("comment_addressed", "agent", commentId)); touch(record); save(record); return clone(record);
 }
 export function setCommentStatus(id: string, commentId: string, status: ReviewCommentStatus, actor: "agent" | "reviewer"): ReviewRecord {
   const record = requireRecord(id); assertActive(record); const comment = record.comments.find((item) => item.id === commentId);
   if (!comment) throw new Error("comment not found");
   if (actor === "agent" && status !== "addressed") throw new Error("only the reviewer may resolve or reopen comments");
   comment.status = status; comment.resolved = status === "resolved"; const type = status === "resolved" ? "comment_resolved" : status === "open" ? "comment_reopened" : "comment_addressed";
-  record.activity.push(activity(type, actor, commentId)); record.updatedAt = now(); save(record); return clone(record);
+  record.activity.push(activity(type, actor, commentId)); touch(record); save(record); return clone(record);
 }
 
 export function detectLegacyReview(cwd: string): boolean { return existsSync(join(resolve(cwd), REVIEW_FILE)); }
@@ -154,7 +164,7 @@ export function importLegacyReview(id: string, cwd: string): ReviewRecord {
   });
   const existing = readAt(pathFor(id));
   if (existing) {
-    assertActive(existing); existing.comments = comments; existing.viewed = [...legacy.viewed]; existing.updatedAt = now();
+    assertActive(existing); existing.comments = comments; existing.viewed = [...legacy.viewed]; touch(existing);
     save(existing); return clone(existing);
   }
   const createdAt = legacy.meta.createdAt || now();
