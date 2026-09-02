@@ -124,9 +124,13 @@ export async function handlePostViewed(ctx: ServerContext, req: Request): Promis
   return json(review);
 }
 
-export function handleGetCompile(ctx: ServerContext): Response {
+// summary precedence: an explicit ?summary= query param, else the persisted record's
+// summary for the selected Review Record, else none.
+export function handleGetCompile(ctx: ServerContext, url: URL): Response {
   const review = currentReview(ctx);
-  return json({ prompt: compileReviewPrompt(ctx.diff, review) });
+  const querySummary = url.searchParams.get("summary");
+  const summary = querySummary?.trim() ? querySummary : ctx.reviewId ? readReviewRecord(ctx.reviewId)?.summary : undefined;
+  return json({ prompt: compileReviewPrompt(ctx.diff, review, summary) });
 }
 
 // reports whether a newer loupe release exists on origin (best-effort, never throws).

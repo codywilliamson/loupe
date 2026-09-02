@@ -26,7 +26,7 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
   if (method === "GET") {
     if (pathname === "/api/diff") return handleGetDiff(ctx);
     if (pathname === "/api/comments") return handleGetComments(ctx);
-    if (pathname === "/api/compile") return handleGetCompile(ctx);
+    if (pathname === "/api/compile") return handleGetCompile(ctx, new URL(req.url));
     if (pathname === "/api/update") return handleGetUpdate(ctx);
     if (pathname === "/api/state") return handleGetState();
     if (pathname === "/api/file") return handleGetFile(ctx, new URL(req.url));

@@ -60,4 +60,26 @@ describe("review launch", () => {
       expect(record?.activity.findLast((item) => item.type === "comment_replied")?.actor).toBe("reviewer");
     } finally { launch.server.stop(true); }
   });
+
+  it("returns summary-only feedback with no comments and compiles it, with a query override", async () => {
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff" });
+    try {
+      const base = launch.url.split("/?")[0];
+      const res = await fetch(`${base}/api/review/outcome`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: launch.review.id, outcome: "feedback", summary: "Tighten the error path." }),
+      });
+      expect(res.status).toBe(200);
+      const record = (await res.json()) as ReviewRecord;
+      expect(record.status).toBe("feedback_ready");
+
+      const compiled = (await fetch(`${base}/api/compile`).then((r) => r.json())) as { prompt: string };
+      expect(compiled.prompt).toContain("Reviewer summary");
+      expect(compiled.prompt).toContain("Tighten the error path.");
+
+      const overridden = (await fetch(`${base}/api/compile?summary=${encodeURIComponent("Draft note")}`).then((r) => r.json())) as { prompt: string };
+      expect(overridden.prompt).toContain("Draft note");
+      expect(overridden.prompt).not.toContain("Tighten the error path.");
+    } finally { launch.server.stop(true); }
+  });
 });

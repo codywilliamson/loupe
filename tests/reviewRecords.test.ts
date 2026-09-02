@@ -124,11 +124,20 @@ describe("review records", () => {
 
   it("requires unresolved feedback and a feedback-ready rereview", () => {
     const empty = createReviewRecord({ target: { cwd: tempDir(), ref: "main" } });
-    expect(() => returnFeedback(empty.id)).toThrow("requires an unresolved comment");
+    expect(() => returnFeedback(empty.id)).toThrow("requires an unresolved comment or a summary");
+    expect(() => returnFeedback(empty.id, "   ")).toThrow("requires an unresolved comment or a summary");
     const record = makeRecord();
     expect(() => requestRereview(record.id)).toThrow("requires returned feedback");
     returnFeedback(record.id);
     expect(() => returnFeedback(record.id)).toThrow("awaiting the reviewer");
     expect(() => approveReview(record.id, true)).toThrow("awaiting the reviewer");
+  });
+
+  it("returns summary-only feedback with no unresolved comments", () => {
+    const empty = createReviewRecord({ target: { cwd: tempDir(), ref: "main" } });
+    const result = returnFeedback(empty.id, "Tighten the error path.");
+    expect(result.status).toBe("feedback_ready");
+    expect(result.summary).toBe("Tighten the error path.");
+    expect(result.activity.findLast((item) => item.type === "feedback_returned")?.summary).toBe("Tighten the error path.");
   });
 });

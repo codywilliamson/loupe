@@ -110,8 +110,9 @@ export function returnFeedback(id: string, summary?: string): ReviewRecord {
   const record = requireRecord(id); assertActive(record);
   if (record.status !== "awaiting_human") throw new Error("feedback requires a review awaiting the reviewer");
   const unresolved = record.comments.some((comment) => (comment.status ?? (comment.resolved ? "resolved" : "open")) !== "resolved");
-  if (!unresolved) throw new Error("returning feedback requires an unresolved comment");
-  return transition(id, "feedback_ready", "feedback_returned", "reviewer", summary);
+  const note = summary?.trim();
+  if (!unresolved && !note) throw new Error("returning feedback requires an unresolved comment or a summary");
+  return transition(id, "feedback_ready", "feedback_returned", "reviewer", note);
 }
 export function requestRereview(id: string, summary?: string): ReviewRecord {
   const record = requireRecord(id);

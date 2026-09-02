@@ -21,11 +21,11 @@ The reviewer's explicit conclusion: approve the work, return feedback to the age
 _Avoid_: Finish status, completion state
 
 **Feedback Bundle**:
-The optional Review Summary and unresolved file-, line-, and range-level comments returned for more work. It is structured information that may also be rendered as JSON or Markdown for manual copy and paste.
+The Review Summary and unresolved file-, line-, and range-level comments returned for more work; a bundle may consist of a summary alone. It is structured information that may also be rendered as JSON or Markdown for manual copy and paste.
 _Avoid_: Compiled prompt, review prompt
 
 **Review Summary**:
-Optional review-level feedback that applies to the change as a whole rather than a particular file or line. It accompanies a Feedback Bundle without inventing a code anchor.
+Optional review-level feedback that applies to the change as a whole rather than a particular file or line. It may accompany comments in a Feedback Bundle, or stand alone as the entire bundle, without inventing a code anchor.
 _Avoid_: General comment, top-level comment
 
 **Review Record**:

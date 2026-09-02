@@ -14,7 +14,7 @@ function guidance(record, open) {
   if (record.status === "feedback_ready") return record.origin?.agent
     ? "Return to the agent and say “continue” so it can retrieve this feedback."
     : "Paste the copied feedback into the conversation that produced this change.";
-  if (!open) return "Add a line- or file-level comment to return feedback, or approve the change.";
+  if (!open) return "Add a comment or write a summary to return feedback, or approve the change.";
   return record.origin?.agent
     ? `${open} unresolved comment${open === 1 ? "" : "s"}. Return Feedback makes them available to the connected agent.`
     : `${open} unresolved comment${open === 1 ? "" : "s"}. Copy for a manual workflow, or record the outcome with Return Feedback.`;
@@ -47,7 +47,7 @@ export function ReviewPanel({ reviewId, record, refreshRecord, comments }) {
   if (!reviewId || !record) return null;
   const live = { ...record, comments }; const open = unresolved(live).length;
   const terminal = record.status === "approved" || record.status === "cancelled"; const agentUpdate = latestAgentUpdate(record);
-  const awaiting = record.status === "awaiting_human";
+  const awaiting = record.status === "awaiting_human"; const canReturn = awaiting && (open > 0 || summary.trim().length > 0);
   const act = async (outcome) => {
     if (outcome === "approved" && open && !window.confirm(`There are ${open} unresolved comments. Approve anyway?`)) return;
     try {
@@ -55,7 +55,7 @@ export function ReviewPanel({ reviewId, record, refreshRecord, comments }) {
       setSummary(""); refreshRecord(); close();
     } catch (e) { setError(String(e)); }
   };
-  const copyFeedback = async (format) => { try { const value = format === "json" ? JSON.stringify({ reviewId, target: record.target, summary, comments: unresolved(live) }, null, 2) : (await compile()).prompt; await copy(value); setCopied(format); setTimeout(() => setCopied(""), 1500); } catch (e) { setError(String(e)); } };
+  const copyFeedback = async (format) => { try { const value = format === "json" ? JSON.stringify({ reviewId, target: record.target, summary, comments: unresolved(live) }, null, 2) : (await compile(summary)).prompt; await copy(value); setCopied(format); setTimeout(() => setCopied(""), 1500); } catch (e) { setError(String(e)); } };
 
   const statusLabel = STATUS_LABELS[record.status];
   const triggerLabel = `Review menu — ${statusLabel}${open ? `, ${open} unresolved comment${open === 1 ? "" : "s"}` : ""}`;
@@ -75,7 +75,7 @@ export function ReviewPanel({ reviewId, record, refreshRecord, comments }) {
       <textarea class="review-summary" value=${summary} disabled=${terminal || !awaiting}
         onInput=${(e) => setSummary(e.target.value)} placeholder="Optional reviewer summary"></textarea>
       <div class="review-actions">
-        <button class="btn-primary" onClick=${() => act("feedback")} disabled=${!open || !awaiting}>Return Feedback</button>
+        <button class="btn-primary" onClick=${() => act("feedback")} disabled=${!canReturn}>Return Feedback</button>
         <button class="btn-plain" onClick=${() => act("approved")} disabled=${!awaiting}>Approve</button>
         <button class="btn-plain" onClick=${() => act("cancelled")} disabled=${terminal}>Cancel</button>
       </div>

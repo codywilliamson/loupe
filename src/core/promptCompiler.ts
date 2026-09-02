@@ -102,7 +102,7 @@ function sectionsForFile(file: string, diffFile: DiffFile | undefined, comments:
   return out;
 }
 
-export function compileReviewPrompt(diff: DiffResult, review: ReviewFile): string {
+export function compileReviewPrompt(diff: DiffResult, review: ReviewFile, summary?: string): string {
   const ref = review.meta.ref;
   const date = review.meta.updatedAt.slice(0, 10);
   const title = `## Code Review — ${ref} — ${date}`;
@@ -130,8 +130,11 @@ export function compileReviewPrompt(diff: DiffResult, review: ReviewFile): strin
 
   const total = open.length;
   const fileCount = byFile.size;
-  const summary = `## Summary: ${total} comment(s) across ${fileCount} file(s)`;
+  const summaryLine = `## Summary: ${total} comment(s) across ${fileCount} file(s)`;
+
+  const trimmedSummary = summary?.trim();
+  const summarySection = trimmedSummary ? `## Reviewer summary\n\n${trimmedSummary}${DIVIDER}` : "";
 
   const body = sections.length > 0 ? sections.join(DIVIDER) + DIVIDER : "";
-  return `${title}${DIVIDER}${body}${summary}`;
+  return `${title}${DIVIDER}${summarySection}${body}${summaryLine}`;
 }

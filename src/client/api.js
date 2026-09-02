@@ -58,8 +58,9 @@ export function saveViewed(viewed) {
 }
 
 // { prompt: string }
-export function compile() {
-  return getJson("/api/compile");
+export function compile(summary) {
+  const query = summary?.trim() ? `?summary=${encodeURIComponent(summary)}` : "";
+  return getJson(`/api/compile${query}`);
 }
 
 // UpdateStatus — loupe's release status vs origin

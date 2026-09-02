@@ -330,4 +330,27 @@ describe("compileReviewPrompt", () => {
     expect(out).not.toContain("  - agent: done");
     expect(out).toContain("## Summary: 0 comment(s) across 0 file(s)");
   });
+
+  it("includes a Reviewer summary section positioned before file sections", () => {
+    const out = compileReviewPrompt(baseDiff, review([comment({ line: 5 })]), "Tighten the error path.");
+    expect(out).toContain("## Reviewer summary\n\nTighten the error path.");
+    expect(out.indexOf("## Reviewer summary")).toBeLessThan(out.indexOf("### a.ts — Line 5"));
+  });
+
+  it("compiles a useful summary-only prompt with zero comments", () => {
+    const out = compileReviewPrompt(baseDiff, review([]), "Looks fine overall.");
+    expect(out).toContain("## Code Review — feature/x — 2026-06-02");
+    expect(out).toContain("## Reviewer summary\n\nLooks fine overall.");
+    expect(out).toContain("## Summary: 0 comment(s) across 0 file(s)");
+  });
+
+  it("omits the Reviewer summary section when no summary is given", () => {
+    const out = run([comment({ line: 5 })]);
+    expect(out).not.toContain("Reviewer summary");
+  });
+
+  it("trims a whitespace-only summary to omit the section", () => {
+    const out = compileReviewPrompt(baseDiff, review([comment({ line: 5 })]), "   ");
+    expect(out).not.toContain("Reviewer summary");
+  });
 });
