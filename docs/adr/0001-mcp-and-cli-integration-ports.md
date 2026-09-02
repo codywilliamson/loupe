@@ -2,7 +2,7 @@
 
 Loupe's versioned review model is the product contract. MCP is the standard agent-facing port, while the CLI and browser remain first-class ports for manual review, deterministic automation, unsupported agents, and copy/paste exports. Skills, plugins, and hooks stay thin: they provide agent-specific session context and enforce the configured Review Policy without moving provider-specific behavior into Loupe's core.
 
-The first MCP interface is six actions: start and inspect a review, reply to and mark comments addressed, request rereview after changes, and cancel. Approval, comment resolution, and reopening remain reviewer-only browser actions so an agent can report its work without accepting its own changes.
+The first MCP interface is six actions: start and inspect a review, reply to and mark comments addressed, request rereview after changes, and cancel. Approval and comment resolution remain reviewer-only browser actions so an agent can report its work without accepting its own changes. An agent may reopen an approved review only by requesting rereview after further changes (added in 0.13.0); the reviewer still decides the outcome.
 
 The first integration milestone ships Codex and Claude Code adapters. Additional agents wait until the shared MCP interface has been exercised in both clients.
 

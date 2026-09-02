@@ -59,7 +59,7 @@ Press `?` in the UI for this list at any time.
 | --- | --- |
 | `j` / `k` | next / previous file |
 | `v` | toggle viewed on the current file |
-| `s` | unified ↔ side-by-side |
+| `s` | unified ↔ side-by-side (added and deleted files stay unified) |
 | `o` | single-file ↔ all-files view |
 | `t` | toggle light / dark mode |
 | `r` | re-run the diff |

@@ -41,6 +41,6 @@ Claude retrieves the structured feedback, edits the repository, replies to the c
 
 ## Verify and approve
 
-Choose **Re-run the diff** in Loupe. Read the agent's reply and the updated code, then resolve or reopen each thread. Choose **Approve** when the change is ready.
+Claude's replies, addressed marks, and rereview request appear in Loupe as they happen. Choose **Refresh diff** from the notice to load the updated code, then reply in a thread, resolve it, or reopen it. Choose **Approve** when the change is ready. If you ask Claude for one more change afterwards, its next rereview request reopens the same review.
 
 Review Records remain under `~/.loupe/reviews/`, so closing the browser or agent session does not discard the review.
