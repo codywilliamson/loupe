@@ -72,12 +72,20 @@ async function waitForLoupe() {
   throw new Error("Loupe did not start");
 }
 
+// injected over the live app (not page.setContent) so the review-sync poll keeps running
+// underneath — the recording needs the real .sync-notice to appear after the overlay lifts.
 function terminalHtml(message) {
-  return `<!doctype html><style>body{margin:0;background:#181817;color:#eceae2;font:18px/1.6 "Cascadia Code",Consolas,monospace}main{padding:58px 72px}.bar{color:#888;margin-bottom:28px}.prompt{color:#d97757}.ok{color:#8fbc72}pre{white-space:pre-wrap;max-width:72ch}</style><main><div class="bar">Claude Code · loupe-agent-demo</div><pre><span class="prompt">$</span> claude -p "Apply the Loupe feedback and run tests"
+  return `<style>#agent-terminal-overlay{position:fixed;inset:0;z-index:99999;background:#181817;color:#eceae2;font:18px/1.6 "Cascadia Code",Consolas,monospace}#agent-terminal-overlay main{padding:58px 72px}#agent-terminal-overlay .bar{color:#888;margin-bottom:28px}#agent-terminal-overlay .prompt{color:#d97757}#agent-terminal-overlay .ok{color:#8fbc72}#agent-terminal-overlay pre{white-space:pre-wrap;max-width:72ch}</style><main><div class="bar">Claude Code · loupe-agent-demo</div><pre><span class="prompt">$</span> claude -p "Apply the Loupe feedback and run tests"
 
 ${escapeHtml(message.slice(0, 700))}
 
 <span class="ok">✓ feedback addressed · tests passed · rereview requested</span></pre></main>`;
+}
+async function showOverlay(page, html) {
+  await page.evaluate((html) => { const el = document.createElement("div"); el.id = "agent-terminal-overlay"; el.innerHTML = html; document.body.appendChild(el); }, html);
+}
+async function hideOverlay(page) {
+  await page.evaluate(() => document.getElementById("agent-terminal-overlay")?.remove());
 }
 
 function updateReview(reviewId) {
@@ -101,10 +109,12 @@ async function main() {
     browser = await chromium.launch({ headless: true, slowMo: 90, args: ["--ignore-certificate-errors"] }); const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, colorScheme: "dark", ignoreHTTPSErrors: true, recordVideo: { dir: rawVideo, size: { width: 1280, height: 720 } } });
     const page = await context.newPage(); page.on("console", (message) => message.type() === "error" && console.error(`browser: ${message.text()}`)); await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15_000 }); await page.locator(".top-bar").waitFor({ timeout: 20_000 }); const got = page.getByRole("button", { name: "Got it" }); if (await got.isVisible()) await got.click();
     await page.locator('.tree-file-name[title="src/reminders.ts"]').click(); const row = page.getByRole("row").filter({ hasText: "return response.json()" }); await row.getByRole("button", { name: /Comment/ }).click(); await page.getByPlaceholder("Leave a comment…").fill("Handle non-2xx responses before parsing JSON."); await page.getByRole("button", { name: "Save", exact: true }).click();
-    await page.locator(".review-panel summary").click(); await page.getByPlaceholder("Optional reviewer summary").fill("Harden the reminder API before shipping."); await page.getByRole("button", { name: "Return Feedback" }).click(); await wait(700);
-    await page.setContent(terminalHtml(fixed.message)); await wait(2200); write(join(repo, "src", "reminders.ts"), fixed.reminder); write(join(repo, "tests", "reminders.test.ts"), fixed.test); updateReview(reviewId);
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15_000 }); await page.locator(".top-bar").waitFor({ timeout: 20_000 }); await page.getByRole("button", { name: "Re-run the diff" }).click(); await wait(700);
-    const comment = page.getByText("Handle non-2xx responses before parsing JSON.", { exact: true }); await comment.locator("..").getByRole("button", { name: "Resolve" }).click(); await page.locator(".review-panel summary").click(); await page.getByRole("button", { name: "Approve", exact: true }).click(); await wait(1600);
+    await page.locator(".review-trigger").click(); await page.getByPlaceholder("Optional reviewer summary").fill("Harden the reminder API before shipping."); await page.getByRole("button", { name: "Return Feedback" }).click(); await wait(700);
+    await showOverlay(page, terminalHtml(fixed.message)); await wait(2200); write(join(repo, "src", "reminders.ts"), fixed.reminder); write(join(repo, "tests", "reminders.test.ts"), fixed.test); updateReview(reviewId); await hideOverlay(page);
+    const notice = page.locator(".sync-notice"); await notice.waitFor({ timeout: 8_000 }); await wait(900); await notice.getByRole("button", { name: "Refresh diff" }).click(); await wait(700);
+    const card = page.getByText("Handle non-2xx responses before parsing JSON.", { exact: true }).locator("..");
+    await card.getByRole("button", { name: "Reply" }).click(); await page.getByPlaceholder("Reply…").fill("Looks good — thanks for the fix."); await page.getByRole("button", { name: "Send", exact: true }).click(); await wait(700);
+    await card.getByRole("button", { name: "Resolve" }).click(); await page.locator(".review-trigger").click(); await page.getByRole("button", { name: "Approve", exact: true }).click(); await wait(1600);
     await page.screenshot({ path: join(shots, "agent-review-walkthrough.png") }); const video = page.video(); await context.close(); await convert(await video.path()); console.log("Walkthrough media generated.");
   } finally { if (browser) await browser.close(); server.kill(); }
 }
