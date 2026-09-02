@@ -4,6 +4,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.13.1] — 2026-09-02
+
 ### Fixed
 - **Summary-only feedback** — a reviewer summary with no comments can now be returned: the button enables, the record stores the summary as feedback, and the compiled Markdown carries a Reviewer summary section.
 
