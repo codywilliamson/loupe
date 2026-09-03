@@ -44,7 +44,7 @@ export function CompileModal({ onClose, comments, diff, onEdit, onDelete, onReso
   return html`<div class="modal-backdrop" onClick=${onClose}>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="compile-title" onClick=${(e) => e.stopPropagation()}>
       <header class="modal-head">
-        <h2 id="compile-title">Review Feedback</h2>
+        <h2 id="compile-title">Feedback preview</h2>
         <div class="modal-head-tools">
           <button class="btn-toggle ${raw ? "" : "on"}" disabled=${loading} onClick=${() => setRaw((v) => !v)}>
             ${raw ? "Raw" : "Rendered"}

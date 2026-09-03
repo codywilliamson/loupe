@@ -1,6 +1,7 @@
 import { html, useState, useRef, useEffect } from "/preact.js";
 import { compile, submitReviewOutcome } from "/api.js";
 import { ChevronDown } from "/icons.js";
+import { useDismissablePopover } from "/popover.js";
 
 function unresolved(record) { return (record?.comments ?? []).filter((c) => (c.status ?? (c.resolved ? "resolved" : "open")) !== "resolved"); }
 function latestAgentUpdate(record) { return record?.activity?.findLast((item) => item.type === "rereview_requested" && item.actor === "agent" && item.summary)?.summary ?? ""; }
@@ -27,19 +28,7 @@ export function ReviewPanel({ reviewId, record, refreshRecord, comments }) {
 
   const close = () => { setIsOpen(false); triggerRef.current?.focus(); };
 
-  // real menu behavior: close on outside click or Escape, only while open.
-  useEffect(() => {
-    if (!isOpen) return;
-    const onPointerDown = (e) => { if (!panelRef.current?.contains(e.target)) close(); };
-    // capture phase: run before shortcuts.js's document-level Escape handler, then stop it.
-    const onKeyDown = (e) => { if (e.key === "Escape") { close(); e.stopPropagation(); } };
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown, true);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown, true);
-    };
-  }, [isOpen]);
+  useDismissablePopover({ isOpen, close, panelRef });
 
   // move focus into the popover on open
   useEffect(() => { if (isOpen) popoverRef.current?.focus(); }, [isOpen]);
@@ -50,6 +39,8 @@ export function ReviewPanel({ reviewId, record, refreshRecord, comments }) {
   const awaiting = record.status === "awaiting_human"; const canReturn = awaiting && (open > 0 || summary.trim().length > 0);
   const act = async (outcome) => {
     if (outcome === "approved" && open && !window.confirm(`There are ${open} unresolved comments. Approve anyway?`)) return;
+    if (outcome === "cancelled" && (open > 0 || summary.trim().length > 0) &&
+      !window.confirm("Cancel this review? Open comments and your summary stay on the record but the review closes without approval.")) return;
     try {
       await submitReviewOutcome(reviewId, outcome, summary, outcome === "approved" && open > 0);
       setSummary(""); refreshRecord(); close();
@@ -65,7 +56,7 @@ export function ReviewPanel({ reviewId, record, refreshRecord, comments }) {
       aria-controls="review-popover" aria-label=${triggerLabel} onClick=${() => setIsOpen((v) => !v)}>
       <span class="review-trigger-label">Review</span>
       <span class="review-status status-${record.status}">${statusLabel}</span>
-      ${open > 0 && html`<span class="badge badge-open">${open}</span>`}
+      ${open > 0 && !terminal && html`<span class="badge badge-open">${open}</span>`}
       <${ChevronDown} />
     </button>
     ${isOpen && html`<div id="review-popover" class="review-popover" role="dialog" aria-label="Review outcome" tabindex="-1" ref=${popoverRef}>

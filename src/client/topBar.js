@@ -1,10 +1,11 @@
-// top bar: wordmark + update badge + diff context on the left; counts, view toggles, theme + compile on the right.
+// top bar: wordmark + diff context + counts on the left; review, preview, view tools and utilities on the right.
 import { html } from "/preact.js";
 import { totalDelta } from "/util.js";
 import { Sun, Moon, Refresh, Columns, File, HelpCircle, Sparkles, WrapText, ApertureMark } from "/icons.js";
 import { THEMES, THEME_LABELS } from "/theme.js";
 import { UpdateBadge } from "/update.js";
 import { ReviewPanel } from "/reviewPanel.js";
+import { OverflowMenu } from "/overflowMenu.js";
 
 const THEME_ICONS = { light: Sun, dark: Moon };
 
@@ -52,41 +53,48 @@ export function TopBar({
 }) {
   const { add, del } = totalDelta(files);
   const browse = meta?.mode === "browse";
-  const viewTip = viewMode === "single" ? "All-files view" : "Single-file view";
-  const splitTip = splitView ? "Unified (all files)" : "Side-by-side (all files)";
-  const wrapTip = wrap ? "No wrap" : "Wrap lines";
+  const viewTip = `${viewMode === "single" ? "All-files view" : "Single-file view"} (o)`;
+  const splitTip = `${splitView ? "Unified (all files)" : "Side-by-side (all files)"} (s)`;
+  const wrapTip = `${wrap ? "No wrap" : "Wrap lines"} (w)`;
   const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
-  const themeTip = `Theme: ${THEME_LABELS[theme]} — switch to ${THEME_LABELS[next]}`;
+  const themeTip = `Theme: ${THEME_LABELS[theme]} — switch to ${THEME_LABELS[next]} (t)`;
   const ThemeIcon = THEME_ICONS[theme] ?? Sun;
   return html`<header class="top-bar">
     <div class="top-left">
       <span class="brand-lockup"><${ApertureMark} /><span class="wordmark">loupe</span></span>
       <${UpdateBadge} status=${update} />
       <${DiffInfo} meta=${meta} refLabel=${refLabel} />
+      <span class="orient">
+        <span class="file-count">${files.length} file${files.length === 1 ? "" : "s"}</span>
+        ${!browse &&
+        html`<span class="top-delta">
+          <span class="add">+${add}</span>
+          <span class="del">-${del}</span>
+        </span>`}
+      </span>
     </div>
     <div class="top-right">
-      <span class="file-count">${files.length} file${files.length === 1 ? "" : "s"}</span>
-      ${!browse &&
-      html`<span class="top-delta">
-        <span class="add">+${add}</span>
-        <span class="del">-${del}</span>
-      </span>`}
-      <${ReviewPanel} reviewId=${reviewId} record=${record} refreshRecord=${refreshRecord} comments=${comments} />
+      <span class="review-segment">
+        <${ReviewPanel} reviewId=${reviewId} record=${record} refreshRecord=${refreshRecord} comments=${comments} />
+        <button class="btn-preview" onClick=${onCompile}>Preview</button>
+      </span>
       <button class="btn-icon icon-btn files-toggle" data-tip="Browse files" aria-label="Browse files" onClick=${onToggleFiles}>
         <${File} /><span class="mobile-action-label">Files</span>
       </button>
-      <button class="btn-compile" onClick=${onCompile}><span class="wide-label">Preview Feedback</span><span class="narrow-label">Feedback</span></button>
-      <span class="view-controls" role="group" aria-label="View controls">
-        <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" data-tip="Re-run the diff" aria-label="Re-run the diff" onClick=${onRefresh}><${Refresh} /></button>
+      <span class="tool-wash view-controls" role="group" aria-label="View controls">
+        <button class="btn-icon icon-btn ${refreshing ? "spinning" : ""}" data-tip="Re-run the diff (r)" aria-label="Re-run the diff (r)" onClick=${onRefresh}><${Refresh} /></button>
         <button class="btn-icon icon-btn view-toggle ${viewMode === "single" ? "on" : ""}" data-tip=${viewTip} aria-label=${viewTip} onClick=${onToggleView}><${File} /></button>
         ${!browse && html`<button class="btn-icon icon-btn split-toggle ${splitView ? "on" : ""}" data-tip=${splitTip} aria-label=${splitTip} onClick=${onToggleSplit}><${Columns} /></button>`}
         <button class="btn-icon icon-btn ${wrap ? "on" : ""}" data-tip=${wrapTip} aria-label=${wrapTip} onClick=${onToggleWrap}><${WrapText} /></button>
       </span>
-      <span class="utility-controls" role="group" aria-label="Loupe utilities">
+      <span class="tool-wash utility-controls" role="group" aria-label="Loupe utilities">
         <button class="btn-icon icon-btn" data-tip=${themeTip} aria-label=${themeTip} onClick=${onToggleTheme}><${ThemeIcon} /></button>
-        <button class="btn-icon icon-btn" data-tip="What's new" aria-label="What's new" onClick=${onWhatsNew}><${Sparkles} /></button>
+        <button class="btn-icon icon-btn" data-tip="What's new (n)" aria-label="What's new (n)" onClick=${onWhatsNew}><${Sparkles} /></button>
         <button class="btn-icon icon-btn" data-tip="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts" onClick=${onHelp}><${HelpCircle} /></button>
       </span>
+      <${OverflowMenu} browse=${browse} viewMode=${viewMode} splitView=${splitView} wrap=${wrap} theme=${theme}
+        onRefresh=${onRefresh} onToggleView=${onToggleView} onToggleSplit=${onToggleSplit} onToggleWrap=${onToggleWrap}
+        onToggleTheme=${onToggleTheme} onWhatsNew=${onWhatsNew} onHelp=${onHelp} />
     </div>
   </header>`;
 }

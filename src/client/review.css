@@ -9,14 +9,14 @@
 .reply-composer { margin: 10px 0 0 12px; display: grid; gap: 6px; }
 .comment-card.status-addressed { border-color: var(--comment-border); }
 .comment-card.status-addressed .comment-text { color: var(--muted); }
-.review-panel { position: relative; }
+.review-panel { position: relative; display: flex; }
 .review-trigger {
   display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font: inherit;
-  color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 6px 9px; cursor: pointer;
+  color: var(--text); background: var(--surface); border: 0; border-radius: inherit; padding: 6px 11px; cursor: pointer;
 }
 .review-trigger:hover { background: var(--hover); }
 .review-trigger .icon { color: var(--muted); transition: transform .15s ease; }
-.review-trigger[aria-expanded="true"] { border-color: var(--accent); background: var(--surface-2); }
+.review-trigger[aria-expanded="true"] { background: var(--surface-2); }
 .review-trigger[aria-expanded="true"] .icon { transform: rotate(180deg); }
 .review-status {
   display: inline-flex; align-items: center; font-family: var(--mono); font-size: 10px; font-weight: 500;

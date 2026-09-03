@@ -64,6 +64,10 @@ export const Columns = () =>
 export const File = () =>
   svg(html`<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v5h5" />`);
 
+// three dots — the mobile overflow menu trigger
+export const MoreHorizontal = () =>
+  svg(html`<circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />`);
+
 // Loupe's split-aperture mark: opposing proof brackets, center seam, anchor dot.
 export const ApertureMark = ({ size = 22 } = {}) => html`<svg class="aperture-mark" width=${size} height=${size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
   <path d="M4 5.5v13M4 5.5h5M4 18.5h5M20 5.5v13M20 5.5h-5M20 18.5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />

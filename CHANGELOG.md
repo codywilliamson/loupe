@@ -4,6 +4,14 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Changed
+- **Review header regrouped** — file counts join the orientation side in a tonal wash, the review trigger and a neutral Preview button share one segment, view tools and utilities sit in washes instead of behind dividers, and phones get a single overflow menu so nothing scrolls off-screen.
+
+### Fixed
+- **Terminal reviews drop the open-count badge** — approved and cancelled reviews no longer show a red unresolved count beside their pill.
+- **Cancel asks first** — cancelling a review with open comments or a drafted summary now confirms, matching Approve.
+- **Count badge contrast** — the open-count digit clears AA in light mode.
+
 ## [0.13.1] — 2026-09-02
 
 ### Fixed
