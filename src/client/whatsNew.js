@@ -3,6 +3,24 @@
 
 export const WHATS_NEW = [
   {
+    version: "0.14.0",
+    date: "2026-09-04",
+    items: [
+      {
+        title: "A calmer review header",
+        body: "File counts now sit with the repo and ref on the left. Review and Preview share one control, and the view tools and utilities sit in quiet groups, so the next action reads at a glance instead of competing with six icons.",
+      },
+      {
+        title: "Phones get one overflow menu",
+        body: "Below 700px the tools collapse into a single menu with arrow-key navigation and shortcut hints, and nothing scrolls off the edge. Desktop tooltips now show each tool's key too.",
+      },
+      {
+        title: "Return a summary on its own",
+        body: "Overall feedback with no line comments now reaches the agent: Return Feedback enables with a summary alone, the record stores it, and the compiled Markdown carries it under a Reviewer summary heading.",
+      },
+    ],
+  },
+  {
     version: "0.13.0",
     date: "2026-09-01",
     items: [

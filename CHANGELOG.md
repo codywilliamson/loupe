@@ -4,6 +4,8 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+## [0.14.0] — 2026-09-04
+
 ### Changed
 - **Review header regrouped** — file counts join the orientation side in a tonal wash, the review trigger and a neutral Preview button share one segment, view tools and utilities sit in washes instead of behind dividers, and phones get a single overflow menu so nothing scrolls off-screen.
 
