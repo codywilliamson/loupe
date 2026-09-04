@@ -3,7 +3,7 @@ import { parseCliArgs, USAGE } from "../src/utils/cli";
 
 describe("parseCliArgs", () => {
   test("defaults: working tree, random port, open browser", () => {
-    expect(parseCliArgs([])).toEqual({ command: "review", agent: undefined, spec: undefined, scope: undefined, reviewId: undefined, port: 0, open: true, help: false, version: false });
+    expect(parseCliArgs([])).toEqual({ command: "review", agent: undefined, spec: undefined, scope: undefined, reviewId: undefined, port: 0, open: true, yes: false, all: false, help: false, version: false });
   });
 
   test("first positional arg is the ref spec", () => {
@@ -29,7 +29,7 @@ describe("parseCliArgs", () => {
 
   test("flags combine with a ref spec in any order", () => {
     const opts = parseCliArgs(["--no-open", "origin/main", "-p", "4000"]);
-    expect(opts).toEqual({ command: "review", agent: undefined, spec: "origin/main", scope: undefined, reviewId: undefined, port: 4000, open: false, help: false, version: false });
+    expect(opts).toEqual({ command: "review", agent: undefined, spec: "origin/main", scope: undefined, reviewId: undefined, port: 4000, open: false, yes: false, all: false, help: false, version: false });
   });
 
   test("rejects a bad port", () => {
@@ -78,5 +78,33 @@ describe("parseCliArgs", () => {
   test("parses optional completion hooks", () => {
     expect(parseCliArgs(["hook", "stop", "--agent", "claude-code"]).agent).toBe("claude-code");
     expect(() => parseCliArgs(["hook", "stop", "--agent", "other"])).toThrow("--agent must be");
+  });
+
+  test("parses the sessions command", () => {
+    expect(parseCliArgs(["sessions"]).command).toBe("sessions");
+    expect(() => parseCliArgs(["sessions", "extra"])).toThrow("unexpected argument: extra");
+  });
+
+  test("parses the cleanup command with --yes and --all", () => {
+    const opts = parseCliArgs(["cleanup", "--yes", "--all"]);
+    expect(opts.command).toBe("cleanup");
+    expect(opts.yes).toBe(true);
+    expect(opts.all).toBe(true);
+    expect(() => parseCliArgs(["cleanup", "extra"])).toThrow("unexpected argument: extra");
+  });
+
+  test("--yes and --all are rejected outside cleanup", () => {
+    expect(() => parseCliArgs(["--yes"])).toThrow("unexpected argument: --yes (review accepts options only)");
+    expect(() => parseCliArgs(["--all"])).toThrow("unexpected argument: --all (review accepts options only)");
+    expect(() => parseCliArgs(["sessions", "--yes"])).toThrow("unexpected argument: --yes (sessions accepts options only)");
+    expect(() => parseCliArgs(["mcp", "serve", "--all"])).toThrow("unexpected argument: --all (mcp accepts options only)");
+    expect(() => parseCliArgs(["hook", "stop", "--agent", "codex", "--yes"])).toThrow("unexpected argument: --yes (hook accepts options only)");
+  });
+
+  test("usage documents sessions and cleanup", () => {
+    expect(USAGE).toContain("loupe sessions");
+    expect(USAGE).toContain("loupe cleanup");
+    expect(USAGE).toContain("--yes");
+    expect(USAGE).toContain("--all");
   });
 });

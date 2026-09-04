@@ -3,6 +3,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, extname, resolve } from "node:path";
 import type { DiffResult, DiffMeta, ReviewFile, Comment } from "../types";
+import type { SessionHost } from "../core/sessions";
 import { readReview, writeReview } from "../core/reviewStore";
 import { excludeReviewFile } from "../core/reviewFilter";
 import { compileReviewPrompt } from "../core/promptCompiler";
@@ -27,6 +28,9 @@ export interface ServerContext {
   scope?: string; // browse path scope, reused on refresh
   served: boolean; // true once the launch-computed diff has been handed to the client
   reviewId?: string; // durable Review Record selected by the MCP/CLI integration
+  host: SessionHost; // which integration launched this server; read by /api/session/stop
+  sessionId?: string; // this server's session registry id; set by reviewLaunch, checked by /api/session/stop
+  shutdown?: () => void | Promise<void>; // set by reviewLaunch once the server exists; mutable by design
 }
 
 // stamps a legacy review and persists it outside the rendered diff.

@@ -16,6 +16,7 @@ import {
 } from "./handlers";
 import { handleGetState, handlePostState } from "./stateHandlers";
 import { handleGetLegacyReview, handleGetReview, handleLegacyReview, handleReviewOutcome, handleReviewReply, handleReviewStatus } from "./reviewHandlers";
+import { handleSessionStop } from "./sessionHandlers";
 
 export type { ServerContext } from "./handlers";
 
@@ -43,6 +44,7 @@ function route(ctx: ServerContext, req: Request): Response | Promise<Response> {
     if (pathname === "/api/review/reply") return handleReviewReply(req);
     if (pathname === "/api/review/status") return handleReviewStatus(req);
     if (pathname === "/api/review/legacy") return handleLegacyReview(req, ctx.cwd);
+    if (pathname === "/api/session/stop") return handleSessionStop(ctx, req);
   }
 
   return notFound();

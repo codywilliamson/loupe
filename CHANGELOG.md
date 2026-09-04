@@ -4,6 +4,9 @@ All notable changes to loupe are documented here. This project follows [semantic
 
 ## [Unreleased]
 
+### Added
+- **Session registry and cleanup** — every running Loupe server is recorded under the data directory, `loupe sessions` lists live and stale ones with their review status, `loupe cleanup` removes stale entries and stops finished servers after confirmation, the MCP server stops everything it launched on exit, and `start_review` reports stale sessions so agents can suggest cleanup.
+
 ## [0.14.0] — 2026-09-04
 
 ### Changed

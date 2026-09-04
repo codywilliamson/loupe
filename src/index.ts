@@ -8,6 +8,9 @@ import { currentVersion } from "./core/updateCheck";
 import { runMcpServer } from "./mcp";
 import { installationRoot } from "./utils/installRoot";
 import { runCompletionHook } from "./core/completionHook";
+import { runCleanupCommand, runSessionsCommand } from "./utils/sessionsCli";
+import { classifySessions } from "./core/sessions";
+import { readReviewRecord } from "./core/reviewRecords";
 
 // ansi styling, skipped when stdout isn't a terminal.
 const tty = process.stdout.isTTY === true;
@@ -38,19 +41,41 @@ async function main(): Promise<void> {
     if (!opts.agent) fail("hook stop requires --agent codex or claude-code");
     return runCompletionHook(opts.agent, loupeRoot);
   }
+  if (opts.command === "sessions") return runSessionsCommand();
+  if (opts.command === "cleanup") return runCleanupCommand({ yes: opts.yes, all: opts.all });
+
+  const host = process.env.LOUPE_SESSION_HOST === "hook" ? "hook" : "cli";
   let launch;
   try {
     launch = launchReview({
       cwd, loupeRoot, spec: opts.spec, scope: opts.scope, reviewId: opts.reviewId,
-      policy: "handoff", port: opts.port, open: opts.open,
+      policy: "handoff", port: opts.port, open: opts.open, host,
     });
   } catch (err) {
     fail(err instanceof Error ? err.message : `port ${opts.port} is already in use`);
   }
+
+  // keep the session registry tidy on ctrl+c / kill instead of leaving a dead-pid entry behind.
+  let stopped = false;
+  const stopSelf = () => { if (stopped) return; stopped = true; launch.stop(); };
+  process.on("SIGINT", () => { stopSelf(); process.exit(0); });
+  process.on("SIGTERM", () => { stopSelf(); process.exit(0); });
+  process.on("exit", stopSelf);
+
   const files = launch.diff.files.length;
   const changed = launch.diff.meta?.mode === "browse" ? "" : " changed";
   console.log(`${accent("[loupe]")} ${dim(`v${currentVersion(loupeRoot)}`)} — reviewing ${bold(launch.diff.ref)} (${files} file${files === 1 ? "" : "s"}${changed})`);
   console.log(`  ${bold(launch.url)}  ${dim("(ctrl+c to stop)")}`);
+
+  const { stale, live } = await classifySessions();
+  const finished = live.filter((entry) => entry.reviewId !== launch.review.id).filter((entry) => {
+    const status = readReviewRecord(entry.reviewId)?.status;
+    return status === "approved" || status === "cancelled";
+  });
+  const staleCount = stale.length + finished.length;
+  if (staleCount > 0) {
+    console.log(`${accent("[loupe]")} ${dim(`${staleCount} stale session${staleCount === 1 ? "" : "s"} — run loupe cleanup`)}`);
+  }
 }
 
 await main();

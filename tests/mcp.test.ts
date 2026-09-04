@@ -19,12 +19,13 @@ function record(): ReviewRecord {
 function setup() {
   const calls: string[] = [];
   const ops: ReviewOperations = {
-    startReview: async () => { calls.push("start"); return { review: record(), url: "http://localhost:1" }; },
+    startReview: async () => { calls.push("start"); return { review: record(), url: "http://localhost:1", staleSessions: 0 }; },
     getReview: async () => { calls.push("get"); return { review: record() }; },
     replyToComment: async () => { calls.push("reply"); return { review: record() }; },
     markCommentAddressed: async () => { calls.push("address"); return { review: record() }; },
     requestRereview: async () => { calls.push("rereview"); return { review: record() }; },
     cancelReview: async () => { calls.push("cancel"); return { review: record() }; },
+    stopAll: () => { calls.push("stopAll"); },
   };
   const server = createMcpServer(ops, { getRoots: async () => [approvedRoot] });
   const client = new Client({ name: "test", version: "1" });
@@ -48,7 +49,7 @@ describe("Loupe MCP server", () => {
     const response = await client.callTool({ name: "start_review", arguments: { cwd: approvedRoot, ref: "main" } });
     if (response.isError) throw new Error(JSON.stringify(response));
     expect(calls).toEqual(["start"]);
-    expect(response.structuredContent).toEqual({ review: record(), url: "http://localhost:1" });
+    expect(response.structuredContent).toEqual({ review: record(), url: "http://localhost:1", staleSessions: 0 });
     expect(response).toHaveProperty("content");
     await server.close();
   });

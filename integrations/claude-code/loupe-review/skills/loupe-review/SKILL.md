@@ -11,4 +11,6 @@ Apply each returned Review Comment, reply with what changed, mark it addressed, 
 
 If the user asks for further changes after approval, make them and call `request_rereview` on the same review to reopen it rather than starting a new review.
 
+Loupe's server stops with the agent session; when `start_review` returns a non-zero `staleSessions`, mention that `loupe cleanup` will close old ones.
+
 The optional completion hook beside this skill is documentation only and is not enabled by default.

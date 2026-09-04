@@ -1,6 +1,6 @@
-import type { Server } from "bun";
 import { resolve } from "node:path";
-import { launchReview } from "../core/reviewLaunch";
+import { launchReview, type ReviewLaunch } from "../core/reviewLaunch";
+import { classifySessions } from "../core/sessions";
 import {
   cancelReview, markCommentAddressed, readReviewRecord, replyToComment,
   requestRereview,
@@ -14,16 +14,17 @@ function found(reviewId: string): ReviewOperationResult {
 }
 
 export function createReviewOperations(loupeRoot: string): ReviewOperations {
-  const servers = new Map<string, Server<undefined>>();
+  const launches = new Map<string, ReviewLaunch>();
   return {
     async startReview(input) {
       const launch = launchReview({
         cwd: resolve(input.cwd), loupeRoot, spec: input.ref, policy: input.policy ?? "required",
-        open: process.env.LOUPE_NO_OPEN !== "1", requireChanges: true,
+        open: process.env.LOUPE_NO_OPEN !== "1", requireChanges: true, host: "mcp",
         ...(input.origin ? { origin: input.origin } : {}),
       });
-      servers.set(launch.review.id, launch.server);
-      return { review: launch.review, url: launch.url };
+      launches.set(launch.review.id, launch);
+      const { stale } = await classifySessions();
+      return { review: launch.review, url: launch.url, staleSessions: stale.length };
     },
     async getReview(reviewId) { return found(reviewId); },
     async replyToComment(input) {
@@ -36,5 +37,9 @@ export function createReviewOperations(loupeRoot: string): ReviewOperations {
       return { review: requestRereview(input.reviewId, input.summary) };
     },
     async cancelReview(input) { return { review: cancelReview(input.reviewId, input.summary) }; },
+    stopAll() {
+      for (const launch of launches.values()) launch.stop();
+      launches.clear();
+    },
   };
 }

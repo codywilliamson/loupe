@@ -1,10 +1,12 @@
 import type { Server } from "bun";
+import { randomUUID } from "node:crypto";
 import { join, resolve } from "node:path";
 import type { DiffResult, ReviewOrigin, ReviewPolicy, ReviewRecord } from "../types";
 import { openBrowser } from "../utils/browser";
-import { createServer } from "../server/router";
+import { createServer, type ServerContext } from "../server/router";
 import { createReviewRecord, readReviewRecord } from "./reviewRecords";
 import { loadReviewTarget } from "./reviewTarget";
+import { registerSession, unregisterSession, type SessionHost } from "./sessions";
 
 export interface ReviewLaunchInput {
   cwd: string;
@@ -17,6 +19,7 @@ export interface ReviewLaunchInput {
   port?: number;
   open?: boolean;
   requireChanges?: boolean;
+  host: SessionHost;
 }
 
 export interface ReviewLaunch {
@@ -24,6 +27,7 @@ export interface ReviewLaunch {
   url: string;
   server: Server<undefined>;
   diff: DiffResult;
+  stop: () => void; // stops the server and removes its session registry entry
 }
 
 export function launchReview(input: ReviewLaunchInput): ReviewLaunch {
@@ -40,9 +44,31 @@ export function launchReview(input: ReviewLaunchInput): ReviewLaunch {
     policy: input.policy ?? "handoff", ...(input.origin ? { origin: input.origin } : {}),
   });
   const clientDir = join(input.loupeRoot, "src", "client");
-  const ctx = { ...loaded, cwd, clientDir, loupeRoot: input.loupeRoot, served: false, reviewId: review.id };
+  const sessionId = randomUUID();
+  const ctx: ServerContext = { ...loaded, cwd, clientDir, loupeRoot: input.loupeRoot, served: false, reviewId: review.id, host: input.host, sessionId };
   const server = createServer(ctx, input.port ?? 0);
-  const url = `http://localhost:${server.port}/?review=${encodeURIComponent(review.id)}`;
-  if (input.open !== false) openBrowser(url);
-  return { review, url, server, diff: loaded.diff };
+  const port = server.port ?? 0;
+  const origin = `http://localhost:${port}`;
+  const url = `${origin}/?review=${encodeURIComponent(review.id)}`;
+  // best-effort synchronous full stop for callers that already hold this launch directly
+  // (ctrl+c, MCP's stopAll, tests) — always tears down and unregisters, no gating.
+  const stop = (): void => { server.stop(true); unregisterSession(sessionId); };
+  try {
+    registerSession({ sessionId, reviewId: review.id, pid: process.pid, port, url: origin, cwd, host: input.host, startedAt: new Date().toISOString() });
+    let stoppedOnce = false;
+    // /api/session/stop calls this from a deferred block (see sessionHandlers): idempotent, and
+    // it only unregisters once the server has actually stopped, so a throwing stop leaves the
+    // entry discoverable for `loupe cleanup` to retry.
+    ctx.shutdown = async () => {
+      if (stoppedOnce) return;
+      stoppedOnce = true;
+      await server.stop(true);
+      unregisterSession(sessionId);
+    };
+    if (input.open !== false) openBrowser(url);
+  } catch (error) {
+    stop();
+    throw error;
+  }
+  return { review, url, server, diff: loaded.diff, stop };
 }

@@ -1,13 +1,15 @@
 // cli argument parsing for the loupe entry point. pure — no io, fully unit-tested.
 
 export interface CliOptions {
-  command: "review" | "mcp" | "hook";
+  command: "review" | "mcp" | "hook" | "sessions" | "cleanup";
   agent: "codex" | "claude-code" | undefined;
   spec: string | undefined; // ref spec; absent = working tree vs HEAD
   scope: string | undefined; // path scope for `browse`; ignored otherwise
   reviewId: string | undefined; // durable Review Record supplied by an integration
   port: number; // 0 = any free port
   open: boolean; // open the browser once serving
+  yes: boolean; // cleanup: skip the confirmation prompt
+  all: boolean; // cleanup: also stop active (not just finished/stale) sessions
   help: boolean;
   version: boolean;
 }
@@ -18,6 +20,8 @@ Usage
   loupe [ref] [options]
   loupe mcp serve
   loupe hook stop --agent <codex|claude-code>
+  loupe sessions
+  loupe cleanup [--yes] [--all]
 
 Refs
   (none)            working tree vs HEAD, untracked files included
@@ -25,6 +29,12 @@ Refs
   <branch>          current branch vs <branch> (pr-style three-dot)
   <ref1>..<ref2>    commit range
   browse [path]     review the whole codebase (optionally scoped to a path)
+
+Session commands
+  sessions          list running loupe sessions (host, port, age, live/stale)
+  cleanup           stop stale sessions and finished reviews
+      --yes         skip the confirmation prompt
+      --all         also stop active (not just finished/stale) sessions
 
 Options
   -p, --port <n>    serve on a fixed port (default: any free port)
@@ -42,19 +52,29 @@ const MAX_PORT = 65535;
 // throws a user-facing message on unknown flags or a bad port.
 export function parseCliArgs(argv: string[]): CliOptions {
   const args = [...argv];
-  const command = args[0] === "mcp" ? "mcp" : args[0] === "hook" ? "hook" : "review";
+  const command =
+    args[0] === "mcp" ? "mcp" :
+    args[0] === "hook" ? "hook" :
+    args[0] === "sessions" ? "sessions" :
+    args[0] === "cleanup" ? "cleanup" : "review";
   if (command === "mcp" || command === "hook") {
     args.shift();
     const subcommand = args.shift();
     if (command === "mcp" && subcommand !== "serve") throw new Error("mcp requires the serve command");
     if (command === "hook" && subcommand !== "stop") throw new Error("hook requires the stop command");
+  } else if (command === "sessions" || command === "cleanup") {
+    args.shift();
   }
-  const opts: CliOptions = { command, agent: undefined, spec: undefined, scope: undefined, reviewId: undefined, port: 0, open: true, help: false, version: false };
+  const opts: CliOptions = { command, agent: undefined, spec: undefined, scope: undefined, reviewId: undefined, port: 0, open: true, yes: false, all: false, help: false, version: false };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i] as string;
     if (arg === "-h" || arg === "--help") opts.help = true;
     else if (arg === "-v" || arg === "--version") opts.version = true;
     else if (arg === "--no-open") opts.open = false;
+    else if (arg === "--yes" || arg === "--all") {
+      if (opts.command !== "cleanup") throw new Error(`unexpected argument: ${arg} (${opts.command} accepts options only)`);
+      if (arg === "--yes") opts.yes = true; else opts.all = true;
+    }
     else if (arg === "--review-id") {
       const id = args[++i];
       if (!id) throw new Error("--review-id needs an id");

@@ -45,8 +45,11 @@ Then run `loupe` from any git repo.
     loupe browse           # review the whole codebase
     loupe browse src/      # scope to a subtree
     loupe mcp serve        # local MCP server for agent integrations
+    loupe sessions         # list running loupe sessions
+    loupe cleanup          # stop stale sessions and finished reviews
 
 Flags: `--port <n>` fixed port, `--no-open` don't launch the browser, `--version`, `--help`.
+`cleanup` accepts `--yes` to skip its confirmation and `--all` to also stop active sessions.
 
 loupe reviews whichever git repo you run it from, then prints a `http://localhost:<port>`
 URL and opens it in your browser — the diff renders there, not in the terminal.

@@ -29,7 +29,7 @@ async function performCompletionHook(agent: ReviewOrigin["agent"], loupeRoot: st
   if (process.env.LOUPE_HOOK_NO_SPAWN !== "1") {
     const command = childCommand(loupeRoot, record.id);
     if (process.env.LOUPE_NO_OPEN === "1") command.push("--no-open");
-    const child = Bun.spawn(command, { cwd, stdin: "ignore", stdout: "ignore", stderr: "ignore" });
+    const child = Bun.spawn(command, { cwd, env: { ...process.env, LOUPE_SESSION_HOST: "hook" }, stdin: "ignore", stdout: "ignore", stderr: "ignore" });
     child.unref();
   }
   console.log(JSON.stringify({ systemMessage: `Loupe review ${record.id} opened. Resume after reviewing, or explicitly continue without waiting.` }));

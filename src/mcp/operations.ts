@@ -11,6 +11,7 @@ export interface ReviewOperationResult {
   [key: string]: unknown;
   review: ReviewRecord;
   url?: string;
+  staleSessions?: number; // count of stale/orphaned loupe sessions found at start_review time
 }
 
 export interface ReviewOperations {
@@ -20,6 +21,7 @@ export interface ReviewOperations {
   markCommentAddressed(input: { reviewId: string; commentId: string }): Promise<ReviewOperationResult>;
   requestRereview(input: { reviewId: string; summary?: string }): Promise<ReviewOperationResult>;
   cancelReview(input: { reviewId: string; summary?: string }): Promise<ReviewOperationResult>;
+  stopAll(): void; // stops every server this process launched; called on shutdown
 }
 
 export interface McpRootProvider {

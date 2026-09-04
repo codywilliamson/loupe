@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
 import { join, resolve } from "node:path";
+import { dataDir } from "./dataDir";
 import {
   REVIEW_FILE,
   REVIEW_SCHEMA_VERSION,
@@ -28,7 +28,7 @@ export interface ReviewRecordInput {
 export type ReviewRecordPatch = Partial<Pick<ReviewRecord, "summary" | "viewed" | "comments" | "origin" | "target" | "policy">>;
 export type ReviewRecordUpdater = ReviewRecordPatch | ((record: ReviewRecord) => ReviewRecordPatch);
 
-const root = () => join(process.env.LOUPE_DATA_DIR ?? join(homedir(), ".loupe"), "reviews");
+const root = () => join(dataDir(), "reviews");
 const pathFor = (id: string) => {
   if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(id)) throw new Error("invalid review id");
   return join(root(), id, "review.json");

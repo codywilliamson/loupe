@@ -48,7 +48,7 @@ beforeAll(() => {
   writeFileSync(join(clientDir, "index.html"), "<!doctype html><title>loupe</title>");
   writeFileSync(join(clientDir, "app.js"), "console.log('loupe');");
   writeFileSync(join(cwd, "readme.md"), "# Hello\n");
-  server = createServer({ diff, cwd, clientDir, loupeRoot: cwd, newRef: null, diffArgs: ["diff", "HEAD"], includeUntracked: false, served: false });
+  server = createServer({ diff, cwd, clientDir, loupeRoot: cwd, newRef: null, diffArgs: ["diff", "HEAD"], includeUntracked: false, served: false, host: "cli" });
   base = `http://localhost:${server.port}`;
 });
 

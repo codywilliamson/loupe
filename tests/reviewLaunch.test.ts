@@ -5,6 +5,7 @@ import { join } from "node:path";
 import type { Comment, ReviewRecord } from "../src/types";
 import { launchReview } from "../src/core/reviewLaunch";
 import { readReviewRecord } from "../src/core/reviewRecords";
+import { listSessions, stopSession } from "../src/core/sessions";
 
 const git = (args: string[], cwd: string) => Bun.spawnSync(["git", ...args], { cwd });
 const root = join(import.meta.dir, "..");
@@ -22,12 +23,12 @@ afterAll(() => { delete process.env.LOUPE_DATA_DIR; rmSync(repo, { recursive: tr
 
 describe("review launch", () => {
   it("rejects an empty required comparison before opening a review", () => {
-    expect(() => launchReview({ cwd: repo, loupeRoot: root, spec: "main", open: false, requireChanges: true }))
+    expect(() => launchReview({ cwd: repo, loupeRoot: root, spec: "main", open: false, requireChanges: true, host: "mcp" }))
       .toThrow('No changes found for "main → main"');
   });
 
   it("launches a durable browser review without writing legacy .review", async () => {
-    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff" });
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
     try {
       expect(launch.url).toContain(`review=${launch.review.id}`);
       const review = await fetch(`${launch.url.split("/?")[0]}/api/review`).then((res) => res.json()) as ReviewRecord;
@@ -42,7 +43,7 @@ describe("review launch", () => {
   });
 
   it("POST /api/review/reply stores the reply authored by the reviewer", async () => {
-    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff" });
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
     try {
       const base = launch.url.split("/?")[0];
       const comment: Comment = { id: "c1", file: "a.ts", line: 1, lineContent: "+const a = 2;", text: "why?", createdAt: new Date().toISOString() };
@@ -62,7 +63,7 @@ describe("review launch", () => {
   });
 
   it("returns summary-only feedback with no comments and compiles it, with a query override", async () => {
-    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff" });
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
     try {
       const base = launch.url.split("/?")[0];
       const res = await fetch(`${base}/api/review/outcome`, {
@@ -80,6 +81,71 @@ describe("review launch", () => {
       const overridden = (await fetch(`${base}/api/compile?summary=${encodeURIComponent("Draft note")}`).then((r) => r.json())) as { prompt: string };
       expect(overridden.prompt).toContain("Draft note");
       expect(overridden.prompt).not.toContain("Tighten the error path.");
+    } finally { launch.server.stop(true); }
+  });
+
+  it("registers a session on launch and stops it through the http endpoint", async () => {
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
+    try {
+      const base = launch.url.split("/?")[0];
+      const entry = listSessions().find((item) => item.reviewId === launch.review.id);
+      expect(entry).toBeDefined();
+      const res = await fetch(`${base}/api/session/stop`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: entry!.sessionId }),
+      });
+      expect(res.status).toBe(200);
+      await new Promise((r) => setTimeout(r, 200)); // the actual stop+unregister is deferred a beat
+      expect(listSessions().some((item) => item.reviewId === launch.review.id)).toBe(false);
+      await expect(fetch(`${base}/api/diff`)).rejects.toThrow();
+    } finally { launch.server.stop(true); }
+  });
+
+  it("stopSession from the sessions module stops a launch the same way", async () => {
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
+    try {
+      const base = launch.url.split("/?")[0];
+      const entry = listSessions().find((item) => item.reviewId === launch.review.id)!;
+      expect(await stopSession(entry)).toBe(true);
+      await new Promise((r) => setTimeout(r, 200)); // the actual stop+unregister is deferred a beat
+      expect(listSessions().some((item) => item.reviewId === launch.review.id)).toBe(false);
+      await expect(fetch(`${base}/api/diff`)).rejects.toThrow();
+    } finally { launch.server.stop(true); }
+  });
+
+  it("POST /api/session/stop rejects a mismatched Origin", async () => {
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
+    try {
+      const base = launch.url.split("/?")[0];
+      const entry = listSessions().find((item) => item.reviewId === launch.review.id)!;
+      const res = await fetch(`${base}/api/session/stop`, {
+        method: "POST", headers: { "Content-Type": "application/json", Origin: "http://evil.example" },
+        body: JSON.stringify({ sessionId: entry.sessionId }),
+      });
+      expect(res.status).toBe(403);
+      expect(listSessions().some((item) => item.reviewId === launch.review.id)).toBe(true);
+    } finally { launch.server.stop(true); }
+  });
+
+  it("POST /api/session/stop rejects a wrong sessionId", async () => {
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
+    try {
+      const base = launch.url.split("/?")[0];
+      const res = await fetch(`${base}/api/session/stop`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: "not-the-right-session-id" }),
+      });
+      expect(res.status).toBe(403);
+      expect(listSessions().some((item) => item.reviewId === launch.review.id)).toBe(true);
+    } finally { launch.server.stop(true); }
+  });
+
+  it("GET /api/session/stop is not found (POST-only route)", async () => {
+    const launch = launchReview({ cwd: repo, loupeRoot: root, open: false, policy: "handoff", host: "mcp" });
+    try {
+      const base = launch.url.split("/?")[0];
+      const res = await fetch(`${base}/api/session/stop`);
+      expect(res.status).toBe(404);
     } finally { launch.server.stop(true); }
   });
 });
