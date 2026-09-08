@@ -83,15 +83,27 @@ export function createReviewRecord(input: ReviewRecordInput): ReviewRecord {
 
 export function readReviewRecord(id: string): ReviewRecord | null { return clone(readAt(pathFor(id))); }
 
-export function findActiveReview(cwd: string): ReviewRecord | null {
+function matchesOrigin(record: ReviewRecord, origin: ReviewOrigin): boolean {
+  if (!origin.agent || record.origin?.agent !== origin.agent) return false;
+  if (origin.sessionId) return record.origin?.sessionId === origin.sessionId;
+  return !!origin.taskId && record.origin?.taskId === origin.taskId;
+}
+
+export function findActiveReview(cwd: string, origin?: ReviewOrigin): ReviewRecord | null {
   if (!existsSync(root())) return null;
   const target = resolve(cwd);
   const records = readdirSync(root(), { withFileTypes: true })
     .filter((entry) => entry.isDirectory()).map((entry) => readAt(join(root(), entry.name, "review.json")))
     .filter((record): record is ReviewRecord => !!record && resolve(record.target.cwd) === target)
     .filter((record) => record.status !== "approved" && record.status !== "cancelled")
+    .filter((record) => !origin || matchesOrigin(record, origin))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   return records[0] ? clone(records[0]) : null;
+}
+
+export function findActiveReviewForOrigin(cwd: string, origin: ReviewOrigin): ReviewRecord | null {
+  if (!origin.agent || (!origin.sessionId && !origin.taskId)) return null;
+  return findActiveReview(cwd, origin);
 }
 
 export function updateReviewRecord(id: string, updater: ReviewRecordUpdater): ReviewRecord {

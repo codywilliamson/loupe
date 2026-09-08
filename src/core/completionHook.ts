@@ -1,6 +1,6 @@
 import { basename, join } from "node:path";
 import type { ReviewOrigin } from "../types";
-import { createReviewRecord, findActiveReview } from "./reviewRecords";
+import { createReviewRecord, findActiveReviewForOrigin } from "./reviewRecords";
 import { loadReviewTarget } from "./reviewTarget";
 
 interface HookPayload {
@@ -20,11 +20,11 @@ async function performCompletionHook(agent: ReviewOrigin["agent"], loupeRoot: st
   let payload: HookPayload = {};
   try { payload = JSON.parse(await Bun.stdin.text()) as HookPayload; } catch { /* use cwd fallback */ }
   const cwd = payload.cwd ?? process.cwd();
-  const active = findActiveReview(cwd);
+  const origin: ReviewOrigin = { agent, ...(payload.session_id ? { sessionId: payload.session_id } : {}), ...(payload.task_id ? { taskId: payload.task_id } : {}), ...(payload.last_assistant_message ? { summary: payload.last_assistant_message } : {}) };
+  const active = findActiveReviewForOrigin(cwd, origin);
   if (active) return console.log(JSON.stringify({ systemMessage: `Loupe review ${active.id} is still active.` }));
   const loaded = loadReviewTarget(cwd);
   if (loaded.diff.files.length === 0) return;
-  const origin: ReviewOrigin = { agent, ...(payload.session_id ? { sessionId: payload.session_id } : {}), ...(payload.task_id ? { taskId: payload.task_id } : {}), ...(payload.last_assistant_message ? { summary: payload.last_assistant_message } : {}) };
   const record = createReviewRecord({ target: { cwd, ref: loaded.diff.ref, ...(loaded.meta ? { meta: loaded.meta } : {}) }, policy: "required", origin });
   if (process.env.LOUPE_HOOK_NO_SPAWN !== "1") {
     const command = childCommand(loupeRoot, record.id);

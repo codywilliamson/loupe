@@ -7,6 +7,9 @@ All notable changes to loupe are documented here. This project follows [semantic
 ### Added
 - **Session registry and cleanup** — every running Loupe server is recorded under the data directory, `loupe sessions` lists live and stale ones with their review status, `loupe cleanup` removes stale entries and stops finished servers after confirmation, the MCP server stops everything it launched on exit, and `start_review` reports stale sessions so agents can suggest cleanup.
 
+### Fixed
+- **Completion-hook review ownership** — agent hooks now deduplicate only the review belonging to the same agent chat, so a review in one chat no longer blocks a new chat using the same repository; human-originated and legacy reviews remain unclaimed until explicitly handed off.
+
 ## [0.14.0] — 2026-09-04
 
 ### Changed

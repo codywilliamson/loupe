@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   approveReview, cancelReview, createReviewRecord, detectLegacyReview, findActiveReview, importLegacyReview,
-  markCommentAddressed, readReviewRecord, removeLegacyReview, replyToComment, requestRereview,
+  findActiveReviewForOrigin, markCommentAddressed, readReviewRecord, removeLegacyReview, replyToComment, requestRereview,
   returnFeedback, setCommentStatus, updateReviewRecord,
 } from "../src/core/reviewRecords";
 
@@ -51,6 +51,26 @@ describe("review records", () => {
     const cancelled = cancelReview(makeRecord().id);
     expect(readReviewRecord(cancelled.id)?.status).toBe("cancelled");
     expect(() => requestRereview(cancelled.id)).toThrow("terminal");
+  });
+
+  it("scopes active lookup to the originating agent session", () => {
+    const cwd = tempDir();
+    const human = createReviewRecord({ target: { cwd, ref: "main" } });
+    const sameSession = createReviewRecord({ target: { cwd, ref: "main" }, origin: { agent: "claude-code", sessionId: "s1", taskId: "old-task" } });
+    const newest = createReviewRecord({ target: { cwd, ref: "main" }, origin: { agent: "claude-code", sessionId: "s1", taskId: "new-task" } });
+    updateReviewRecord(newest.id, { summary: "newest" });
+    const terminal = createReviewRecord({ target: { cwd, ref: "main" }, origin: { agent: "claude-code", sessionId: "s1", taskId: "done" } });
+    approveReview(terminal.id, true);
+    const taskOnly = createReviewRecord({ target: { cwd, ref: "main" }, origin: { agent: "claude-code", taskId: "task-only" } });
+    createReviewRecord({ target: { cwd, ref: "main" }, origin: { agent: "claude-code", sessionId: "s2", taskId: "shared-task" } });
+
+    expect(findActiveReviewForOrigin(cwd, { agent: "claude-code", sessionId: "s1", taskId: "changed" })?.id).toBe(newest.id);
+    expect(findActiveReviewForOrigin(cwd, { agent: "claude-code", taskId: "task-only" })?.id).toBe(taskOnly.id);
+    expect(findActiveReviewForOrigin(cwd, { agent: "claude-code", sessionId: "s3", taskId: "shared-task" })).toBeNull();
+    expect(findActiveReviewForOrigin(cwd, { agent: "codex", sessionId: "s1", taskId: "new-task" })).toBeNull();
+    expect(findActiveReviewForOrigin(cwd, { agent: "claude-code", sessionId: "missing" })).toBeNull();
+    expect(findActiveReviewForOrigin(cwd, { agent: "claude-code" })).toBeNull();
+    expect(readReviewRecord(human.id)?.origin).toBeUndefined();
   });
 
   it("reopens an approved review when the agent requests rereview", () => {
